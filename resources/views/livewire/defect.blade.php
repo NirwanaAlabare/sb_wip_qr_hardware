@@ -483,5 +483,9 @@
         Livewire.on('fromInputPanel', () => {
             clearDefectScan();
         });
+
+        $('#defect-area-modal').on('hidden.bs.modal', function () {
+            scannedDefectItemInput.focus();
+        })
     </script>
 @endpush

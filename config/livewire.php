@@ -54,7 +54,7 @@ return [
     |
     */
 
-    'asset_url' => '/sb_wip_qr_hardware_dev',
+    'asset_url' => '/sb_wip_qr_hardware',
 
     /*
     |--------------------------------------------------------------------------
@@ -68,7 +68,7 @@ return [
     |
     */
 
-    'app_url' => '/sb_wip_qr_hardware_dev',
+    'app_url' => '/sb_wip_qr_hardware',
 
     /*
     |--------------------------------------------------------------------------

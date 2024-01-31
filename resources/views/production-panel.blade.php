@@ -237,6 +237,30 @@
             $('#input-type').show();
         });
 
+        Livewire.on('preSubmitAllRework', () => {
+            Swal.fire({
+                icon: 'info',
+                title: 'REWORK semua DEFECT',
+                html: `Yakin akan me-REWORK semua DEFECT?`,
+                showConfirmButton: true,
+                showDenyButton: true,
+                confirmButtonText: 'Rework',
+                confirmButtonColor: '#447efa',
+                denyButtonText: 'Batal',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Livewire.emit('submitAllRework');
+                } else if (result.isDenied) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Submit REWORK dibatalkan',
+                        confirmButtonText: 'Ok',
+                        confirmButtonColor: '#447efa',
+                    });
+                }
+            });
+        });
+
         Livewire.on('preSubmitRework', (defectId, defectSize, defectType, defectArea, defectImage, defectX, defectY) => {
             Swal.fire({
                 icon: 'info',

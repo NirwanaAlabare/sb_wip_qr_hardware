@@ -115,9 +115,10 @@
                             </div>
                         </div>
                         <div class="col-md-7 table-responsive">
-                            <div class="mb-3">
-                                <input type="text" class="form-control rounded-0" wire:model='allDefectListFilter' placeholder="Search defect">
-                            </div>
+                            <div class="d-flex align-items-center gap-3 my-3">
+                                <button class="btn btn-rework fw-bold rounded-0 w-25 h-100" wire:click="$emit('preSubmitAllRework')">Rework all</button>
+                                <input type="text" class="form-control rounded-0 w-75 h-100" wire:model='allDefectListFilter' placeholder="Search defect">
+                            </div>  
                             <table class="table table-bordered vertical-align-center">
                                 <thead>
                                     <tr>
