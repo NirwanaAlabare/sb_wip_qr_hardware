@@ -20,6 +20,7 @@
     @include('profile')
     @include('history')
     @include('undo')
+    @include('battery')
 
     <audio controls id="alert-sound" class="d-none">
         <source src="{{ asset('audio/r2d2.mp3') }}" type="audio/mpeg">

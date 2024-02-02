@@ -19,7 +19,7 @@
                         </div>
                     @enderror
                     {{-- <div id="rft-reader" width="600px"></div> --}}
-                    <input type="text" class="qty-input" id="scannedItemRft" name="scannedItemRft" onkeyup="submit(this,e)">
+                    <input type="text" class="qty-input" id="scannedItemRft" name="scannedItemRft">
                 </div>
             </div>
         </div>
@@ -138,13 +138,13 @@
             console.log(breakDecodedText);
 
             // set kode_numbering
-            @this.numberingInput = breakDecodedText[3];
+            @this.numberingInput = breakDecodedText[0];
 
             // set so_det_id
-            @this.sizeInput = breakDecodedText[4];
+            @this.sizeInput = breakDecodedText[1];
 
             // set size
-            @this.sizeInputText = breakDecodedText[5];
+            @this.sizeInputText = breakDecodedText[2];
 
             // submit
             @this.submitInput();

@@ -118,7 +118,7 @@
                             <div class="d-flex align-items-center gap-3 my-3">
                                 <button class="btn btn-rework fw-bold rounded-0 w-25 h-100" wire:click="$emit('preSubmitAllRework')">Rework all</button>
                                 <input type="text" class="form-control rounded-0 w-75 h-100" wire:model='allDefectListFilter' placeholder="Search defect">
-                            </div>  
+                            </div>
                             <table class="table table-bordered vertical-align-center">
                                 <thead>
                                     <tr>
@@ -435,13 +435,13 @@
             console.log(breakDecodedText);
 
             // set kode_numbering
-            @this.numberingInput = breakDecodedText[3];
+            @this.numberingInput = breakDecodedText[0];
 
             // set so_det_id
-            @this.sizeInput = breakDecodedText[4];
+            @this.sizeInput = breakDecodedText[1];
 
             // set size
-            @this.sizeInputText = breakDecodedText[5];
+            @this.sizeInputText = breakDecodedText[2];
 
             // submit
             @this.submitInput();

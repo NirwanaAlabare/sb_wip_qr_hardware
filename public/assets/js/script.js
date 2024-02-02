@@ -604,3 +604,17 @@ if (document.getElementById("alert-sound")) {
         }
     }, 1000);
 }
+
+var batteryModal = document.getElementById('battery')
+
+batteryModal.addEventListener('shown.bs.modal', function (event) {
+    console.log("opened");
+    document.getElementById("battery-input").setAttribute('tabindex', '0');
+    document.getElementById("battery-input").focus();
+});
+
+batteryModal.addEventListener('hide.bs.modal', function (event) {
+    console.log("closed");
+    document.getElementById("battery-input").blur();
+});
+
