@@ -30,7 +30,9 @@ class Reject extends Component
     ];
 
     protected $listeners = [
-        'updateWsDetailSizes' => 'updateWsDetailSizes'
+        'updateWsDetailSizes' => 'updateWsDetailSizes',
+        'setAndSubmitInputReject' => 'setAndSubmitInput',
+        'toInputPanel' => 'resetError'
     ];
 
     public function mount(SessionManager $session, $orderWsDetailSizes)
@@ -38,6 +40,13 @@ class Reject extends Component
         $this->orderWsDetailSizes = $orderWsDetailSizes;
         $session->put('orderWsDetailSizes', $orderWsDetailSizes);
         $this->sizeInput = null;
+
+        $this->resetValidation();
+    }
+
+    public function resetError() {
+        $this->resetValidation();
+        $this->resetErrorBag();
     }
 
     public function updateWsDetailSizes($panel)
@@ -50,7 +59,7 @@ class Reject extends Component
         $this->orderWsDetailSizes = session()->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
         if ($panel == 'reject') {
-            $this->emit('renderQrScanner', 'reject');
+            $this->emit('qrInputFocus', 'reject');
         }
     }
 
@@ -74,9 +83,9 @@ class Reject extends Component
         $this->numberingInput = null;
     }
 
-    public function submitInput(SessionManager $session)
+    public function submitInput()
     {
-        $this->emit('renderQrScanner', 'reject');
+        $this->emit('qrInputFocus', 'reject');
 
         $validatedData = $this->validate();
 
@@ -91,12 +100,7 @@ class Reject extends Component
             ]);
 
             if ($insertReject) {
-                $getSize = DB::table('so_det')
-                    ->select('id', 'size')
-                    ->where('id', $this->sizeInput)
-                    ->first();
-
-                $this->emit('alert', 'success', "1 output berukuran ".$getSize->size." berhasil terekam.");
+                $this->emit('alert', 'success', "1 output berukuran ".$this->sizeInputText." berhasil terekam.");
 
                 $this->sizeInput = '';
                 $this->sizeInputText = '';
@@ -107,7 +111,15 @@ class Reject extends Component
             $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
         }
 
-        $this->emit('renderQrScanner', 'reject');
+        $this->emit('qrInputFocus', 'reject');
+    }
+
+    public function setAndSubmitInput($scannedNumbering, $scannedSize, $scannedSizeText) {
+        $this->numberingInput = $scannedNumbering;
+        $this->sizeInput = $scannedSize;
+        $this->sizeInputText = $scannedSizeText;
+
+        $this->submitInput();
     }
 
     public function render(SessionManager $session)

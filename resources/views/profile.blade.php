@@ -1,5 +1,5 @@
 <div class="modal fade" wire:ignore.self id="profile" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-xs">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title me-3 fw-bold text-sb">Profile</h3>
@@ -36,9 +36,9 @@
                         <button type="submit" class="btn btn-sb w-100 d-none">Ubah Profil</button>
                     </div>
                 </form>
-                <div class="mt-5">
+                {{-- <div class="mt-5">
                     @livewire('profile-content')
-                </div>
+                </div> --}}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Tutup</button>

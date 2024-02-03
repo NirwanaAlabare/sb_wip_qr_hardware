@@ -1,5 +1,5 @@
 <div>
-    <div class="loading-container-fullscreen" wire:loading wire:target="selectDefectAreaPosition, preSubmitInput, submitInput, updateOrder">
+    <div class="loading-container-fullscreen" wire:loading wire:target="selectDefectAreaPosition, setAndSubmitInput, preSubmitInput, submitInput, updateOrder">
         <div class="loading-container">
             <div class="loading"></div>
         </div>
@@ -468,7 +468,7 @@
             this.value = '';
         });
 
-        Livewire.on('renderQrScanner', async (type) => {
+        Livewire.on('qrInputFocus', async (type) => {
             if (type == 'defect') {
                 scannedDefectItemInput.focus();
             }
@@ -480,9 +480,9 @@
             }
         });
 
-        Livewire.on('fromInputPanel', () => {
-            clearDefectScan();
-        });
+        // Livewire.on('fromInputPanel', () => {
+        //     clearDefectScan();
+        // });
 
         $('#defect-area-modal').on('hidden.bs.modal', function () {
             scannedDefectItemInput.focus();

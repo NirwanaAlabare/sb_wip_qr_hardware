@@ -1,5 +1,5 @@
 <div wire:poll.visible.30000ms>
-    <div class="loading-container-fullscreen" wire:loading wire:target="toRft, toDefect, toDefectHistory, toReject, toRework, toProductionPanel, preSubmitUndo, submitUndo, updateOrder, toProductionPanel">
+    <div class="loading-container-fullscreen" wire:loading wire:target="toRft, toDefect, toDefectHistory, toReject, toRework, toProductionPanel, preSubmitUndo, submitUndo, updateOrder, toProductionPanel, setAndSubmitInput, submitInput">
         <div class="loading-container">
             <div class="loading"></div>
         </div>
@@ -66,7 +66,7 @@
                             <div class="d-flex flex-column justify-content-center align-items-stretch h-100 gap-1">
                                 <div class="filter multi-item upper h-50 bg-pale">
                                     <div class="d-flex flex-column justify-content-between w-100 h-100">
-                                        <select class="form-select" style="border-radius: 0 15px 0 0" wire:model="size">
+                                        <select class="form-select" style="border-radius: 0 15px 0 0" wire:model="selectedSize">
                                             <option value="all">All Sizes</option>
                                             @foreach ($orderWsDetailSizes as $order)
                                                 <option value="{{ $order->so_det_id }}">{{ $order->size }}</option>
@@ -254,6 +254,52 @@
         </div>
     </div>
 
+    {{-- Select Output Type --}}
+    <div class="modal" tabindex="-1" id="select-output-type-modal" wire:ignore.self>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-sb text-light">
+                    <h5 class="modal-title">PILIH TIPE OUTPUT</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="hideOutputTypeModal()"></button>
+                </div>
+                <div class="modal-body">
+                    @error('numberingInput')
+                        <div class="alert alert-danger alert-dismissible fade show mb-0 rounded-0" role="alert">
+                            <strong>Error</strong> {{$message}}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @enderror
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <button class="btn btn-rft w-100 py-5" wire:click="setAndSubmitInput('rft')" onclick="hideOutputTypeModal();">
+                                <h3><b>RFT</b></h3>
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-defect w-100 py-5" wire:click="setAndSubmitInput('defect')" onclick="hideOutputTypeModal();">
+                                <h3><b>DEFECT</b></h3>
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-reject w-100 py-5" wire:click="setAndSubmitInput('reject')" onclick="hideOutputTypeModal();">
+                                <h3><b>REJECT</b></h3>
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-rework w-100 py-5" wire:click="setAndSubmitInput('rework')" onclick="hideOutputTypeModal();">
+                                <h3><b>REWORK</b></h3>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="hideOutputTypeModal()">Batal</button>
+                    {{-- <button type="button" class="btn btn-success" wire:click='submitDefectArea'>Tambahkan</button> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+
     @if ($panels)
         <div class="w-100">
             <p class="mt-4 text-center opacity-50"><small><i>{{ date('Y') }} &copy; Nirwana Digital Solution</i></small></p>
@@ -270,6 +316,41 @@
 
 @push('scripts')
     <script>
+        var scannedQrCode = "";
+        document.addEventListener("keydown", function(e) {
+            let textInput = e.key || String.fromCharCode(e.keyCode);
+            let targetName = e.target.localName;
+
+            if (targetName != 'input') {
+                if (textInput && textInput.length === 1) {
+                    scannedQrCode = scannedQrCode+textInput;
+
+                    if (scannedQrCode.length >= 13) {
+                        let breakDecodedText = scannedQrCode.split('-');
+
+                        // set kode_numbering
+                        @this.scannedNumberingInput = breakDecodedText[0];
+
+                        // set so_det_id
+                        @this.scannedSizeInput = breakDecodedText[1];
+
+                        // set size
+                        @this.scannedSizeInputText = breakDecodedText[2];
+                    }
+                }
+
+                if (@this.panels && textInput == "Enter") {
+                    // open dialog
+                    $("#select-output-type-modal").show();
+                }
+            }
+        });
+
+        function hideOutputTypeModal() {
+            $("#select-output-type-modal").hide();
+            scannedQrCode = '';
+        }
+
         $('#product-color').on('change', function (e) {
             var selectedColor = $('#product-color').select2("val");
             var selectedColorName = $('#product-color').find(':selected').data('color-name');
@@ -281,21 +362,6 @@
             @this.set('selectedColorName', selectedColorName);
 
             @this.updateOrder();
-        });
-
-        Livewire.on('clearQrScanner', () => {
-            if (html5QrcodeScannerRft) {
-                clearRftScan();
-            }
-            if (html5QrcodeScannerRework) {
-                clearReworkScan();
-            }
-            if (html5QrcodeScannerDefect) {
-                clearDefectScan();
-            }
-            if (html5QrcodeScannerReject) {
-                clearRejectScan();
-            }
         });
     </script>
 @endpush

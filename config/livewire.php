@@ -54,7 +54,7 @@ return [
     |
     */
 
-    'asset_url' => '/sb_wip_qr_hardware',
+    'asset_url' => env('LIVEWIRE_URL', '/sb_wip_qr_hardware_dev'),
 
     /*
     |--------------------------------------------------------------------------
@@ -68,7 +68,7 @@ return [
     |
     */
 
-    'app_url' => '/sb_wip_qr_hardware',
+    'app_url' => env('LIVEWIRE_URL', '/sb_wip_qr_hardware_dev'),
 
     /*
     |--------------------------------------------------------------------------

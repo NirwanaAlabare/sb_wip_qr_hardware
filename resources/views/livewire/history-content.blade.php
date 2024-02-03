@@ -19,24 +19,6 @@
             <div class="loading mx-auto"></div>
         </div>
         <div class="row" id="content-history" wire:loading.remove wire:target="dateFrom, dateTo">
-            {{-- <div class="col-md-12 table-responsive">
-                <table class="table table-bordered w-100 mx-auto">
-                    <thead>
-                        <tr>
-                            <th class="text-end">Tanggal & Waktu</th>
-                            <th class="text-start">Tipe</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for ($i = 0; $i < count($latestOutput); $i++)
-                            <tr>
-                                <td class="text-end">{{ $latestOutput[$i]->updated_at }}</td>
-                                <td class="text-start"> - </td>
-                            </tr>
-                        @endfor
-                    </tbody>
-                </table>
-            </div> --}}
             <div class="col-md-6 table-responsive">
                 <p class="text-rft fw-bold mb-1"> RFT </p>
                 <table class="table table-bordered w-100 mx-auto">

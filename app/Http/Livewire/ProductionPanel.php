@@ -49,6 +49,11 @@ class ProductionPanel extends Component
     public $undoDefectType;
     public $undoDefectArea;
 
+    // Input
+    public $scannedNumberingInput;
+    public $scannedSizeInput;
+    public $scannedSizeInputText;
+
     // Rules
     protected $rules = [
         'undoType' => 'required',
@@ -440,6 +445,30 @@ class ProductionPanel extends Component
         }
 
         $this->emit('alert', 'success', 'Redundant deleted');
+    }
+
+    public function setAndSubmitInput($type) {
+        $this->emit('loadingStart');
+
+        if ($type == "rft") {
+            $this->toRft();
+            $this->emit('setAndSubmitInputRft', $this->scannedNumberingInput, $this->scannedSizeInput, $this->scannedSizeInputText);
+        }
+
+        if ($type == "defect") {
+            $this->toDefect();
+            $this->emit('setAndSubmitInputDefect', $this->scannedNumberingInput, $this->scannedSizeInput, $this->scannedSizeInputText);
+        }
+
+        if ($type == "reject") {
+            $this->toReject();
+            $this->emit('setAndSubmitInputReject', $this->scannedNumberingInput, $this->scannedSizeInput, $this->scannedSizeInputText);
+        }
+
+        if ($type == "rework") {
+            $this->toRework();
+            $this->emit('setAndSubmitInputRework', $this->scannedNumberingInput, $this->scannedSizeInput, $this->scannedSizeInputText);
+        }
     }
 
     public function render(SessionManager $session)

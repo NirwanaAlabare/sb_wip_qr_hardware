@@ -1,13 +1,13 @@
 <div wire:init="loadReworkPage">
-    <div class="loading-container-fullscreen" wire:loading wire:target='submitMassRework'>
+    <div class="loading-container-fullscreen" wire:loading wire:target='setAndSubmitInput, submitInput, submitMassRework, submitAllRework'>
         <div class="loading-container">
             <div class="loading"></div>
         </div>
     </div>
     {{-- Production Input --}}
-    <div class="mt-5 hidden" id="loading-rework">
+    {{-- <div class="loading-container hidden" id="loading-rework">
         <div class="loading mx-auto"></div>
-    </div>
+    </div> --}}
     <div class="row row-gap-3 mb-3">
         <div class="col-md-4">
             <div class="card h-100">
@@ -31,22 +31,6 @@
                 <div class="card-header d-flex justify-content-between align-items-center bg-rework text-light">
                     <p class="mb-1 fs-5">Size</p>
                     <div class="d-flex flex-wrap justify-content-md-end align-items-center gap-1">
-                        {{-- <div class="d-flex align-items-center gap-1 me-3">
-                            <label class="mb-1">Type</label>
-                            <select type="text" class="form-select">
-                                <option value="" selected>Defect Type</option>
-                                <option value="">asd</option>
-                                <option value="">asd</option>
-                            </select>
-                        </div>
-                        <div class="d-flex align-items-center gap-1 me-3">
-                            <label class="mb-1">Area</label>
-                            <select type="text" class="form-select">
-                                <option value="" selected>Defect Area</option>
-                                <option value="">asd</option>
-                                <option value="">asd</option>
-                            </select>
-                        </div> --}}
                         <div class="d-flex align-items-center gap-3 me-3">
                             <p class="mb-1 fs-5">REWORK</p>
                             <p class="mb-1 fs-5">:</p>
@@ -55,9 +39,6 @@
                         <button class="btn btn-dark" wire:click="$emit('preSubmitUndo', 'rework')">
                             <i class="fa-regular fa-rotate-left"></i>
                         </button>
-                        {{-- <button class="btn btn-dark">
-                            <i class="fa-regular fa-gear"></i>
-                        </button> --}}
                     </div>
                 </div>
                 @error('sizeInput')
@@ -67,10 +48,10 @@
                     </div>
                 @enderror
                 <div class="card-body">
-                    <div class="loading-container hidden" id="loading-rework">
+                    <div class="loading-container" wire:loading wire:target='setSizeInput'>
                         <div class="loading mx-auto"></div>
                     </div>
-                    <div class="loading-container" wire:loading wire:target='setSizeInput'>
+                    <div class="loading-container hidden" id="loading-rework">
                         <div class="loading mx-auto"></div>
                     </div>
                     <div class="row h-100 row-gap-3" id="content-rework">
@@ -87,7 +68,7 @@
             </div>
         </div>
     </div>
-    <div class="production-input row row-gap-3" id="content-rework">
+    <div class="production-input row row-gap-3" {{--id="content-rework"--}}>
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header align-items-center bg-rework text-light">
@@ -449,25 +430,21 @@
             this.value = '';
         });
 
-        Livewire.on('renderQrScanner', async (type) => {
+        Livewire.on('qrInputFocus', async (type) => {
             if (type == 'rework') {
-                document.getElementById('back-button').disabled = true;
-                await scannedReworkItemInput.focus();
-                document.getElementById('back-button').disabled = false;
+                scannedReworkItemInput.focus();
             }
         });
 
         Livewire.on('toInputPanel', async (type) => {
             if (type == 'rework') {
-                document.getElementById('back-button').disabled = true;
-                await @this.updateOutput();
-                await scannedReworkItemInput.focus();
-                document.getElementById('back-button').disabled = false;
+                @this.updateOutput();
+                scannedReworkItemInput.focus();
             }
         });
 
-        Livewire.on('fromInputPanel', () => {
-            clearReworkScan();
-        });
+        // Livewire.on('fromInputPanel', () => {
+        //     clearReworkScan();
+        // });
     </script>
 @endpush

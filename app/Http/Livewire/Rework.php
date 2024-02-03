@@ -66,9 +66,16 @@ class Rework extends Component
         'cancelRework' => 'cancelRework',
         'hideDefectAreaImageClear' => 'hideDefectAreaImage',
         'updateWsDetailSizes' => 'updateWsDetailSizes',
+        'setAndSubmitInputRework' => 'setAndSubmitInput',
+        'toInputPanel' => 'resetError'
     ];
 
-    public function updateWsDetailSizes()
+    public function resetError() {
+        $this->resetValidation();
+        $this->resetErrorBag();
+    }
+
+    public function updateWsDetailSizes($panel)
     {
         $this->orderInfo = session()->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = session()->get('orderWsDetailSizes', $this->orderWsDetailSizes);
@@ -78,7 +85,7 @@ class Rework extends Component
         $this->numberingInput = null;
 
         if ($panel == 'rework') {
-            $this->emit('renderQrScanner', 'rework');
+            $this->emit('qrInputFocus', 'rework');
         }
     }
 
@@ -114,6 +121,8 @@ class Rework extends Component
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->numberingInput = null;
+
+        $this->resetValidation();
     }
 
     public function closeInfo()
@@ -309,7 +318,7 @@ class Rework extends Component
         }
     }
 
-    public function submitInput(SessionManager $session)
+    public function submitInput()
     {
         $this->emit('renderQrScanner', 'rework');
 
@@ -325,21 +334,19 @@ class Rework extends Component
             ]);
 
             // remove from defect
-            $defect = Defect::where('id', $scannedDefectData->id);
-            $getDefect = $defect->first();
-            $updateDefect = $defect->update([
-                "defect_status" => "reworked"
-            ]);
+            $defect = Defect::where('id', $scannedDefectData->id)->first();
+            $defect->defect_status = "reworked";
+            $defect->save();
 
             // add to rft
             $createRft = Rft::create([
-                'master_plan_id' => $getDefect->master_plan_id,
-                'so_det_id' => $getDefect->so_det_id,
+                'master_plan_id' => $defect->master_plan_id,
+                'so_det_id' => $defect->so_det_id,
                 "status" => "REWORK",
                 "rework_id" => $createRework->id
             ]);
 
-            if ($createRework && $updateDefect && $createRft) {
+            if ($createRework && $createRft) {
                 $this->emit('alert', 'success', "DEFECT dengan ID : ".$scannedDefectData->id." berhasil di REWORK.");
             } else {
                 $this->emit('alert', 'error', "Terjadi kesalahan. DEFECT dengan ID : ".$scannedDefectData->id." tidak berhasil di REWORK.");
@@ -347,6 +354,14 @@ class Rework extends Component
         } else {
             $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
         }
+    }
+
+    public function setAndSubmitInput($scannedNumbering, $scannedSize, $scannedSizeText) {
+        $this->numberingInput = $scannedNumbering;
+        $this->sizeInput = $scannedSize;
+        $this->sizeInputText = $scannedSizeText;
+
+        $this->submitInput();
     }
 
     public function render(SessionManager $session)

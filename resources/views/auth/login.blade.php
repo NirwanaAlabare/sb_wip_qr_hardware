@@ -26,16 +26,14 @@
                         @csrf
                         <div class="mb-3 position-relative">
                             <label for="username">Username</label>
-                            <input type="text" class="form-control @error('username') is-invalid @enderror"
-                                name="username" id="username">
+                            <input type="text" class="form-control @error('username') is-invalid @enderror" name="username" id="username">
                             @error('username')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
                         <div class="mb-3 position-relative">
                             <label for="username">Password</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                name="password" id="password">
+                            <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" id="password">
                             @error('password')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror

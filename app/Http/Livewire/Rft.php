@@ -33,6 +33,8 @@ class Rft extends Component
 
     protected $listeners = [
         'updateWsDetailSizes' => 'updateWsDetailSizes',
+        'setAndSubmitInputRft' => 'setAndSubmitInput',
+        'toInputPanel' => 'resetError'
     ];
 
     public function mount(SessionManager $session, $orderWsDetailSizes)
@@ -46,6 +48,11 @@ class Rft extends Component
         $this->submitting = false;
     }
 
+    public function resetError() {
+        $this->resetValidation();
+        $this->resetErrorBag();
+    }
+
     public function updateWsDetailSizes($panel)
     {
         $this->sizeInput = null;
@@ -56,7 +63,7 @@ class Rft extends Component
         $this->orderWsDetailSizes = session()->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
         if ($panel == 'rft') {
-            $this->emit('renderQrScanner', 'rft');
+            $this->emit('qrInputFocus', 'rft');
         }
     }
 
@@ -81,7 +88,7 @@ class Rft extends Component
 
     public function submitInput()
     {
-        $this->emit('renderQrScanner', 'rft');
+        $this->emit('qrInputFocus', 'rft');
 
         $validatedData = $this->validate();
 
@@ -96,12 +103,7 @@ class Rft extends Component
             ]);
 
             if ($insertRft) {
-                $getSize = DB::table('so_det')
-                    ->select('id', 'size')
-                    ->where('id', $this->sizeInput)
-                    ->first();
-
-                $this->emit('alert', 'success', "1 output berukuran ".$getSize->size." berhasil terekam.");
+                $this->emit('alert', 'success', "1 output berukuran ".$this->sizeInputText." berhasil terekam.");
 
                 $this->sizeInput = '';
                 $this->sizeInputText = '';
@@ -111,8 +113,14 @@ class Rft extends Component
         } else {
             $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
         }
+    }
 
-        $this->emit('renderQrScanner', 'rft');
+    public function setAndSubmitInput($scannedNumbering, $scannedSize, $scannedSizeText) {
+        $this->numberingInput = $scannedNumbering;
+        $this->sizeInput = $scannedSize;
+        $this->sizeInputText = $scannedSizeText;
+
+        $this->submitInput();
     }
 
     public function render(SessionManager $session)

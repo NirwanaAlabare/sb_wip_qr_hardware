@@ -67,6 +67,7 @@ class HistoryContent extends Component
             groupBy("output_rfts.updated_at", "so_det.size")->
             orderBy("output_rfts.updated_at", "desc")->
             orderBy("output_rfts.created_at", "desc")->
+            orderBy("output_rfts.id", "desc")->
             limit(5)->get();
 
         $latestOutputDefects = Defect::selectRaw('
@@ -101,6 +102,7 @@ class HistoryContent extends Component
             )->
             orderBy("output_defects.updated_at", "desc")->
             orderBy("output_defects.created_at", "desc")->
+            orderBy("output_defects.id", "desc")->
             limit(5)->get();
 
         $latestOutputRejects = Reject::selectRaw('output_rejects.updated_at, so_det.size as size, count(*) as total')->
@@ -115,6 +117,7 @@ class HistoryContent extends Component
             groupBy("output_rejects.updated_at", "so_det.size")->
             orderBy("output_rejects.updated_at", "desc")->
             orderBy("output_rejects.created_at", "desc")->
+            orderBy("output_rejects.id", "desc")->
             limit(5)->get();
 
         $latestOutputReworks = Rework::selectRaw('
@@ -150,6 +153,7 @@ class HistoryContent extends Component
             )->
             orderBy("output_reworks.updated_at", "desc")->
             orderBy("output_reworks.created_at", "desc")->
+            orderBy("output_reworks.id", "desc")->
             limit(5)->get();
 
         return view('livewire.history-content', [

@@ -66,6 +66,8 @@ class Defect extends Component
     protected $listeners = [
         'setDefectAreaPosition' => 'setDefectAreaPosition',
         'updateWsDetailSizes' => 'updateWsDetailSizes',
+        'setAndSubmitInputDefect' => 'setAndSubmitInput',
+        'toInputPanel' => 'resetError'
     ];
 
     public function mount(SessionManager $session, $orderWsDetailSizes)
@@ -91,6 +93,11 @@ class Defect extends Component
         $this->resetErrorBag();
     }
 
+    public function resetError() {
+        $this->resetValidation();
+        $this->resetErrorBag();
+    }
+
     public function updateWsDetailSizes($panel)
     {
         $this->sizeInput = null;
@@ -101,7 +108,7 @@ class Defect extends Component
         $this->orderWsDetailSizes = session()->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
         if ($panel == 'defect') {
-            $this->emit('renderQrScanner', 'defect');
+            $this->emit('qrInputFocus', 'defect');
         }
     }
 
@@ -227,7 +234,7 @@ class Defect extends Component
         ]);
 
         if ($validation->fails()) {
-            $this->emit('renderQrScanner', 'defect');
+            $this->emit('qrInputFocus', 'defect');
 
             $validation->validate();
         } else {
@@ -244,7 +251,7 @@ class Defect extends Component
 
                 $this->emit('showModal', 'defect');
             } else {
-                $this->emit('renderQrScanner', 'defect');
+                $this->emit('qrInputFocus', 'defect');
 
                 $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
             }
@@ -287,10 +294,18 @@ class Defect extends Component
                 $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
             }
 
-            $this->emit('renderQrScanner', 'defect');
+            $this->emit('qrInputFocus', 'defect');
         } else {
             $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
         }
+    }
+
+    public function setAndSubmitInput($scannedNumbering, $scannedSize, $scannedSizeText) {
+        $this->numberingInput = $scannedNumbering;
+        $this->sizeInput = $scannedSize;
+        $this->sizeInputText = $scannedSizeText;
+
+        $this->preSubmitInput();
     }
 
     public function render(SessionManager $session)

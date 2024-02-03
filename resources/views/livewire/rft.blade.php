@@ -1,5 +1,5 @@
 <div>
-    <div class="loading-container-fullscreen" wire:loading wire:target="submitInput, updateOrder">
+    <div class="loading-container-fullscreen" wire:loading wire:target="setAndSubmitInput, submitInput, updateOrder">
         <div class="loading-container">
             <div class="loading"></div>
         </div>
@@ -152,7 +152,7 @@
             this.value = '';
         });
 
-        Livewire.on('renderQrScanner', async (type) => {
+        Livewire.on('qrInputFocus', async (type) => {
             if (type == 'rft') {
                 scannedItemRftInput.focus();
             }
@@ -160,12 +160,15 @@
 
         Livewire.on('toInputPanel', async (type) => {
             if (type == 'rft') {
+                document.getElementById('back-button').disabled = true;
+                @this.updateOutput();
                 scannedItemRftInput.focus();
+                document.getElementById('back-button').disabled = false;
             }
         });
 
-        Livewire.on('fromInputPanel', () => {
-            clearRftScan();
-        });
+        // Livewire.on('fromInputPanel', () => {
+        //     clearRftScan();
+        // });
     </script>
 @endpush
