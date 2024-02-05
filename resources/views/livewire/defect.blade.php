@@ -452,7 +452,7 @@
             let j = 1;
             let k = 2;
 
-            if (breakDecodedText.includes('WIP')) {
+            if (this.value.includes('WIP')) {
                 i = 3;
                 j = 4;
                 k = 5;
