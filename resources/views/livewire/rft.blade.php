@@ -132,19 +132,29 @@
         var scannedItemRftInput = document.getElementById("scannedItemRft");
 
         scannedItemRftInput.addEventListener("change", function () {
+            let i = 0;
+            let j = 1;
+            let k = 2;
+
+            if (breakDecodedText.includes('WIP')) {
+                i = 3;
+                j = 4;
+                k = 5;
+            }
+
             // break decoded text
             let breakDecodedText = this.value.split('-');
 
             console.log(breakDecodedText);
 
             // set kode_numbering
-            @this.numberingInput = breakDecodedText[0];
+            @this.numberingInput = breakDecodedText[i];
 
             // set so_det_id
-            @this.sizeInput = breakDecodedText[1];
+            @this.sizeInput = breakDecodedText[j];
 
             // set size
-            @this.sizeInputText = breakDecodedText[2];
+            @this.sizeInputText = breakDecodedText[k];
 
             // submit
             @this.submitInput();

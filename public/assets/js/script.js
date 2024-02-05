@@ -605,16 +605,16 @@ if (document.getElementById("alert-sound")) {
     }, 1000);
 }
 
-var batteryModal = document.getElementById('battery')
+var batteryModal = document.getElementById('battery') ? document.getElementById('battery') : null;
 
-batteryModal.addEventListener('shown.bs.modal', function (event) {
-    console.log("opened");
-    document.getElementById("battery-input").setAttribute('tabindex', '0');
-    document.getElementById("battery-input").focus();
-});
+if (batteryModal) {
+    batteryModal.addEventListener('shown.bs.modal', function (event) {
+        console.log("opened");
+        document.getElementById("battery-input").focus();
+    });
 
-batteryModal.addEventListener('hide.bs.modal', function (event) {
-    console.log("closed");
-    document.getElementById("battery-input").blur();
-});
-
+    batteryModal.addEventListener('hide.bs.modal', function (event) {
+        console.log("closed");
+        document.getElementById("battery-input").blur();
+    });
+}
