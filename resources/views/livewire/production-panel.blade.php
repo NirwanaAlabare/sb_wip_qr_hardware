@@ -325,17 +325,27 @@
                 if (textInput && textInput.length === 1) {
                     scannedQrCode = scannedQrCode+textInput;
 
-                    if (scannedQrCode.length >= 13) {
+                    if (scannedQrCode.length >= 9) {
+                        let i = 0;
+                        let j = 1;
+                        let k = 2;
+
+                        if (scannedQrCode.includes('WIP')) {
+                            i = 3;
+                            j = 4;
+                            k = 5;
+                        }
+
                         let breakDecodedText = scannedQrCode.split('-');
 
                         // set kode_numbering
-                        @this.scannedNumberingInput = breakDecodedText[0];
+                        @this.scannedNumberingInput = breakDecodedText[i];
 
                         // set so_det_id
-                        @this.scannedSizeInput = breakDecodedText[1];
+                        @this.scannedSizeInput = breakDecodedText[j];
 
                         // set size
-                        @this.scannedSizeInputText = breakDecodedText[2];
+                        @this.scannedSizeInputText = breakDecodedText[k];
                     }
                 }
 
