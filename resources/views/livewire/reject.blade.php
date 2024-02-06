@@ -208,7 +208,6 @@
 
         Livewire.on('qrInputFocus', async (type) => {
             if (type == 'reject') {
-                @this.updateOutput();
                 scannedRejectItemInput.focus();
             }
         });

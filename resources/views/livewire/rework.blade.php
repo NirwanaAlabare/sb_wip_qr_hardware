@@ -489,7 +489,6 @@
 
         Livewire.on('qrInputFocus', async (type) => {
             if (type == 'rework') {
-                @this.updateOutput();
                 scannedReworkItemInput.focus();
             }
         });

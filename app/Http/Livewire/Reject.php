@@ -50,6 +50,12 @@ class Reject extends Component
         $this->rapidRejectCount = 0;
     }
 
+    public function dehydrate()
+    {
+        $this->resetValidation();
+        $this->resetErrorBag();
+    }
+
     public function resetError() {
         $this->resetValidation();
         $this->resetErrorBag();
@@ -197,11 +203,5 @@ class Reject extends Component
             get();
 
         return view('livewire.reject');
-    }
-
-    public function dehydrate()
-    {
-        $this->resetValidation();
-        $this->resetErrorBag();
     }
 }

@@ -54,6 +54,12 @@ class Rft extends Component
         $this->submitting = false;
     }
 
+    public function dehydrate()
+    {
+        $this->resetValidation();
+        $this->resetErrorBag();
+    }
+
     public function resetError() {
         $this->resetValidation();
         $this->resetErrorBag();
@@ -200,11 +206,5 @@ class Rft extends Component
             get();
 
         return view('livewire.rft');
-    }
-
-    public function dehydrate()
-    {
-        $this->resetValidation();
-        $this->resetErrorBag();
     }
 }
