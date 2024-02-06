@@ -6,6 +6,8 @@ use Livewire\Component;
 use Illuminate\Session\SessionManager;
 use App\Models\SignalBit\Rft as RftModel;
 use App\Models\SignalBit\Rework;
+use App\Models\SignalBit\Defect;
+use App\Models\SignalBit\Reject;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use DB;
@@ -18,6 +20,8 @@ class Rft extends Component
     public $sizeInput;
     public $sizeInputText;
     public $numberingInput;
+    public $rapidRft;
+    public $rapidRftCount;
     public $rft;
 
     protected $rules = [
@@ -45,6 +49,8 @@ class Rft extends Component
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->numberingInput = null;
+        $this->rapidRft = [];
+        $this->rapidRftCount = 0;
         $this->submitting = false;
     }
 
@@ -113,6 +119,49 @@ class Rft extends Component
         } else {
             $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
         }
+    }
+
+    public function pushRapidRft($numberingInput, $sizeInput, $sizeInputText) {
+        array_push($this->rapidRft, [
+            'numberingInput' => $numberingInput,
+            'sizeInput' => $sizeInput,
+            'sizeInputText' => $sizeInputText,
+        ]);
+
+        $this->rapidRftCount += 1;
+    }
+
+    public function submitRapidInput() {
+        $rapidRftFiltered = [];
+        $success = 0;
+        $fail = 0;
+
+        if ($this->rapidRft && count($this->rapidRft) > 0) {
+            for ($i = 0; $i < count($this->rapidRft); $i++) {
+                if (!(RftModel::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0 || Defect::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0 || Reject::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0) && ($this->orderWsDetailSizes->where('size', $this->rapidRft[$i]['sizeInputText'])->count() > 0)) {
+                    array_push($rapidRftFiltered, [
+                        'master_plan_id' => $this->orderInfo->id,
+                        'so_det_id' => $this->rapidRft[$i]['sizeInput'],
+                        'kode_numbering' => $this->rapidRft[$i]['numberingInput'],
+                        'status' => 'NORMAL',
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ]);
+
+                    $success += 1;
+                } else {
+                    $fail += 1;
+                }
+            }
+        }
+
+        $rapidRftInsert = RftModel::insert($rapidRftFiltered);
+
+        $this->emit('alert', 'success', $success." output berhasil terekam. ");
+        $this->emit('alert', 'error', $fail." output gagal terekam.");
+
+        $this->rapidRft = [];
+        $this->rapidRftCount = 0;
     }
 
     public function setAndSubmitInput($scannedNumbering, $scannedSize, $scannedSizeText) {

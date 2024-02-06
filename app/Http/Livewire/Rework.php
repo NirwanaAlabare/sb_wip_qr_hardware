@@ -9,6 +9,8 @@ use App\Models\SignalBit\MasterPlan;
 use App\Models\SignalBit\Rft;
 use App\Models\SignalBit\Defect;
 use App\Models\SignalBit\Rework as ReworkModel;
+use Carbon\Carbon;
+use DB;
 
 class Rework extends Component
 {
@@ -49,6 +51,9 @@ class Rework extends Component
     public $sizeInputText;
     public $numberingInput;
 
+    public $rapidRework;
+    public $rapidReworkCount;
+
     protected $rules = [
         'sizeInput' => 'required',
         'numberingInput' => 'required|unique:output_rfts,kode_numbering|unique:output_rejects,kode_numbering',
@@ -69,6 +74,12 @@ class Rework extends Component
         'setAndSubmitInputRework' => 'setAndSubmitInput',
         'toInputPanel' => 'resetError'
     ];
+
+    public function dehydrate()
+    {
+        $this->resetValidation();
+        $this->resetErrorBag();
+    }
 
     public function resetError() {
         $this->resetValidation();
@@ -122,7 +133,8 @@ class Rework extends Component
         $this->sizeInputText = null;
         $this->numberingInput = null;
 
-        $this->resetValidation();
+        $this->rapidRework = [];
+        $this->rapidReworkCount = 0;
     }
 
     public function closeInfo()
@@ -190,7 +202,7 @@ class Rework extends Component
                 ]);
             }
             // update defect
-            $defectSql = Defect::where('master_plan_id', $this->orderInfo->id)->update([
+            $updateDefect = Defect::where('master_plan_id', $this->orderInfo->id)->update([
                 "defect_status" => "reworked"
             ]);
 
@@ -364,6 +376,66 @@ class Rework extends Component
         $this->submitInput();
     }
 
+    public function pushRapidRework($numberingInput, $sizeInput, $sizeInputText) {
+        array_push($this->rapidRework, [
+            'numberingInput' => $numberingInput,
+            'sizeInput' => $sizeInput,
+            'sizeInputText' => $sizeInputText,
+        ]);
+
+        $this->rapidReworkCount += 1;
+    }
+
+    public function submitRapidInput() {
+        $rapidReworkFiltered = [];
+        $defectIds = [];
+        $rftData = [];
+        $success = 0;
+        $fail = 0;
+
+        if ($this->rapidRework && count($this->rapidRework) > 0) {
+            for ($i = 0; $i < count($this->rapidRework); $i++) {
+                $scannedDefectData = Defect::where("defect_status", "defect")->where("kode_numbering", $this->rapidRework[$i]['numberingInput'])->first();
+
+                if (($scannedDefectData) && ($this->orderWsDetailSizes->where('size', $this->rapidRework[$i]['sizeInputText'])->count() > 0)) {
+                    array_push($rapidReworkFiltered, [
+                        'defect_id' => $scannedDefectData->id,
+                        'status' => 'NORMAL',
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ]);
+
+                    array_push($defectIds, $scannedDefectData->id);
+
+                    array_push($rftData, [
+                        'master_plan_id' => $this->orderInfo->id,
+                        'so_det_id' => $scannedDefectData->so_det_id,
+                        'kode_numbering' => $scannedDefectData->kode_numbering,
+                        'status' => 'NORMAL',
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ]);
+
+                    $success += 1;
+                } else {
+                    $fail += 1;
+                }
+            }
+        }
+
+        // dd($rapidReworkFiltered, $defectIds, $rftData);
+
+        $rapidReworkInsert = ReworkModel::insert($rapidReworkFiltered);
+        $rapidDefectUpdate = Defect::whereIn('id', $defectIds)->update(["defect_status" => "reworked"]);
+        $rapidRftInsert = Rft::insert($rftData);
+
+        $this->emit('alert', 'success', $success." output berhasil terekam. ");
+        $this->emit('alert', 'error', $fail." output gagal terekam.");
+
+        $this->rapidRework = [];
+        $this->rapidReworkCount = 0;
+    }
+
     public function render(SessionManager $session)
     {
         $this->emit('loadReworkPageJs');
@@ -431,6 +503,11 @@ class Rework extends Component
             where('output_defects.defect_type_id', $this->massDefectType)->
             where('output_defects.defect_area_id', $this->massDefectArea)->
             groupBy('output_defects.so_det_id', 'so_det.size')->get();
+
+        $this->output = Defect::
+            where('master_plan_id', $this->orderInfo->id)->
+            where('defect_status', 'reworked')->
+            count();
 
         $this->rework = Defect::
             where('master_plan_id', $this->orderInfo->id)->

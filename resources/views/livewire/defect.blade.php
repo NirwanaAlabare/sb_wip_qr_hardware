@@ -9,6 +9,7 @@
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center bg-defect text-light">
                     <p class="mb-0 fs-5">Scan QR</p>
+                    <button class="btn btn-dark" wire:click="$emit('showModal', 'rapidDefect')"><i class="fa-solid fa-layer-group"></i></button>
                 </div>
                 <div class="card-body" wire:ignore.self>
                     @error('numberingInput')
@@ -18,7 +19,7 @@
                         </div>
                     @enderror
                     {{-- <div id="defect-reader" width="600px"></div> --}}
-                    <input type="text" class="qty-input" id="scannedDefectItem" name="scannedDefectItem" onkeyup="submit(this,e)">
+                    <input type="text" class="qty-input" id="scannedDefectItem" name="scannedDefectItem">
                 </div>
             </div>
         </div>
@@ -210,7 +211,12 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-success" wire:click='submitInput'>Selesai</button>
+                    <div id="regular-submit" wire:ignore.self>
+                        <button type="button" class="btn btn-success" wire:click='submitInput' >Selesai</button>
+                    </div>
+                    <div id="rapid-submit" wire:ignore.self>
+                        <button type="button" class="btn btn-success" wire:click='submitRapidInput'>Selesai</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -326,6 +332,28 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
                     <button type="button" class="btn btn-success" wire:click='submitDefectArea'>Tambahkan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Rapid Defect --}}
+    <div class="modal" tabindex="-1" id="rapid-defect-modal" wire:ignore.self>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-defect text-light">
+                    <h5 class="modal-title"><i class="fa-solid fa-clone"></i> Defect Rapid Scan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <p class="text-center">Scanned Item : <b>{{ $rapidDefectCount }}</b></p>
+                        <input type="text" class="qty-input" id="rapid-defect-input">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal" wire:click='preSubmitRapidInput'>Selesai</button>
                 </div>
             </div>
         </div>
@@ -452,7 +480,7 @@
             let j = 1;
             let k = 2;
 
-            if (breakDecodedText.includes('WIP')) {
+            if (this.value.includes('WIP')) {
                 i = 3;
                 j = 4;
                 k = 5;
@@ -478,14 +506,40 @@
             this.value = '';
         });
 
+        var scannedRapidDefectInput = document.getElementById("rapid-defect-input");
+
+        scannedRapidDefectInput.addEventListener("change", function () {
+            let i = 0;
+            let j = 1;
+            let k = 2;
+
+            if (this.value.includes('WIP')) {
+                i = 3;
+                j = 4;
+                k = 5;
+            }
+
+            // break decoded text
+            let breakDecodedText = this.value.split('-');
+
+            console.log(breakDecodedText);
+
+            // submit
+            @this.pushRapidDefect(breakDecodedText[i], breakDecodedText[j], breakDecodedText[k]);
+
+            this.value = '';
+        });
+
         Livewire.on('qrInputFocus', async (type) => {
             if (type == 'defect') {
+                @this.updateOutput();
                 scannedDefectItemInput.focus();
             }
         });
 
         Livewire.on('toInputPanel', async (type) => {
             if (type == 'defect') {
+                @this.updateOutput();
                 scannedDefectItemInput.focus();
             }
         });

@@ -149,13 +149,33 @@ function logout(url) {
 }
 
 // defect modal
-function showDefectModal() {
+function showDefectModal(additional) {
     $("#defect-modal").modal("show");
+
+    if (additional == 'rapid') {
+        $("#rapid-submit").removeClass("d-none");
+        $("#regular-submit").addClass("d-none");
+    } else {
+        $("#regular-submit").addClass("d-none");
+        $("#rapid-submit").removeClass("d-none");
+    }
 }
 
-function hideDefectModal() {
+function hideDefectModal(additional) {
     $("#defect-modal").modal("hide");
+
+    if (additional == 'rapid') {
+        $("#rapid-submit").addClass("d-none");
+        $("#regular-submit").removeClass("d-none");
+    } else {
+        $("#regular-submit").removeClass("d-none");
+        $("#rapid-submit").addClass("d-none");
+    }
 }
+
+$("#defect-modal").on("hidden.bs.modal", function (e) {
+    $("#scannedDefectItem").focus();
+});
 
 // undo modal
 function showUndoModal() {
@@ -201,6 +221,74 @@ function showMassReworkModal() {
 function hideMassReworkModal() {
     $("#mass-rework-modal").modal("hide");
 }
+
+// rapid rft modal
+function showRapidRftModal() {
+    $("#rapid-rft-modal").modal("show");
+}
+
+$("#rapid-rft-modal").on("shown.bs.modal", function (e) {
+    $("#rapid-rft-input").focus();
+});
+
+function hideRapidRftModal() {
+    $("#rapid-rft-modal").modal("hide");
+}
+
+$("#rapid-rft-modal").on("hidden.bs.modal", function (e) {
+    $("#scannedItemRft").focus();
+});
+
+// rapid defect modal
+function showRapidDefectModal() {
+    $("#rapid-defect-modal").modal("show");
+}
+
+$("#rapid-defect-modal").on("shown.bs.modal", function (e) {
+    $("#rapid-defect-input").focus();
+});
+
+function hideRapidDefectModal() {
+    $("#rapid-defect-modal").modal("hide");
+}
+
+$("#rapid-defect-modal").on("hidden.bs.modal", function (e) {
+    $("#scannedDefectItem").focus();
+});
+
+// rapid reject modal
+function showRapidRejectModal() {
+    $("#rapid-reject-modal").modal("show");
+}
+
+$("#rapid-reject-modal").on("shown.bs.modal", function (e) {
+    $("#rapid-reject-input").focus();
+});
+
+function hideRapidRejectModal() {
+    $("#rapid-reject-modal").modal("hide");
+}
+
+$("#rapid-reject-modal").on("hidden.bs.modal", function (e) {
+    $("#scannedRejectItem").focus();
+});
+
+// rapid rework modal
+function showRapidReworkModal() {
+    $("#rapid-rework-modal").modal("show");
+}
+
+$("#rapid-rework-modal").on("shown.bs.modal", function (e) {
+    $("#rapid-rework-input").focus();
+});
+
+function hideRapidReworkModal() {
+    $("#rapid-rework-modal").modal("hide");
+}
+
+$("#rapid-rework-modal").on("hidden.bs.modal", function (e) {
+    $("#scannedReworkItem").focus();
+});
 
 // rework
 function reworkConfirmation() {

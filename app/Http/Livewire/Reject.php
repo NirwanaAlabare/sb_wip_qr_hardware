@@ -5,6 +5,8 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use Illuminate\Session\SessionManager;
 use App\Models\SignalBit\Reject as RejectModel;
+use App\Models\SignalBit\Rft;
+use App\Models\SignalBit\Defect;
 use Carbon\Carbon;
 use DB;
 
@@ -17,6 +19,9 @@ class Reject extends Component
     public $sizeInputText;
     public $numberingInput;
     public $reject;
+
+    public $rapidReject;
+    public $rapidRejectCount;
 
     protected $rules = [
         'sizeInput' => 'required',
@@ -41,7 +46,8 @@ class Reject extends Component
         $session->put('orderWsDetailSizes', $orderWsDetailSizes);
         $this->sizeInput = null;
 
-        $this->resetValidation();
+        $this->rapidReject = [];
+        $this->rapidRejectCount = 0;
     }
 
     public function resetError() {
@@ -120,6 +126,49 @@ class Reject extends Component
         $this->sizeInputText = $scannedSizeText;
 
         $this->submitInput();
+    }
+
+    public function pushRapidReject($numberingInput, $sizeInput, $sizeInputText) {
+        array_push($this->rapidReject, [
+            'numberingInput' => $numberingInput,
+            'sizeInput' => $sizeInput,
+            'sizeInputText' => $sizeInputText,
+        ]);
+
+        $this->rapidRejectCount += 1;
+    }
+
+    public function submitRapidInput() {
+        $rapidRejectFiltered = [];
+        $success = 0;
+        $fail = 0;
+
+        if ($this->rapidReject && count($this->rapidReject) > 0) {
+            for ($i = 0; $i < count($this->rapidReject); $i++) {
+                if (!(RejectModel::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Rft::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Defect::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0) && ($this->orderWsDetailSizes->where('size', $this->rapidReject[$i]['sizeInputText'])->count() > 0)) {
+                    array_push($rapidRejectFiltered, [
+                        'master_plan_id' => $this->orderInfo->id,
+                        'so_det_id' => $this->rapidReject[$i]['sizeInput'],
+                        'kode_numbering' => $this->rapidReject[$i]['numberingInput'],
+                        'status' => 'NORMAL',
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ]);
+
+                    $success += 1;
+                } else {
+                    $fail += 1;
+                }
+            }
+        }
+
+        $rapidRejectInsert = RejectModel::insert($rapidRejectFiltered);
+
+        $this->emit('alert', 'success', $success." output berhasil terekam. ");
+        $this->emit('alert', 'error', $fail." output gagal terekam.");
+
+        $this->rapidReject = [];
+        $this->rapidRejectCount = 0;
     }
 
     public function render(SessionManager $session)

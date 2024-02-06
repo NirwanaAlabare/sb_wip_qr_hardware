@@ -13,6 +13,7 @@
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center bg-rework text-light">
                     <p class="mb-0 fs-5">Scan QR</p>
+                    <button class="btn btn-dark" wire:click="$emit('showModal', 'rapidRework')"><i class="fa-solid fa-layer-group"></i></button>
                 </div>
                 <div class="card-body" wire:ignore.self>
                     @error('numberingInput')
@@ -22,7 +23,7 @@
                         </div>
                     @enderror
                     {{-- <div id="rework-reader" width="600px"></div> --}}
-                    <input type="text" class="qty-input" id="scannedReworkItem" name="scannedReworkItem" onkeyup="submit(this,e)">
+                    <input type="text" class="qty-input" id="scannedReworkItem" name="scannedReworkItem">
                 </div>
             </div>
         </div>
@@ -355,6 +356,28 @@
           </div>
         </div>
     </div>
+
+    {{-- Rapid Rework --}}
+    <div class="modal" tabindex="-1" id="rapid-rework-modal" wire:ignore.self>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-rework text-light">
+                    <h5 class="modal-title"><i class="fa-solid fa-clone"></i> Rework Rapid Scan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <p class="text-center">Scanned Item : <b>{{ $rapidReworkCount }}</b></p>
+                        <input type="text" class="qty-input" id="rapid-rework-input">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal" wire:click='submitRapidInput'>Selesai</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @push('scripts')
@@ -414,7 +437,7 @@
             let j = 1;
             let k = 2;
 
-            if (breakDecodedText.includes('WIP')) {
+            if (this.value.includes('WIP')) {
                 i = 3;
                 j = 4;
                 k = 5;
@@ -440,8 +463,33 @@
             this.value = '';
         });
 
+        var scannedRapidReworkInput = document.getElementById("rapid-rework-input");
+
+        scannedRapidReworkInput.addEventListener("change", function () {
+            let i = 0;
+            let j = 1;
+            let k = 2;
+
+            if (this.value.includes('WIP')) {
+                i = 3;
+                j = 4;
+                k = 5;
+            }
+
+            // break decoded text
+            let breakDecodedText = this.value.split('-');
+
+            console.log(breakDecodedText);
+
+            // submit
+            @this.pushRapidRework(breakDecodedText[i], breakDecodedText[j], breakDecodedText[k]);
+
+            this.value = '';
+        });
+
         Livewire.on('qrInputFocus', async (type) => {
             if (type == 'rework') {
+                @this.updateOutput();
                 scannedReworkItemInput.focus();
             }
         });

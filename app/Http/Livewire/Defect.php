@@ -10,6 +10,8 @@ use App\Models\SignalBit\ProductType;
 use App\Models\SignalBit\DefectType;
 use App\Models\SignalBit\DefectArea;
 use App\Models\SignalBit\Defect as DefectModel;
+use App\Models\SignalBit\Rft;
+use App\Models\SignalBit\Reject;
 use Carbon\Carbon;
 use Validator;
 use DB;
@@ -41,6 +43,9 @@ class Defect extends Component
     public $productTypeImageAdd;
     public $defectAreaPositionX;
     public $defectAreaPositionY;
+
+    public $rapidDefect;
+    public $rapidDefectCount;
 
     protected $rules = [
         'sizeInput' => 'required',
@@ -85,6 +90,9 @@ class Defect extends Component
 
         $this->defectAreaPositionX = null;
         $this->defectAreaPositionY = null;
+
+        $this->rapidDefect = [];
+        $this->rapidDefectCount = 0;
     }
 
     public function dehydrate()
@@ -249,7 +257,7 @@ class Defect extends Component
 
                 $this->validateOnly('sizeInput');
 
-                $this->emit('showModal', 'defect');
+                $this->emit('showModal', 'defect', 'regular');
             } else {
                 $this->emit('qrInputFocus', 'defect');
 
@@ -286,7 +294,7 @@ class Defect extends Component
                     ->first();
 
                 $this->emit('alert', 'success', "1 output DEFECT berukuran ".$getSize->size." dengan jenis defect : ".$type->defect_type." dan area defect : ".$area->defect_area." berhasil terekam.");
-                $this->emit('hideModal', 'defect');
+                $this->emit('hideModal', 'defect', 'regular');
 
                 $this->sizeInput = '';
                 $this->sizeInputText = '';
@@ -306,6 +314,63 @@ class Defect extends Component
         $this->sizeInputText = $scannedSizeText;
 
         $this->preSubmitInput();
+    }
+
+    public function pushRapidDefect($numberingInput, $sizeInput, $sizeInputText) {
+        array_push($this->rapidDefect, [
+            'numberingInput' => $numberingInput,
+            'sizeInput' => $sizeInput,
+            'sizeInputText' => $sizeInputText,
+        ]);
+
+        $this->rapidDefectCount += 1;
+    }
+
+    public function preSubmitRapidInput()
+    {
+        $this->emit('showModal', 'defect', 'rapid');
+    }
+
+    public function submitRapidInput() {
+        $rapidDefectFiltered = [];
+        $success = 0;
+        $fail = 0;
+
+        if ($this->rapidDefect && count($this->rapidDefect) > 0) {
+            for ($i = 0; $i < count($this->rapidDefect); $i++) {
+                if (!(DefectModel::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0 || Rft::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0 || Reject::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0) && ($this->orderWsDetailSizes->where('size', $this->rapidDefect[$i]['sizeInputText'])->count() > 0)) {
+                    array_push($rapidDefectFiltered, [
+                        'master_plan_id' => $this->orderInfo->id,
+                        'so_det_id' => $this->rapidDefect[$i]['sizeInput'],
+                        'kode_numbering' => $this->rapidDefect[$i]['numberingInput'],
+                        'defect_type_id' => $this->defectType,
+                        'defect_area_id' => $this->defectArea,
+                        'defect_area_x' => $this->defectAreaPositionX,
+                        'defect_area_y' => $this->defectAreaPositionY,
+                        'status' => 'NORMAL',
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ]);
+
+                    $success += 1;
+                } else {
+                    $fail += 1;
+                }
+            }
+        }
+
+        $rapidDefectInsert = DefectModel::insert($rapidDefectFiltered);
+
+        $this->emit('alert', 'success', $success." output berhasil terekam. ");
+        $this->emit('alert', 'error', $fail." output gagal terekam.");
+        $this->emit('hideModal', 'defect', 'rapid');
+
+        $this->rapidDefect = [];
+        $this->rapidDefectCount = 0;
+        $this->defectType = '';
+        $this->defectArea = '';
+        $this->defectAreaPositionX = '';
+        $this->defectAreaPositionY = '';
     }
 
     public function render(SessionManager $session)

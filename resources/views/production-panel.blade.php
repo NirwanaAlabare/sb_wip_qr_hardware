@@ -60,9 +60,13 @@
             showNotification(type, message);
         });
 
-        Livewire.on('showModal', (type) => {
+        Livewire.on('showModal', (type, additional) => {
             if (type == 'defect') {
-                showDefectModal();
+                if (additional) {
+                    showDefectModal(additional);
+                } else {
+                    showDefectModal();
+                }
             } else if (type == 'undo') {
                 showUndoModal();
             } else if (type == 'addProductType') {
@@ -73,12 +77,24 @@
                 showAddDefectAreaModal();
             } else if (type == 'massRework') {
                 showMassReworkModal();
+            } else if (type == 'rapidRft') {
+                showRapidRftModal();
+            } else if (type == 'rapidDefect') {
+                showRapidDefectModal();
+            } else if (type == 'rapidReject') {
+                showRapidRejectModal();
+            } else if (type == 'rapidRework') {
+                showRapidReworkModal();
             }
         });
 
-        Livewire.on('hideModal', (type) => {
+        Livewire.on('hideModal', (type, additional) => {
             if (type == 'defect') {
-                hideDefectModal();
+                if (additional) {
+                    hideDefectModal(additional);
+                } else {
+                    hideDefectModal();
+                }
             } else if (type == 'undo') {
                 hideUndoModal();
             } else if (type == 'addDefectType') {
