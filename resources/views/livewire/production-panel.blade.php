@@ -316,6 +316,45 @@
 
 @push('scripts')
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            restrictYesterdayMasterPlan();
+        });
+
+        window.addEventListener("focus", () => {
+            restrictYesterdayMasterPlan();
+        });
+
+        // Pad 2 Digits
+        function pad(n) {
+            return n < 10 ? '0' + n : n
+        }
+
+        // Restrict Yesterday Master Plan
+        function restrictYesterdayMasterPlan() {
+            let date = new Date();
+            let day = pad(date.getDate());
+            let month = pad(date.getMonth() + 1);
+            let year = date.getFullYear();
+
+            // This arrangement can be altered based on how we want the date's format to appear.
+            let currentDate = `${year}-${month}-${day}`;
+
+            console.log(@this.orderDate, currentDate);
+
+            if (@this.orderDate != currentDate) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Tidak dapat mengakses Master Plan yang sudah berlalu',
+                    html: `Jika sempat, Mohon tutup tab browser yang tidak terpakai agar meminimalisir kesalahan`,
+                    showConfirmButton: true,
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#6531a0'
+                }).then((result) => {
+                    window.location.href = '{{ route('index') }}';
+                });
+            }
+        }
+
         var scannedQrCode = "";
         document.addEventListener("keydown", function(e) {
             let textInput = e.key || String.fromCharCode(e.keyCode);
