@@ -317,13 +317,22 @@ class Defect extends Component
     }
 
     public function pushRapidDefect($numberingInput, $sizeInput, $sizeInputText) {
-        array_push($this->rapidDefect, [
-            'numberingInput' => $numberingInput,
-            'sizeInput' => $sizeInput,
-            'sizeInputText' => $sizeInputText,
-        ]);
+        $exist = false;
+        foreach ($this->rapidDefect as $item) {
+            if ($item['numberingInput'] == $numberingInput) {
+                $exist = true;
+            }
+        }
 
-        $this->rapidDefectCount += 1;
+        if (!$exist) {
+            array_push($this->rapidDefect, [
+                'numberingInput' => $numberingInput,
+                'sizeInput' => $sizeInput,
+                'sizeInputText' => $sizeInputText,
+            ]);
+
+            $this->rapidDefectCount += 1;
+        }
     }
 
     public function preSubmitRapidInput()

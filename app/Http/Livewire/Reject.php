@@ -129,13 +129,22 @@ class Reject extends Component
     }
 
     public function pushRapidReject($numberingInput, $sizeInput, $sizeInputText) {
-        array_push($this->rapidReject, [
-            'numberingInput' => $numberingInput,
-            'sizeInput' => $sizeInput,
-            'sizeInputText' => $sizeInputText,
-        ]);
+        $exist = false;
+        foreach ($this->rapidReject as $item) {
+            if ($item['numberingInput'] == $numberingInput) {
+                $exist = true;
+            }
+        }
 
-        $this->rapidRejectCount += 1;
+        if (!$exist) {
+            array_push($this->rapidReject, [
+                'numberingInput' => $numberingInput,
+                'sizeInput' => $sizeInput,
+                'sizeInputText' => $sizeInputText,
+            ]);
+
+            $this->rapidRejectCount += 1;
+        }
     }
 
     public function submitRapidInput() {

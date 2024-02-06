@@ -122,13 +122,22 @@ class Rft extends Component
     }
 
     public function pushRapidRft($numberingInput, $sizeInput, $sizeInputText) {
-        array_push($this->rapidRft, [
-            'numberingInput' => $numberingInput,
-            'sizeInput' => $sizeInput,
-            'sizeInputText' => $sizeInputText,
-        ]);
+        $exist = false;
+        foreach ($this->rapidRft as $item) {
+            if ($item['numberingInput'] == $numberingInput) {
+                $exist = true;
+            }
+        }
 
-        $this->rapidRftCount += 1;
+        if (!$exist) {
+            array_push($this->rapidRft, [
+                'numberingInput' => $numberingInput,
+                'sizeInput' => $sizeInput,
+                'sizeInputText' => $sizeInputText,
+            ]);
+
+            $this->rapidRftCount += 1;
+        }
     }
 
     public function submitRapidInput() {

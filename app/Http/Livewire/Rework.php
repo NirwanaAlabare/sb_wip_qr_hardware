@@ -378,17 +378,25 @@ class Rework extends Component
     }
 
     public function pushRapidRework($numberingInput, $sizeInput, $sizeInputText) {
-        array_push($this->rapidRework, [
-            'numberingInput' => $numberingInput,
-            'sizeInput' => $sizeInput,
-            'sizeInputText' => $sizeInputText,
-        ]);
+        $exist = false;
+        foreach ($this->rapidRework as $item) {
+            if ($item['numberingInput'] == $numberingInput) {
+                $exist = true;
+            }
+        }
 
-        $this->rapidReworkCount += 1;
+        if (!$exist) {
+            array_push($this->rapidRework, [
+                'numberingInput' => $numberingInput,
+                'sizeInput' => $sizeInput,
+                'sizeInputText' => $sizeInputText,
+            ]);
+
+            $this->rapidReworkCount += 1;
+        }
     }
 
     public function submitRapidInput() {
-        $rapidReworkFiltered = [];
         $defectIds = [];
         $rftData = [];
         $success = 0;
@@ -399,11 +407,9 @@ class Rework extends Component
                 $scannedDefectData = Defect::where("defect_status", "defect")->where("kode_numbering", $this->rapidRework[$i]['numberingInput'])->first();
 
                 if (($scannedDefectData) && ($this->orderWsDetailSizes->where('size', $this->rapidRework[$i]['sizeInputText'])->count() > 0)) {
-                    array_push($rapidReworkFiltered, [
+                    $createRework = ReworkModel::create([
                         'defect_id' => $scannedDefectData->id,
-                        'status' => 'NORMAL',
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
+                        'status' => 'NORMAL'
                     ]);
 
                     array_push($defectIds, $scannedDefectData->id);
@@ -412,7 +418,8 @@ class Rework extends Component
                         'master_plan_id' => $this->orderInfo->id,
                         'so_det_id' => $scannedDefectData->so_det_id,
                         'kode_numbering' => $scannedDefectData->kode_numbering,
-                        'status' => 'NORMAL',
+                        'rework_id' => $createRework->id,
+                        'status' => 'REWORK',
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ]);
@@ -426,7 +433,6 @@ class Rework extends Component
 
         // dd($rapidReworkFiltered, $defectIds, $rftData);
 
-        $rapidReworkInsert = ReworkModel::insert($rapidReworkFiltered);
         $rapidDefectUpdate = Defect::whereIn('id', $defectIds)->update(["defect_status" => "reworked"]);
         $rapidRftInsert = Rft::insert($rftData);
 

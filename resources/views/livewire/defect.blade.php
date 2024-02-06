@@ -532,7 +532,6 @@
 
         Livewire.on('qrInputFocus', async (type) => {
             if (type == 'defect') {
-                @this.updateOutput();
                 scannedDefectItemInput.focus();
             }
         });

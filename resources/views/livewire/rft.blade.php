@@ -217,10 +217,8 @@
 
         Livewire.on('toInputPanel', async (type) => {
             if (type == 'rft') {
-                document.getElementById('back-button').disabled = true;
                 @this.updateOutput();
                 scannedItemRftInput.focus();
-                document.getElementById('back-button').disabled = false;
             }
         });
 
