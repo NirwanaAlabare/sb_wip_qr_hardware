@@ -176,7 +176,7 @@ class Rework extends Component
     }
 
     public function submitAllRework() {
-        $allDefect = Defect::selectRaw('output_defects.id id, output_defects.master_plan_id master_plan_id, output_defects.so_det_id so_det_id')->
+        $allDefect = Defect::selectRaw('output_defects.id id, output_defects.master_plan_id master_plan_id, output_defects.kode_numbering, output_defects.so_det_id so_det_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
             where('output_defects.defect_status', 'defect')->
             where('output_defects.master_plan_id', $this->orderInfo->id)->get();
@@ -194,6 +194,7 @@ class Rework extends Component
                 // add rft array
                 array_push($rftArray, [
                     'master_plan_id' => $defect->master_plan_id,
+                    'kode_numbering' => $defect->kode_numbering,
                     'so_det_id' => $defect->so_det_id,
                     "status" => "REWORK",
                     "rework_id" => $createRework->id,
@@ -257,9 +258,10 @@ class Rework extends Component
                 // create rft
                 $createRft = Rft::create([
                     'master_plan_id' => $defect->master_plan_id,
+                    'kode_numbering' => $defect->kode_numbering,
                     'so_det_id' => $defect->so_det_id,
                     "status" => "REWORK",
-                    "rework_id" => $createRework->id
+                    "rework_id" => $createRework->id,
                 ]);
             }
 
@@ -295,6 +297,7 @@ class Rework extends Component
             // add to rft
             $createRft = Rft::create([
                 'master_plan_id' => $getDefect->master_plan_id,
+                'kode_numbering' => $getDefect->kode_numbering,
                 'so_det_id' => $getDefect->so_det_id,
                 "status" => "REWORK",
                 "rework_id" => $createRework->id
