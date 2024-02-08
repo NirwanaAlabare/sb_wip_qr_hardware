@@ -357,6 +357,7 @@ class Rework extends Component
             // add to rft
             $createRft = Rft::create([
                 'master_plan_id' => $defect->master_plan_id,
+                'kode_numbering' => $defect->kode_numbering,
                 'so_det_id' => $defect->so_det_id,
                 "status" => "REWORK",
                 "rework_id" => $createRework->id
