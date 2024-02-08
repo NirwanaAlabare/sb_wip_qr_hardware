@@ -156,8 +156,8 @@ function showDefectModal(additional) {
         $("#rapid-submit").removeClass("d-none");
         $("#regular-submit").addClass("d-none");
     } else {
-        $("#regular-submit").addClass("d-none");
-        $("#rapid-submit").removeClass("d-none");
+        $("#rapid-submit").addClass("d-none");
+        $("#regular-submit").removeClass("d-none");
     }
 }
 
@@ -168,8 +168,8 @@ function hideDefectModal(additional) {
         $("#rapid-submit").addClass("d-none");
         $("#regular-submit").removeClass("d-none");
     } else {
-        $("#regular-submit").removeClass("d-none");
-        $("#rapid-submit").addClass("d-none");
+        $("#rapid-submit").removeClass("d-none");
+        $("#regular-submit").addClass("d-none");
     }
 }
 
