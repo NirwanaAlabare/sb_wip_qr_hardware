@@ -378,7 +378,7 @@
                             console.log(breakDecodedText);
 
                             // set kode_numbering
-                            @this.scannedNumbering = breakDecodedText[i];
+                            @this.scannedNumberingInput = breakDecodedText[i];
 
                             // set so_det_id
                             @this.scannedSizeInput = breakDecodedText[j];
