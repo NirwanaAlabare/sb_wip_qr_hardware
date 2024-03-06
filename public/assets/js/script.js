@@ -705,5 +705,6 @@ if (batteryModal) {
     batteryModal.addEventListener('hide.bs.modal', function (event) {
         console.log("closed");
         document.getElementById("battery-input").blur();
+        document.getElementById("battery-input").value = "";
     });
 }
