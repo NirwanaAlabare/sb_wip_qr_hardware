@@ -85,7 +85,8 @@ class OrderList extends Component
                 "plan.id_ws", "=", "master_plan.id_ws"
             )
             ->where('master_plan.sewing_line', strtoupper(Auth::user()->username))
-            ->where('so_det.cancel', 'N')
+            ->where('so_det.cancel', '!=', 'Y')
+            ->where('master_plan.cancel', '!=', 'Y')
             ->where('master_plan.tgl_plan', $this->date)
             ->whereRaw("
                 (
