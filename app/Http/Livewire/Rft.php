@@ -8,6 +8,7 @@ use App\Models\SignalBit\Rft as RftModel;
 use App\Models\SignalBit\Rework;
 use App\Models\SignalBit\Defect;
 use App\Models\SignalBit\Reject;
+use App\Models\Nds\Numbering;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use DB;
@@ -19,6 +20,7 @@ class Rft extends Component
     public $output;
     public $sizeInput;
     public $sizeInputText;
+    public $numberingCode;
     public $numberingInput;
     public $rapidRft;
     public $rapidRftCount;
@@ -49,6 +51,7 @@ class Rft extends Component
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->numberingInput = null;
+        $this->numberingCode = null;
         $this->rapidRft = [];
         $this->rapidRftCount = 0;
         $this->submitting = false;
@@ -70,6 +73,7 @@ class Rft extends Component
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->numberingInput = null;
+        $this->numberingCode = null;
 
         $this->orderInfo = session()->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = session()->get('orderWsDetailSizes', $this->orderWsDetailSizes);
@@ -102,6 +106,16 @@ class Rft extends Component
     {
         $this->emit('qrInputFocus', 'rft');
 
+        if ($this->numberingCode) {
+            $numberingData = Numbering::where("kode", $this->numberingCode)->first();
+
+            if ($numberingData) {
+                $this->sizeInput = $numberingData->so_det_id;
+                $this->sizeInputText = $numberingData->size;
+                $this->numberingInput = $numberingData->no_cut_size;
+            }
+        }
+
         $validatedData = $this->validate();
 
         if ($this->orderWsDetailSizes->where('size', $this->sizeInputText)->count() > 0) {
@@ -119,6 +133,8 @@ class Rft extends Component
 
                 $this->sizeInput = '';
                 $this->sizeInputText = '';
+                $this->numberingInput = '';
+                $this->numberingCode = '';
             } else {
                 $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
             }
@@ -127,22 +143,34 @@ class Rft extends Component
         }
     }
 
-    public function pushRapidRft($numberingInput, $sizeInput, $sizeInputText) {
+    public function pushRapidRft($numberingInput, $sizeInput, $sizeInputText, $numberingCode) {
         $exist = false;
+
         foreach ($this->rapidRft as $item) {
-            if ($item['numberingInput'] == $numberingInput) {
+            if (($numberingInput && $item['numberingInput'] == $numberingInput) || ($numberingCode && $item['numberingCode'] == $numberingCode)) {
                 $exist = true;
             }
         }
 
         if (!$exist) {
+            $this->rapidRftCount += 1;
+
+            if ($numberingCode) {
+                $numberingData = Numbering::where("kode", $numberingCode)->first();
+
+                if ($numberingData) {
+                    $sizeInput = $numberingData->so_det_id;
+                    $sizeInputText = $numberingData->size;
+                    $numberingInput = $numberingData->no_cut_size;
+                }
+            }
+
             array_push($this->rapidRft, [
                 'numberingInput' => $numberingInput,
                 'sizeInput' => $sizeInput,
                 'sizeInputText' => $sizeInputText,
+                'numberingCode' => $numberingCode
             ]);
-
-            $this->rapidRftCount += 1;
         }
     }
 
@@ -179,7 +207,8 @@ class Rft extends Component
         $this->rapidRftCount = 0;
     }
 
-    public function setAndSubmitInput($scannedNumbering, $scannedSize, $scannedSizeText) {
+    public function setAndSubmitInput($scannedNumbering, $scannedSize, $scannedSizeText, $scannedNumberingCode) {
+        $this->numberingCode = $scannedNumberingCode;
         $this->numberingInput = $scannedNumbering;
         $this->sizeInput = $scannedSize;
         $this->sizeInputText = $scannedSizeText;

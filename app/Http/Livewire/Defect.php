@@ -7,11 +7,12 @@ use Livewire\WithFileUploads;
 use Illuminate\Session\SessionManager;
 use App\Models\SignalBit\MasterPlan;
 use App\Models\SignalBit\ProductType;
+use App\Models\SignalBit\Defect as DefectModel;
 use App\Models\SignalBit\DefectType;
 use App\Models\SignalBit\DefectArea;
-use App\Models\SignalBit\Defect as DefectModel;
 use App\Models\SignalBit\Rft;
 use App\Models\SignalBit\Reject;
+use App\Models\Nds\Numbering;
 use Carbon\Carbon;
 use Validator;
 use DB;
@@ -26,6 +27,7 @@ class Defect extends Component
     public $sizeInput;
     public $sizeInputText;
     public $numberingInput;
+    public $numberingCode;
     public $defect;
 
     public $defectTypes;
@@ -83,6 +85,7 @@ class Defect extends Component
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->numberingInput = null;
+        $this->numberingCode = null;
 
         $this->defectType = null;
         $this->defectArea = null;
@@ -111,6 +114,7 @@ class Defect extends Component
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->numberingInput = null;
+        $this->numberingCode = null;
 
         $this->orderInfo = session()->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = session()->get('orderWsDetailSizes', $this->orderWsDetailSizes);
@@ -229,6 +233,16 @@ class Defect extends Component
 
     public function preSubmitInput()
     {
+        if ($this->numberingCode) {
+            $numberingData = Numbering::where("kode", $this->numberingCode)->first();
+
+            if ($numberingData) {
+                $this->sizeInput = $numberingData->so_det_id;
+                $this->sizeInputText = $numberingData->size;
+                $this->numberingInput = $numberingData->no_cut_size;
+            }
+        }
+
         $validation = Validator::make([
             'sizeInput' => $this->sizeInput,
             'numberingInput' => $this->numberingInput
@@ -298,6 +312,8 @@ class Defect extends Component
 
                 $this->sizeInput = '';
                 $this->sizeInputText = '';
+                $this->numberingInput = '';
+                $this->numberingCode = '';
             } else {
                 $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
             }
@@ -308,7 +324,8 @@ class Defect extends Component
         }
     }
 
-    public function setAndSubmitInput($scannedNumbering, $scannedSize, $scannedSizeText) {
+    public function setAndSubmitInput($scannedNumbering, $scannedSize, $scannedSizeText, $scannedNumberingCode) {
+        $this->numberingCode = $scannedNumberingCode;
         $this->numberingInput = $scannedNumbering;
         $this->sizeInput = $scannedSize;
         $this->sizeInputText = $scannedSizeText;
@@ -316,27 +333,45 @@ class Defect extends Component
         $this->preSubmitInput();
     }
 
-    public function pushRapidDefect($numberingInput, $sizeInput, $sizeInputText) {
+    public function pushRapidDefect($numberingInput, $sizeInput, $sizeInputText, $numberingCode) {
         $exist = false;
+
         foreach ($this->rapidDefect as $item) {
-            if ($item['numberingInput'] == $numberingInput) {
+            if (($numberingInput && $item['numberingInput'] == $numberingInput) || ($numberingCode && $item['numberingCode'] == $numberingCode)) {
                 $exist = true;
             }
         }
 
         if (!$exist) {
+            $this->rapidDefectCount += 1;
+
+            if ($numberingCode) {
+                $numberingData = Numbering::where("kode", $numberingCode)->first();
+
+                if ($numberingData) {
+                    $sizeInput = $numberingData->so_det_id;
+                    $sizeInputText = $numberingData->size;
+                    $numberingInput = $numberingData->no_cut_size;
+                }
+            }
+
             array_push($this->rapidDefect, [
                 'numberingInput' => $numberingInput,
                 'sizeInput' => $sizeInput,
                 'sizeInputText' => $sizeInputText,
+                'numberingCode' => $numberingCode
             ]);
-
-            $this->rapidDefectCount += 1;
         }
     }
 
     public function preSubmitRapidInput()
     {
+        $this->defectType = null;
+        $this->defectArea = null;
+        $this->productType = null;
+        $this->defectAreaPositionX = null;
+        $this->defectAreaPositionY = null;
+
         $this->emit('showModal', 'defect', 'rapid');
     }
 
@@ -376,10 +411,6 @@ class Defect extends Component
 
         $this->rapidDefect = [];
         $this->rapidDefectCount = 0;
-        $this->defectType = '';
-        $this->defectArea = '';
-        $this->defectAreaPositionX = '';
-        $this->defectAreaPositionY = '';
     }
 
     public function render(SessionManager $session)

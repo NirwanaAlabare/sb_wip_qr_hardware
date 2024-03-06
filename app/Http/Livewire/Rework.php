@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use Illuminate\Session\SessionManager;
 use Illuminate\Support\Facades\Auth;
 use App\Models\SignalBit\MasterPlan;
+use App\Models\Nds\Numbering;
 use App\Models\SignalBit\Rft;
 use App\Models\SignalBit\Defect;
 use App\Models\SignalBit\Rework as ReworkModel;
@@ -49,8 +50,10 @@ class Rework extends Component
 
     public $output;
     public $rework;
+    public $sizeInput;
     public $sizeInputText;
     public $numberingInput;
+    public $numberingICode;
 
     public $rapidRework;
     public $rapidReworkCount;
@@ -95,6 +98,7 @@ class Rework extends Component
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->numberingInput = null;
+        $this->numberingCode = null;
 
         if ($panel == 'rework') {
             $this->emit('qrInputFocus', 'rework');
@@ -133,6 +137,7 @@ class Rework extends Component
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->numberingInput = null;
+        $this->numberingCode = null;
 
         $this->rapidRework = [];
         $this->rapidReworkCount = 0;
@@ -338,6 +343,16 @@ class Rework extends Component
     {
         $this->emit('renderQrScanner', 'rework');
 
+        if ($this->numberingCode) {
+            $numberingData = Numbering::where("kode", $this->numberingCode)->first();
+
+            if ($numberingData) {
+                $this->sizeInput = $numberingData->so_det_id;
+                $this->sizeInputText = $numberingData->size;
+                $this->numberingInput = $numberingData->no_cut_size;
+            }
+        }
+
         $validatedData = $this->validate();
 
         $scannedDefectData = Defect::where("defect_status", "defect")->where("kode_numbering", $this->numberingInput)->first();
@@ -363,6 +378,11 @@ class Rework extends Component
                 "rework_id" => $createRework->id
             ]);
 
+            $this->sizeInput = '';
+            $this->sizeInputText = '';
+            $this->numberingInput = '';
+            $this->numberingCode = '';
+
             if ($createRework && $createRft) {
                 $this->emit('alert', 'success', "DEFECT dengan ID : ".$scannedDefectData->id." berhasil di REWORK.");
             } else {
@@ -373,7 +393,8 @@ class Rework extends Component
         }
     }
 
-    public function setAndSubmitInput($scannedNumbering, $scannedSize, $scannedSizeText) {
+    public function setAndSubmitInput($scannedNumbering, $scannedSize, $scannedSizeText, $scannedNumberingCode) {
+        $this->numberingCode = $scannedNumberingCode;
         $this->numberingInput = $scannedNumbering;
         $this->sizeInput = $scannedSize;
         $this->sizeInputText = $scannedSizeText;
@@ -381,22 +402,34 @@ class Rework extends Component
         $this->submitInput();
     }
 
-    public function pushRapidRework($numberingInput, $sizeInput, $sizeInputText) {
+    public function pushRapidRework($numberingInput, $sizeInput, $sizeInputText, $numberingCode) {
         $exist = false;
+
         foreach ($this->rapidRework as $item) {
-            if ($item['numberingInput'] == $numberingInput) {
+            if (($numberingInput && $item['numberingInput'] == $numberingInput) || ($numberingCode && $item['numberingCode'] == $numberingCode)) {
                 $exist = true;
             }
         }
 
         if (!$exist) {
+            $this->rapidReworkCount += 1;
+
+            if ($numberingCode) {
+                $numberingData = Numbering::where("kode", $numberingCode)->first();
+
+                if ($numberingData) {
+                    $sizeInput = $numberingData->so_det_id;
+                    $sizeInputText = $numberingData->size;
+                    $numberingInput = $numberingData->no_cut_size;
+                }
+            }
+
             array_push($this->rapidRework, [
                 'numberingInput' => $numberingInput,
                 'sizeInput' => $sizeInput,
                 'sizeInputText' => $sizeInputText,
+                'numberingCode' => $numberingCode,
             ]);
-
-            $this->rapidReworkCount += 1;
         }
     }
 
