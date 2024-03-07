@@ -53,7 +53,7 @@ class Rework extends Component
     public $sizeInput;
     public $sizeInputText;
     public $numberingInput;
-    public $numberingICode;
+    public $numberingCode;
 
     public $rapidRework;
     public $rapidReworkCount;

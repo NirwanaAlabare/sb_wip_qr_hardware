@@ -438,22 +438,24 @@
             let k = 2;
 
             if (this.value.includes('WIP')) {
-                @this.numberingCode = this.value;
-            } else {
-                // break decoded text
-                let breakDecodedText = this.value.split('-');
-
-                console.log(breakDecodedText);
-
-                // set kode_numbering
-                @this.numberingInput = breakDecodedText[i];
-
-                // set so_det_id
-                @this.sizeInput = breakDecodedText[j];
-
-                // set size
-                @this.sizeInputText = breakDecodedText[k];
+                i = 3;
+                j = 4;
+                k = 5;
             }
+
+            // break decoded text
+            let breakDecodedText = this.value.split('-');
+
+            console.log(breakDecodedText);
+
+            // set kode_numbering
+            @this.numberingInput = breakDecodedText[i];
+
+            // set so_det_id
+            @this.sizeInput = breakDecodedText[j];
+
+            // set size
+            @this.sizeInputText = breakDecodedText[k];
 
             // submit
             @this.submitInput();
@@ -469,16 +471,18 @@
             let k = 2;
 
             if (this.value.includes('WIP')) {
-                @this.pushRapidRework(null, null, null, this.value);
-            } else {
-                // break decoded text
-                let breakDecodedText = this.value.split('-');
-
-                console.log(breakDecodedText);
-
-                // submit
-                @this.pushRapidRework(breakDecodedText[i], breakDecodedText[j], breakDecodedText[k], null);
+                i = 3;
+                j = 4;
+                k = 5;
             }
+
+            // break decoded text
+            let breakDecodedText = this.value.split('-');
+
+            console.log(breakDecodedText);
+
+            // submit
+            @this.pushRapidRework(breakDecodedText[i], breakDecodedText[j], breakDecodedText[k]);
 
             this.value = '';
         });
