@@ -117,7 +117,7 @@ class Reject extends Component
 
         $validatedData = $this->validate();
 
-        if ($this->orderWsDetailSizes->where('size', $this->sizeInputText)->count() > 0) {
+        if ($this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
             $insertReject = RejectModel::create([
                 'master_plan_id' => $this->orderInfo->id,
                 'so_det_id' => $this->sizeInput,
@@ -191,7 +191,7 @@ class Reject extends Component
 
         if ($this->rapidReject && count($this->rapidReject) > 0) {
             for ($i = 0; $i < count($this->rapidReject); $i++) {
-                if (!(RejectModel::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Rft::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Defect::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0) && ($this->orderWsDetailSizes->where('size', $this->rapidReject[$i]['sizeInputText'])->count() > 0)) {
+                if (!(RejectModel::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Rft::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Defect::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0) && ($this->orderWsDetailSizes->where('so_det_id', $this->rapidReject[$i]['sizeInput'])->count() > 0)) {
                     array_push($rapidRejectFiltered, [
                         'master_plan_id' => $this->orderInfo->id,
                         'so_det_id' => $this->rapidReject[$i]['sizeInput'],

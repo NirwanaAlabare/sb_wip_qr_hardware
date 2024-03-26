@@ -265,7 +265,7 @@ class Defect extends Component
 
             $validation->validate();
         } else {
-            if ($this->orderWsDetailSizes->where('size', $this->sizeInputText)->count() > 0) {
+            if ($this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
                 $this->emit('clearSelectDefectAreaPoint');
 
                 $this->defectType = null;
@@ -289,7 +289,7 @@ class Defect extends Component
     {
         $validatedData = $this->validate();
 
-        if ($this->orderWsDetailSizes->where('size', $this->sizeInputText)->count() > 0) {
+        if ($this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
             $insertDefect = DefectModel::create([
                 'master_plan_id' => $this->orderInfo->id,
                 'no_cut_size' => $this->noCutInput,
@@ -388,7 +388,7 @@ class Defect extends Component
 
         if ($this->rapidDefect && count($this->rapidDefect) > 0) {
             for ($i = 0; $i < count($this->rapidDefect); $i++) {
-                if (!(DefectModel::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0 || Rft::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0 || Reject::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0) && ($this->orderWsDetailSizes->where('size', $this->rapidDefect[$i]['sizeInputText'])->count() > 0)) {
+                if (!(DefectModel::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0 || Rft::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0 || Reject::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0) && ($this->orderWsDetailSizes->where('so_det_id', $this->rapidDefect[$i]['sizeInput'])->count() > 0)) {
                     array_push($rapidDefectFiltered, [
                         'master_plan_id' => $this->orderInfo->id,
                         'so_det_id' => $this->rapidDefect[$i]['sizeInput'],

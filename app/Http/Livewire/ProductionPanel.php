@@ -119,8 +119,8 @@ class ProductionPanel extends Component
         $this->undoDefectArea = "";
 
         $this->orderWsDetailSizes = DB::table('master_plan')->selectRaw("
-                MIN(so_det.id) as so_det_id,
-                so_det.size as size
+                so_det.id as so_det_id,
+                MAX(so_det.size) as size
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
             ->leftJoin('so', 'so.id_cost', '=', 'act_costing.id')
@@ -129,7 +129,7 @@ class ProductionPanel extends Component
             ->where('master_plan.id', $this->orderInfo->id)
             ->where('act_costing.kpno', $this->orderInfo->ws_number)
             ->where('so_det.color', $this->selectedColorName)
-            ->groupBy('so_det.size')
+            ->groupBy('so_det.id')
             ->orderBy('so_det_id')
             ->get();
 
@@ -402,8 +402,8 @@ class ProductionPanel extends Component
             )->get();
 
         $this->orderWsDetailSizes = DB::table('master_plan')->selectRaw("
-                MIN(so_det.id) as so_det_id,
-                so_det.size as size
+                so_det.id as so_det_id,
+                MAX(so_det.size) as size
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
             ->leftJoin('so', 'so.id_cost', '=', 'act_costing.id')
@@ -412,7 +412,7 @@ class ProductionPanel extends Component
             ->where('master_plan.sewing_line', Auth::user()->username)
             ->where('act_costing.kpno', $this->orderInfo->ws_number)
             ->where('so_det.color', $this->selectedColorName)
-            ->groupBy('so_det.size')
+            ->groupBy('so_det.id')
             ->orderBy('so_det_id')
             ->get();
 
