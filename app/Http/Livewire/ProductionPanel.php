@@ -407,7 +407,7 @@ class ProductionPanel extends Component
                 so_det.id as so_det_id,
                 so_det.size as size,
                 so_det.dest as dest,
-                (so_det.size, '-', so_det.dest) size_dest
+                CONCAT(so_det.size, '-', so_det.dest) size_dest
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
             ->leftJoin('so', 'so.id_cost', '=', 'act_costing.id')
@@ -416,7 +416,7 @@ class ProductionPanel extends Component
             ->where('master_plan.sewing_line', Auth::user()->username)
             ->where('act_costing.kpno', $this->orderInfo->ws_number)
             ->where('so_det.color', $this->selectedColorName)
-            ->groupBy('so_det.id', 'so_det.size', 'so_det.color')
+            ->groupBy('so_det.id', 'so_det.dest', 'so_det.size', 'so_det.color')
             ->orderBy('so_det_id')
             ->get();
 
