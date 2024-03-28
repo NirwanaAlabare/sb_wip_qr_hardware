@@ -256,8 +256,8 @@
                                     <td>{{ $reworks->firstItem() + $loop->index }}</td>
                                     <td>{{ $rework->defect->id }}</td>
                                     <td>{{ $rework->so_det_size }}</td>
-                                    <td>{{ $rework->defect->defect_type}}</td>
-                                    <td>{{ $rework->defect->defect_area }}</td>
+                                    <td>{{ $rework->defect_type}}</td>
+                                    <td>{{ $rework->defect_area }}</td>
                                     <td class="text-rework fw-bold">{{ strtoupper($rework->defect->defect_status) }}</td>
                                     <td>
                                         <button type="button" class="btn btn-dark" wire:click="showDefectAreaImage('{{$rework->defect->masterPlan->gambar}}', {{$rework->defect->defect_area_x}}, {{$rework->defect->defect_area_y}})'">
