@@ -121,6 +121,7 @@ class ProductionPanel extends Component
         $this->orderWsDetailSizes = DB::table('master_plan')->selectRaw("
                 so_det.id as so_det_id,
                 so_det.size as size,
+                so_det.dest as dest,
                 CONCAT(so_det.size, (CASE WHEN so_det.dest != '-' OR so_det.dest IS NULL THEN CONCAT('-', so_det.dest) ELSE '' END)) as size_dest
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
@@ -405,6 +406,7 @@ class ProductionPanel extends Component
         $this->orderWsDetailSizes = DB::table('master_plan')->selectRaw("
                 so_det.id as so_det_id,
                 so_det.size as size,
+                so_det.dest as dest,
                 (so_det.size, '-', so_det.dest) size_dest
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
