@@ -56,7 +56,7 @@
                         @foreach ($orderWsDetailSizes as $order)
                             <div class="col-md-4">
                                 <div class="bg-rft text-white w-100 h-100 py-auto rounded-3 d-flex flex-column justify-content-center align-items-center">
-                                    <p class="fs-3 mb-0">{{ $order->size }}</p>
+                                    <p class="fs-3 mb-0">{{ $order->size_dest }}</p>
                                     <p class="fs-5 mb-0">{{ $rft->where('so_det_id', $order->so_det_id)->count() }}</p>
                                 </div>
                             </div>
