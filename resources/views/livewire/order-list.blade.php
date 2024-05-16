@@ -1,8 +1,17 @@
 <div>
-    <div class="input-group mb-3">
-        <input type="hidden" wire:model='date'>
-        <input type="text" class="form-control" wire:model='search' placeholder="Search Order...">
-        <button class="btn btn-sb" type="button" id="button-search-order"><i class="fa-regular fa-magnifying-glass"></i></button>
+    <div class="row mb-3">
+        <div class="col-md-12 col-lg-10">
+            <div class="input-group mb-3">
+                <input type="hidden" wire:model='date'>
+                <input type="text" class="form-control" wire:model='search' placeholder="Search Order...">
+                <button class="btn btn-sb" type="button" id="button-search-order"><i class="fa-regular fa-magnifying-glass"></i></button>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-2">
+            <a href="{{ url('/production-panel/universal/') }}" class="btn btn-sb w-100">
+                <h5 class="mb-0">Universal Input</h5>
+            </a href="/production-panel/universal/">
+        </div>
     </div>
 
     <div class="w-100" wire:loading wire:target='search, date'>
@@ -19,7 +28,7 @@
             <h5 class="text-center text-muted mt-3"><i class="fa-solid fa-circle-exclamation"></i> Order tidak ditemukan</h5>
         @else
             @foreach ($orders as $order)
-                <a href="{{ url('/production-panel/'.$order->id) }}" class="order col-md-6 h-100">
+                <a href="{{ url('/production-panel/index/'.$order->id) }}" class="order col-md-6 h-100">
                     <div class="card h-100">
                         <div class="card-body justify-content-start">
                             <table class="table table-responsive mb-1">
@@ -63,7 +72,7 @@
                             </div>
                         </div>
                     </div>
-                </a href="/production-panel/{{ $order->id }}">
+                </a href="/production-panel/index/{{ $order->id }}">
             @endforeach
         @endif
     </div>
