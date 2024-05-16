@@ -9,7 +9,7 @@
         </div>
         <div class="col-md-12 col-lg-2">
             <a href="{{ url('/production-panel/universal/') }}" class="btn btn-sb w-100">
-                <h5 class="mb-0">Universal Input</h5>
+                <h5 class="mb-0"><i class="fa-solid fa-globe"></i></h5>
             </a href="/production-panel/universal/">
         </div>
     </div>
