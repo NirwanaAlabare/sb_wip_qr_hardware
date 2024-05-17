@@ -107,7 +107,7 @@ class RftUniversal extends Component
 
         $validatedData = $this->validate();
 
-        $thisOrderWsDetailSize = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->where('color', )->first();
+        $thisOrderWsDetailSize = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->first();
         if ($thisOrderWsDetailSize) {
             $insertRft = RftModel::create([
                 'master_plan_id' => $thisOrderWsDetailSize['master_plan_id'],
