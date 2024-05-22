@@ -138,4 +138,8 @@ class ProductionController extends Controller
     public function universal() {
         return view('production-panel-universal');
     }
+
+    public function temporary() {
+        return view('production-panel-temporary');
+    }
 }

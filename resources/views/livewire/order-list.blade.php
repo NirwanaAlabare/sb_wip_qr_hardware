@@ -25,7 +25,7 @@
 
     <div class="order-list row row-gap-3 mb-3 h-100" wire:loading.remove wire:target='search, date'>
         @if ($orders->isEmpty())
-            <h5 class="text-center text-muted mt-3"><i class="fa-solid fa-circle-exclamation"></i> Order tidak ditemukan</h5>
+            {{-- <h5 class="text-center text-muted mt-3"><i class="fa-solid fa-circle-exclamation"></i> Order tidak ditemukan</h5> --}}
         @else
             @foreach ($orders as $order)
                 <a href="{{ url('/production-panel/index/'.$order->id) }}" class="order col-md-6 h-100">
@@ -75,6 +75,18 @@
                 </a href="/production-panel/index/{{ $order->id }}">
             @endforeach
         @endif
+        <a href="{{ url('/production-panel/temporary/') }}" class="order col-md-6 h-100">
+            <div class="card h-100">
+                <div class="card-body justify-content-start">
+                    <div class="mx-2">
+                        <div class="d-flex justify-content-between align-items-center h-100">
+                            <h1 class="fw-bold mb-0">{{ $temporaryOutput }}</h1>
+                            <h5 class="text-sb fw-bold mb-0">OUTPUT TEMPORARY</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a href="/production-panel/temporary/">
     </div>
 
     <div class="w-100 mt-3">

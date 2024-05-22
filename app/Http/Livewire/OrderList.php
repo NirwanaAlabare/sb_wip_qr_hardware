@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\SignalBit\MasterPlan;
+use App\Models\SignalBit\TemporaryOutput;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Session\SessionManager;
 use Livewire\Component;
@@ -13,6 +14,7 @@ class OrderList extends Component
     public $orders;
     public $search = '';
     public $date = '';
+    public $temporaryOutput;
 
     public $listeners = ['setDate'];
 
@@ -111,6 +113,12 @@ class OrderList extends Component
                 'so.id'
             )
             ->get();
+
+        $this->temporaryOutput = TemporaryOutput::where("line_id", Auth::user()->line_id)->
+            whereRaw('(DATE(temporary_output.created_at) = "'.$this->date.'" OR DATE(temporary_output.updated_at) = "'.$this->date.'")')->
+            where('tipe_output', 'rft')->
+            orWhere('tipe_output', 'rework')->
+            count();
 
         return view('livewire.order-list');
     }
