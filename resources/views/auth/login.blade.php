@@ -23,8 +23,7 @@
             <div class="col-md-6">
                 <div class="card-body my-5">
                     <h2 class="text-center text-sb fw-bold mb-3">LOGIN</h2>
-                    <form method="POST" action="{{ url('login/authenticate') }}" onsubmit="login(this, event)"
-                        class="login-form mx-3">
+                    <form method="POST" action="{{ url('login/authenticate') }}" onsubmit="login(this, event)" class="login-form mx-3">
                         @csrf
                         <div class="mb-3 position-relative">
                             <label for="username">Username</label>
