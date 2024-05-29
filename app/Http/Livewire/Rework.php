@@ -417,23 +417,12 @@ class Rework extends Component
         }
 
         if (!$exist) {
-            $this->rapidReworkCount += 1;
-
             if ($numberingInput) {
-                $numberingData = Numbering::where("kode", $numberingInput)->first();
+                $this->rapidReworkCount += 1;
 
-                if ($numberingData) {
-                    $sizeInput = $numberingData->so_det_id;
-                    $sizeInputText = $numberingData->size;
-                    $noCutInput = $numberingData->no_cut_size;
-
-                    array_push($this->rapidRework, [
-                        'numberingInput' => $numberingInput,
-                        'sizeInput' => $sizeInput,
-                        'sizeInputText' => $sizeInputText,
-                        'noCutInput' => $noCutInput,
-                    ]);
-                }
+                array_push($this->rapidRework, [
+                    'numberingInput' => $numberingInput,
+                ]);
             }
         }
     }
@@ -448,7 +437,7 @@ class Rework extends Component
             for ($i = 0; $i < count($this->rapidRework); $i++) {
                 $scannedDefectData = Defect::where("defect_status", "defect")->where("kode_numbering", $this->rapidRework[$i]['numberingInput'])->first();
 
-                if (($scannedDefectData) && ($this->orderWsDetailSizes->where('so_det_id', $this->rapidRework[$i]['sizeInput'])->count() > 0)) {
+                if (($scannedDefectData) && ($this->orderWsDetailSizes->where('so_det_id', $scannedDefectData->so_det_id)->count() > 0)) {
                     $createRework = ReworkModel::create([
                         'defect_id' => $scannedDefectData->id,
                         'status' => 'NORMAL'
