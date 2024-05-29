@@ -156,23 +156,12 @@ class Rft extends Component
         }
 
         if (!$exist) {
-            $this->rapidRftCount += 1;
-
             if ($numberingInput) {
-                $numberingData = Numbering::where("kode", $numberingInput)->first();
+                $this->rapidRftCount += 1;
 
-                if ($numberingData) {
-                    $sizeInput = $numberingData->so_det_id;
-                    $sizeInputText = $numberingData->size;
-                    $noCutInput = $numberingData->no_cut_size;
-
-                    array_push($this->rapidRft, [
-                        'numberingInput' => $numberingInput,
-                        'sizeInput' => $sizeInput,
-                        'sizeInputText' => $sizeInputText,
-                        'noCutInput' => $noCutInput,
-                    ]);
-                }
+                array_push($this->rapidRft, [
+                    'numberingInput' => $numberingInput,
+                ]);
             }
         }
     }
@@ -184,11 +173,13 @@ class Rft extends Component
 
         if ($this->rapidRft && count($this->rapidRft) > 0) {
             for ($i = 0; $i < count($this->rapidRft); $i++) {
-                if (!(RftModel::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0 || Defect::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0 || Reject::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0) && ($this->orderWsDetailSizes->where('so_det_id', $this->rapidRft[$i]['sizeInput'])->count() > 0)) {
+                $numberingData = Numbering::where("kode", $this->rapidRft[$i]['numberingInput'])->first();
+
+                if (!(RftModel::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0 || Defect::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0 || Reject::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0) && ($this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->count() > 0)) {
                     array_push($rapidRftFiltered, [
                         'master_plan_id' => $this->orderInfo->id,
-                        'so_det_id' => $this->rapidRft[$i]['sizeInput'],
-                        'no_cut_size' => $this->rapidRft[$i]['noCutInput'],
+                        'so_det_id' => $numbering->so_det_id,
+                        'no_cut_size' => $numbering->no_cut_size,
                         'kode_numbering' => $this->rapidRft[$i]['numberingInput'],
                         'status' => 'NORMAL',
                         'created_at' => Carbon::now(),
@@ -205,7 +196,7 @@ class Rft extends Component
         $rapidRftInsert = RftModel::insert($rapidRftFiltered);
 
         $this->emit('alert', 'success', $success." output berhasil terekam. ");
-        $this->emit('alert', 'error', $fail." output gagal terekam.");
+        $this->emit('alert', 'error', $fail." output gagal terekam. ");
 
         $this->rapidRft = [];
         $this->rapidRftCount = 0;

@@ -149,23 +149,12 @@ class RejectUniversal extends Component
         }
 
         if (!$exist) {
-            $this->rapidRejectCount += 1;
-
             if ($numberingInput) {
-                $numberingData = Numbering::where("kode", $numberingInput)->first();
+                $this->rapidRejectCount += 1;
 
-                if ($numberingData) {
-                    $sizeInput = $numberingData->so_det_id;
-                    $sizeInputText = $numberingData->size;
-                    $noCutInput = $numberingData->no_cut_size;
-
-                    array_push($this->rapidReject, [
-                        'numberingInput' => $numberingInput,
-                        'sizeInput' => $sizeInput,
-                        'sizeInputText' => $sizeInputText,
-                        'noCutInput' => $noCutInput,
-                    ]);
-                }
+                array_push($this->rapidReject, [
+                    'numberingInput' => $numberingInput,
+                ]);
             }
         }
     }
@@ -177,12 +166,15 @@ class RejectUniversal extends Component
 
         if ($this->rapidReject && count($this->rapidReject) > 0) {
             for ($i = 0; $i < count($this->rapidReject); $i++) {
-                $thisOrderWsDetailSize = $this->orderWsDetailSizes->where('so_det_id', $this->rapidReject[$i]['sizeInput'])->first();
+                $numberingData = Numbering::where("kode", $this->rapidReject[$i]['numberingInput'])->first();
+
+                $thisOrderWsDetailSize = $this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->first();
+
                 if (!(RejectModel::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Rft::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Defect::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0) && ($thisOrderWsDetailSize)) {
                     array_push($rapidRejectFiltered, [
                         'master_plan_id' => $thisOrderWsDetailSize['master_plan_id'],
-                        'so_det_id' => $this->rapidReject[$i]['sizeInput'],
-                        'no_cut_size' => $this->rapidReject[$i]['noCutInput'],
+                        'so_det_id' => $numberingData->so_det_id,
+                        'no_cut_size' => $numberingData->no_cut_size,
                         'kode_numbering' => $this->rapidReject[$i]['numberingInput'],
                         'status' => 'NORMAL',
                         'created_at' => Carbon::now(),

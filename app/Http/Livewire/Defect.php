@@ -349,9 +349,10 @@ class Defect extends Component
         }
 
         if (!$exist) {
-            $this->rapidDefectCount += 1;
 
             if ($numberingInput) {
+                $this->rapidDefectCount += 1;
+
                 $numberingData = Numbering::where("kode", $numberingInput)->first();
 
                 if ($numberingData) {
