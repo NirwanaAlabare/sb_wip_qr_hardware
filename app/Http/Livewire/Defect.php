@@ -364,7 +364,6 @@ class Defect extends Component
                         'sizeInput' => $sizeInput,
                         'sizeInputText' => $sizeInputText,
                         'noCutInput' => $noCutInput,
-                        'masterPlanId' => $masterPlanId
                     ]);
                 }
             }
