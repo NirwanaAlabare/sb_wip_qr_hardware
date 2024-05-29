@@ -1,5 +1,5 @@
 <div>
-    <div class="loading-container-fullscreen" wire:loading wire:target="setAndSubmitInput, submitInput, submitRapidInput, updateOrder">
+    <div class="loading-container-fullscreen" wire:loading wire:target="setAndSubmitInput, submitInput, submitRapidInput, updateOrder, submitRapidInput">
         <div class="loading-container">
             <div class="loading"></div>
         </div>

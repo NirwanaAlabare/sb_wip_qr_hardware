@@ -1,5 +1,5 @@
 <div wire:init="loadReworkPage">
-    <div class="loading-container-fullscreen" wire:loading wire:target='setAndSubmitInput, submitInput, submitMassRework, submitAllRework'>
+    <div class="loading-container-fullscreen" wire:loading wire:target='setAndSubmitInput, submitInput, submitMassRework, submitAllRework, submitRapidInput'>
         <div class="loading-container">
             <div class="loading"></div>
         </div>
