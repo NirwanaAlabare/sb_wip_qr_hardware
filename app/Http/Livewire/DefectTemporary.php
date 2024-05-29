@@ -424,14 +424,6 @@ class DefectTemporary extends Component
                 }
             }
 
-            array_push($this->rapidDefect, [
-                'numberingInput' => $numberingInput,
-                'sizeInput' => $sizeInput,
-                'sizeInputText' => $sizeInputText,
-                'noCutInput' => $noCutInput,
-                'masterPlanId' => $masterPlanId
-            ]);
-
             $this->sizeInput = $sizeInput;
         }
     }
