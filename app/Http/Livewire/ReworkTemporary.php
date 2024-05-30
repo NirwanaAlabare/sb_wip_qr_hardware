@@ -169,7 +169,7 @@ class ReworkTemporary extends Component
     }
 
     public function submitAllRework() {
-        $allDefect = Defect::selectRaw('output_defects.id id, output_defects.master_plan_id master_plan_id, output_defects.kode_numbering, output_defects.so_det_id so_det_id')->
+        $allDefect = DB::connection('mysql_sb')->table('output_defects')->selectRaw('output_defects.id id, output_defects.master_plan_id master_plan_id, output_defects.kode_numbering, output_defects.so_det_id so_det_id')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
             where('output_defects.defect_status', 'defect')->
@@ -218,7 +218,7 @@ class ReworkTemporary extends Component
                 $this->emit('alert', 'error', "Terjadi kesalahan. DEFECT tidak berhasil di REWORK.");
             }
         } else {
-            $temporaryDefect = TemporaryOutput::selectRaw('temporary_output.id id, temporary_output.line_id line_id, temporary_output.kode_numbering, temporary_output.so_det_id so_det_id')->
+            $temporaryDefect = DB::connection('mysql_sb')->table('temporary_output')->selectRaw('temporary_output.id id, temporary_output.line_id line_id, temporary_output.kode_numbering, temporary_output.so_det_id so_det_id')->
                 where("temporary_output.tipe_output", "defect")->
                 where("temporary_output.line_id", Auth::user()->line_id)->
                 whereRaw("(DATE(temporary_output.created_at) = '".$this->orderDate."' OR DATE(temporary_output.updated_at) = '".$this->orderDate."')")->
@@ -255,7 +255,7 @@ class ReworkTemporary extends Component
     }
 
     public function submitMassRework() {
-        $selectedDefect = Defect::selectRaw('output_defects.*, so_det.size as size')->
+        $selectedDefect = DB::connection('mysql_sb')->table('output_defects')->selectRaw('output_defects.*, so_det.size as size')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
             where('output_defects.defect_status', 'defect')->
@@ -264,7 +264,8 @@ class ReworkTemporary extends Component
             where('output_defects.defect_type_id', $this->massDefectType)->
             where('output_defects.defect_area_id', $this->massDefectArea)->
             where('output_defects.so_det_id', $this->massSize)->
-            take($this->massQty)->get();
+            take($this->massQty)->
+            get();
 
         if ($selectedDefect->count() > 0) {
             foreach ($selectedDefect as $defect) {
@@ -359,7 +360,7 @@ class ReworkTemporary extends Component
         $this->emit('renderQrScanner', 'rework');
 
         if ($this->numberingInput) {
-            $numberingData = Numbering::where("kode", $this->numberingInput)->first();
+            $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $this->numberingInput)->first();
 
             if ($numberingData) {
                 $this->sizeInput = $numberingData->so_det_id;
@@ -380,16 +381,15 @@ class ReworkTemporary extends Component
             ]);
 
             // remove from defect
-            $defect = Defect::where('id', $scannedDefectData->id)->first();
-            $defect->defect_status = "reworked";
-            $defect->save();
+            $scannedDefectData->defect_status = "reworked";
+            $scannedDefectData->save();
 
             // add to rft
             $createRft = Rft::create([
-                'master_plan_id' => $defect->master_plan_id,
-                'no_cut_size' => $defect->no_cut_size,
-                'kode_numbering' => $defect->kode_numbering,
-                'so_det_id' => $defect->so_det_id,
+                'master_plan_id' => $scannedDefectData->master_plan_id,
+                'no_cut_size' => $scannedDefectData->no_cut_size,
+                'kode_numbering' => $scannedDefectData->kode_numbering,
+                'so_det_id' => $scannedDefectData->so_det_id,
                 "status" => "REWORK",
                 "rework_id" => $createRework->id
             ]);
@@ -480,7 +480,7 @@ class ReworkTemporary extends Component
 
                     $success += 1;
                 } else {
-                    $scannedTemporaryDefectData = TemporaryOutput::where("tipe_output", "defect")->where("kode_numbering", $this->rapidRework[$i]['numberingInput'])->first();
+                    $scannedTemporaryDefectData = DB::connection("mysql_sb")->table("temporary_output")->where("tipe_output", "defect")->where("kode_numbering", $this->rapidRework[$i]['numberingInput'])->first();
 
                     if ($scannedTemporaryDefectData) {
                         array_push($temporaryIds, $scannedTemporaryDefectData->id);
@@ -511,7 +511,8 @@ class ReworkTemporary extends Component
 
         $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
-        $this->allDefectImage = TemporaryOutput::selectRaw('master_plan.id_ws, master_plan.gambar')->
+        $this->allDefectImage = DB::connection('mysql_sb')->table('temporary_output')->
+            selectRaw('master_plan.id_ws, master_plan.gambar')->
             leftJoin('so_det', 'so_det.id', '=', 'temporary_output.so_det_id')->
             leftJoin('so', 'so.id', '=', 'so_det.id_so')->
             leftJoin('act_costing', 'act_costing.id', '=', 'so.id_cost')->
@@ -522,7 +523,8 @@ class ReworkTemporary extends Component
             groupBy("master_plan.id_ws")->
             get();
 
-        $this->allDefectPosition = TemporaryOutput::selectRaw('temporary_output.*, act_costing.id as id_ws')->
+        $this->allDefectPosition = DB::connection('mysql_sb')->table('temporary_output')->
+            selectRaw('temporary_output.*, act_costing.id as id_ws')->
             leftJoin('so_det', 'so_det.id', '=', 'temporary_output.so_det_id')->
             leftJoin('so', 'so.id', '=', 'so_det.id_so')->
             leftJoin('act_costing', 'act_costing.id', '=', 'so.id_cost')->
@@ -532,7 +534,8 @@ class ReworkTemporary extends Component
             groupBy("temporary_output.id")->
             get();
 
-        $allDefectList = TemporaryOutput::selectRaw('temporary_output.defect_type_id, temporary_output.defect_area_id, output_defect_types.defect_type, output_defect_areas.defect_area, count(*) as total')->
+        $allDefectList = DB::connection('mysql_sb')->table('temporary_output')->
+            selectRaw('temporary_output.defect_type_id, temporary_output.defect_area_id, output_defect_types.defect_type, output_defect_areas.defect_area, count(*) as total')->
             leftJoin('output_defect_areas', 'output_defect_areas.id', '=', 'temporary_output.defect_area_id')->
             leftJoin('output_defect_types', 'output_defect_types.id', '=', 'temporary_output.defect_type_id')->
             where('temporary_output.tipe_output', 'defect')->
@@ -548,7 +551,7 @@ class ReworkTemporary extends Component
             orderBy('temporary_output.updated_at', 'desc')->
             paginate(5, ['*'], 'allDefectListPage');
 
-        $defects = TemporaryOutput::selectRaw('temporary_output.*, master_plan.gambar, so_det.size as so_det_size, output_defect_types.defect_type, output_defect_areas.defect_area')->
+        $defects = DB::connection('mysql_sb')->table('temporary_output')->selectRaw('temporary_output.*, master_plan.gambar, so_det.size as so_det_size, output_defect_types.defect_type, output_defect_areas.defect_area')->
             leftJoin('so_det', 'so_det.id', '=', 'temporary_output.so_det_id')->
             leftJoin('so', 'so.id', '=', 'so_det.id_so')->
             leftJoin('act_costing', 'act_costing.id', '=', 'so.id_cost')->
@@ -569,7 +572,7 @@ class ReworkTemporary extends Component
             groupBy('temporary_output.id')->
             paginate(10, ['*'], 'defectsPage');
 
-        $reworks = TemporaryOutput::selectRaw('temporary_output.*, master_plan.gambar, so_det.size as so_det_size, output_defect_types.defect_type, output_defect_areas.defect_area')->
+        $reworks = DB::connection('mysql_sb')->table('temporary_output')->selectRaw('temporary_output.*, master_plan.gambar, so_det.size as so_det_size, output_defect_types.defect_type, output_defect_areas.defect_area')->
             leftJoin('so_det', 'so_det.id', '=', 'temporary_output.so_det_id')->
             leftJoin('so', 'so.id', '=', 'so_det.id_so')->
             leftJoin('act_costing', 'act_costing.id', '=', 'so.id_cost')->
@@ -590,7 +593,7 @@ class ReworkTemporary extends Component
             groupBy('temporary_output.id')->
             paginate(10, ['*'], 'reworksPage');
 
-        $this->massSelectedDefect = TemporaryOutput::selectRaw('temporary_output.so_det_id, so_det.size as size, count(*) as total')->
+        $this->massSelectedDefect = DB::connection('mysql_sb')->table('temporary_output')->selectRaw('temporary_output.so_det_id, so_det.size as size, count(*) as total')->
             leftJoin('so_det', 'so_det.id', '=', 'temporary_output.so_det_id')->
             where('temporary_output.tipe_output', 'defect')->
             where('temporary_output.line_id', Auth::user()->line_id)->
@@ -600,7 +603,7 @@ class ReworkTemporary extends Component
             groupBy('temporary_output.so_det_id', 'so_det.size')->
             get();
 
-        $this->rework = TemporaryOutput::
+        $this->rework = DB::connection('mysql_sb')->table('temporary_output')->
             where('temporary_output.line_id', Auth::user()->line_id)->
             whereRaw('(DATE(temporary_output.created_at) = "'.$this->orderDate.'" OR DATE(temporary_output.updated_at) = "'.$this->orderDate.'")', )->
             where('tipe_output', 'rework')->

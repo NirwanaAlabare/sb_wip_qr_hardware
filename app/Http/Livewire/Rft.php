@@ -8,7 +8,6 @@ use App\Models\SignalBit\Rft as RftModel;
 use App\Models\SignalBit\Rework;
 use App\Models\SignalBit\Defect;
 use App\Models\SignalBit\Reject;
-use App\Models\Nds\Numbering;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use DB;
@@ -87,12 +86,16 @@ class Rft extends Component
 
     public function updateOutput()
     {
-        $this->output = RftModel::
+        $this->output = DB::
+            connection('mysql_sb')->
+            table('output_rfts')->
             where('master_plan_id', $this->orderInfo->id)->
             where('status', 'NORMAL')->
             count();
 
-        $this->rft = RftModel::
+        $this->rft = DB::
+            connection('mysql_sb')->
+            table('output_rfts')->
             where('master_plan_id', $this->orderInfo->id)->
             where('status', 'NORMAL')->
             whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->
@@ -109,7 +112,7 @@ class Rft extends Component
         $this->emit('qrInputFocus', 'rft');
 
         if ($this->numberingInput) {
-            $numberingData = Numbering::where("kode", $this->numberingInput)->first();
+            $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->numberingInput)->first();
 
             if ($numberingData) {
                 $this->sizeInput = $numberingData->so_det_id;
@@ -173,9 +176,9 @@ class Rft extends Component
 
         if ($this->rapidRft && count($this->rapidRft) > 0) {
             for ($i = 0; $i < count($this->rapidRft); $i++) {
-                $numberingData = Numbering::where("kode", $this->rapidRft[$i]['numberingInput'])->first();
+                $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->rapidRft[$i]['numberingInput'])->first();
 
-                if (!(RftModel::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0 || Defect::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0 || Reject::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0) && ($this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->count() > 0)) {
+                if (((DB::connection("mysql_sb")->table("output_rfts")->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() + DB::connection("mysql_sb")->table("output_defects")->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() + DB::connection("mysql_sb")->table("output_rejects")->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count()) < 1) && ($this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->count() > 0)) {
                     array_push($rapidRftFiltered, [
                         'master_plan_id' => $this->orderInfo->id,
                         'so_det_id' => $numberingData->so_det_id,
@@ -216,13 +219,17 @@ class Rft extends Component
         $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
         // Get total output
-        $this->output = RftModel::
+        $this->output = DB::
+            connection('mysql_sb')->
+            table('output_rfts')->
             where('master_plan_id', $this->orderInfo->id)->
             where('status', 'normal')->
             count();
 
         // Rft
-        $this->rft = RftModel::
+        $this->rft = DB::
+            connection('mysql_sb')->
+            table('output_rfts')->
             where('master_plan_id', $this->orderInfo->id)->
             where('status', 'NORMAL')->
             whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->

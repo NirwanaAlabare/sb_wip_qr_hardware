@@ -94,7 +94,7 @@ class RejectTemporary extends Component
         $this->emit('qrInputFocus', 'reject');
 
         if ($this->numberingInput) {
-            $numberingData = Numbering::where("kode", $this->numberingInput)->first();
+            $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $this->numberingInput)->first();
 
             if ($numberingData) {
                 $this->sizeInput = $numberingData->so_det_id;
@@ -192,10 +192,10 @@ class RejectTemporary extends Component
 
         if ($this->rapidReject && count($this->rapidReject) > 0) {
             for ($i = 0; $i < count($this->rapidReject); $i++) {
-                $numberingData = Numbering::where("kode", $this->rapidReject[$i]['numberingInput'])->first();
+                $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $this->rapidReject[$i]['numberingInput'])->first();
 
                 $thisOrderWsDetailSize = $this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->first();
-                if (!(RejectModel::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Rft::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Defect::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || TemporaryOutput::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0) && ($thisOrderWsDetailSize)) {
+                if (((DB::connection('mysql_sb')->table('output_rejects')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_rfts')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_defects')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('temporary_output')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count()) < 1) && ($thisOrderWsDetailSize)) {
                     array_push($rapidRejectFiltered, [
                         'master_plan_id' => $thisOrderWsDetailSize['master_plan_id'],
                         'so_det_id' => $numberingData->so_det_id,
@@ -208,7 +208,7 @@ class RejectTemporary extends Component
 
                     $success += 1;
                 } else {
-                    if (!(RejectModel::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Rft::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Defect::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || TemporaryOutput::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0)) {
+                    if (!(DB::connection('mysql_sb')->table('output_rejects')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || DB::connection('mysql_sb')->table('output_rfts')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || DB::connection('mysql_sb')->table('output_defects')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || DB::connection('mysql_sb')->table('temporary_output')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0)) {
                         array_push($rapidTemporaryFiltered, [
                             'line_id' => Auth::user()->line_id,
                             'so_det_id' => $this->rapidReject[$i]['sizeInput'],
@@ -243,7 +243,7 @@ class RejectTemporary extends Component
         $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
         // Reject
-        $this->reject = TemporaryOutput::
+        $this->reject = DB::connection('mysql_sb')->table('temporary_output')->
             where('temporary_output.line_id', Auth::user()->line_id)->
             whereRaw('(DATE(temporary_output.created_at) = "'.$this->orderDate.'" OR DATE(temporary_output.updated_at) = "'.$this->orderDate.'")')->
             where('tipe_output', 'reject')->

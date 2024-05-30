@@ -207,7 +207,7 @@ class DefectTemporary extends Component
         $thisOrderWsDetailSize = $this->orderWsDetailSizes->where("so_det_id", $this->sizeInput)->first();
 
         if ($thisOrderWsDetailSize) {
-            $masterPlan = MasterPlan::select('gambar')->find($thisOrderWsDetailSize['master_plan_id']);
+            $masterPlan = DB::connection('mysql_sb')->table('master_plan')->select('gambar')->find($thisOrderWsDetailSize['master_plan_id']);
 
             if ($masterPlan) {
                 $this->emit('showSelectDefectArea', $masterPlan->gambar);
@@ -215,7 +215,8 @@ class DefectTemporary extends Component
                 $this->emit('alert', 'error', 'Harap pilih tipe produk terlebih dahulu');
             }
         } else {
-            $masterPlan = MasterPlan::select('gambar')->
+            $masterPlan = connection('mysql_sb')->table('master_plan')->
+                select('gambar')->
                 leftJoin("act_costing", "act_costing.id", "=", "master_plan.id_ws")->
                 leftJoin("so", "so.id_cost", "=", "act_costing.id")->
                 leftJoin("so_det", "so_det.id_so", "=", "so.id")->
@@ -240,7 +241,7 @@ class DefectTemporary extends Component
     public function preSubmitInput()
     {
         if ($this->numberingInput) {
-            $numberingData = Numbering::where("kode", $this->numberingInput)->first();
+            $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $this->numberingInput)->first();
 
             if ($numberingData) {
                 $this->sizeInput = $numberingData->so_det_id;
@@ -392,7 +393,7 @@ class DefectTemporary extends Component
             if (($numberingInput && $item['numberingInput'] == $numberingInput)) {
                 $exist = true;
             } else {
-                $numberingData = Numbering::where("kode", $numberingInput)->first();
+                $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $numberingInput)->first();
 
                 if ($numberingData) {
                     if ($item['masterPlanId'] && $item['masterPlanId'] != $this->orderWsDetailSizes->where("so_det_id", $numberingData->so_det_id)->first()['master_plan_id']) {
@@ -406,7 +407,7 @@ class DefectTemporary extends Component
             $this->rapidDefectCount += 1;
 
             if ($numberingInput) {
-                $numberingData = Numbering::where("kode", $numberingInput)->first();
+                $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $numberingInput)->first();
 
                 if ($numberingData) {
                     $sizeInput = $numberingData->so_det_id;
@@ -449,7 +450,7 @@ class DefectTemporary extends Component
         if ($this->rapidDefect && count($this->rapidDefect) > 0) {
             for ($i = 0; $i < count($this->rapidDefect); $i++) {
                 $thisOrderWsDetailSize = $this->orderWsDetailSizes->where('so_det_id', $this->rapidDefect[$i]['sizeInput'])->first();
-                if (!(DefectModel::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0 || Rft::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0 || Reject::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0) && ($thisOrderWsDetailSize)) {
+                if (((DB::connection('mysql_sb')->table('output_defects')->where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_rfts')->where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_rejects')->where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count()) < 1) && ($thisOrderWsDetailSize)) {
                     array_push($rapidDefectFiltered, [
                         'master_plan_id' => $thisOrderWsDetailSize["master_plan_id"],
                         'so_det_id' => $this->rapidDefect[$i]['sizeInput'],
@@ -466,7 +467,7 @@ class DefectTemporary extends Component
 
                     $success += 1;
                 } else {
-                    if (!(DefectModel::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0 || Rft::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0 || Reject::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0 || TemporaryOutput::where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0)) {
+                    if (((DB::connection('mysql_sb')->table('output_defects')->where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_rfts')->where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_rejects')->where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0) || DB::connection('mysql_sb')->table('temporary_output')->where('kode_numbering', $this->rapidDefect[$i]['numberingInput'])->count() > 0)) {
                         array_push($rapidTemporaryFiltered, [
                             'line_id' => Auth::user()->line_id,
                             'so_det_id' => $this->rapidDefect[$i]['sizeInput'],
@@ -516,7 +517,7 @@ class DefectTemporary extends Component
         $this->defectAreas = DefectArea::orderBy('defect_area')->get();
 
         // Defect
-        $this->defect = TemporaryOutput::
+        $this->defect = DB::connection('mysql_sb')->table('temporary_output')->
             where('temporary_output.line_id', Auth::user()->line_id)->
             whereRaw('(DATE(temporary_output.created_at) = "'.$this->orderDate.'" OR DATE(temporary_output.updated_at) = "'.$this->orderDate.'")')->
             where('tipe_output', 'defect')->

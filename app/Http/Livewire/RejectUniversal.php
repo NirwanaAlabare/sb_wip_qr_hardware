@@ -93,7 +93,7 @@ class RejectUniversal extends Component
         $this->emit('qrInputFocus', 'reject');
 
         if ($this->numberingInput) {
-            $numberingData = Numbering::where("kode", $this->numberingInput)->first();
+            $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $this->numberingInput)->first();
 
             if ($numberingData) {
                 $this->sizeInput = $numberingData->so_det_id;
@@ -166,11 +166,11 @@ class RejectUniversal extends Component
 
         if ($this->rapidReject && count($this->rapidReject) > 0) {
             for ($i = 0; $i < count($this->rapidReject); $i++) {
-                $numberingData = Numbering::where("kode", $this->rapidReject[$i]['numberingInput'])->first();
+                $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $this->rapidReject[$i]['numberingInput'])->first();
 
                 $thisOrderWsDetailSize = $this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->first();
 
-                if (!(RejectModel::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Rft::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0 || Defect::where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() > 0) && ($thisOrderWsDetailSize)) {
+                if (((DB::connection('mysql_sb')->table('output_rejects')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_rfts')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_defects')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count()) < 1) && ($thisOrderWsDetailSize)) {
                     array_push($rapidRejectFiltered, [
                         'master_plan_id' => $thisOrderWsDetailSize['master_plan_id'],
                         'so_det_id' => $numberingData->so_det_id,
@@ -202,7 +202,7 @@ class RejectUniversal extends Component
         $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
         // Reject
-        $this->reject = RejectModel::
+        $this->reject = DB::connection('mysql_sb')->table('output_rejects')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_rejects.master_plan_id')->
             where('master_plan.sewing_line', Auth::user()->username)->
             where('master_plan.tgl_plan', $this->orderDate)->

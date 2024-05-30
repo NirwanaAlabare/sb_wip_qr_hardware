@@ -96,7 +96,7 @@ class RftUniversal extends Component
         $this->emit('qrInputFocus', 'rft');
 
         if ($this->numberingInput) {
-            $numberingData = Numbering::where("kode", $this->numberingInput)->first();
+            $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->numberingInput)->first();
 
             if ($numberingData) {
                 $this->sizeInput = $numberingData->so_det_id;
@@ -161,10 +161,10 @@ class RftUniversal extends Component
 
         if ($this->rapidRft && count($this->rapidRft) > 0) {
             for ($i = 0; $i < count($this->rapidRft); $i++) {
-                $numberingData = Numbering::where("kode", $this->rapidRft[$i]['numberingInput'])->first();
+                $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->rapidRft[$i]['numberingInput'])->first();
 
                 $thisOrderWsDetailSize = $this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id )->first();
-                if (!(RftModel::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0 || Defect::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0 || Reject::where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() > 0) && ($thisOrderWsDetailSize)) {
+                if (((DB::connection("mysql_sb")->table("output_rfts")->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() + DB::connection("mysql_sb")->table("output_defects")->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() + DB::connection("mysql_sb")->table("output_rejects")->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count()) < 1) && ($thisOrderWsDetailSize)) {
                     array_push($rapidRftFiltered, [
                         'master_plan_id' => $thisOrderWsDetailSize['master_plan_id'],
                         'so_det_id' => $numberingData->so_det_id,
@@ -201,7 +201,9 @@ class RftUniversal extends Component
     {
         $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
-        $this->rft = RftModel::
+        $this->rft = DB::
+            connection("mysql_sb")->
+            table("output_rfts")->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_rfts.master_plan_id')->
             where('master_plan.sewing_line', Auth::user()->username)->
             where('master_plan.tgl_plan', $this->orderDate)->

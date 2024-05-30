@@ -498,28 +498,28 @@ class ProductionPanel extends Component
         $this->orderDate = $this->orderInfo->tgl_plan;
 
         // Get total output
-        $this->outputRft = Rft::
+        $this->outputRft = DB::connection('mysql_sb')->table('output_rfts')->
             where('master_plan_id', $this->orderInfo->id)->
             where('status', 'NORMAL')->
             count();
-        $this->outputDefect = Defect::
+        $this->outputDefect = DB::connection('mysql_sb')->table('output_defects')->
             where('master_plan_id', $this->orderInfo->id)->
             where('defect_status', 'defect')->
             count();
-        $this->outputReject = Reject::
+        $this->outputReject = DB::connection('mysql_sb')->table('output_rejects')->
             where('master_plan_id', $this->orderInfo->id)->
             count();
-        $this->outputRework = Defect::
+        $this->outputRework = DB::connection('mysql_sb')->table('output_defects')->
             where('master_plan_id', $this->orderInfo->id)->
             where('defect_status', 'reworked')->
             count();
-        $sqlFiltered = Rft::select('id')->where('master_plan_id', $this->orderInfo->id)->where('status', 'NORMAL');
+        $sqlFiltered = DB::connection('mysql_sb')->table('output_rfts')->select('id')->where('master_plan_id', $this->orderInfo->id)->where('status', 'NORMAL');
         $this->outputFiltered = $this->selectedSize == 'all' ? $sqlFiltered->count() : $sqlFiltered->where('so_det_id', $this->selectedSize)->count();
 
         // Undo size data
         switch ($this->undoType) {
             case 'rft' :
-                $this->undoSizes = Rft::selectRaw('so_det.id as so_det_id, so_det.size, count(*) as total')->
+                $this->undoSizes = DB::connection('mysql_sb')->table('output_rfts')->selectRaw('so_det.id as so_det_id, so_det.size, count(*) as total')->
                     leftJoin('so_det', 'so_det.id', '=', 'output_rfts.so_det_id')->
                     where('master_plan_id', $this->orderInfo->id)->
                     where('status', 'NORMAL')->
@@ -529,7 +529,7 @@ class ProductionPanel extends Component
                     get();
                 break;
             case 'defect' :
-                $this->undoSizes = Defect::selectRaw('so_det.id as so_det_id, so_det.size, count(*) as total')->
+                $this->undoSizes = DB::connection('mysql_sb')->table('output_defects')->selectRaw('so_det.id as so_det_id, so_det.size, count(*) as total')->
                     leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
                     where('master_plan_id', $this->orderInfo->id)->
                     where('status', 'NORMAL')->
@@ -540,7 +540,7 @@ class ProductionPanel extends Component
                     get();
                 break;
             case 'reject' :
-                $this->undoSizes = Reject::selectRaw('so_det.id as so_det_id, so_det.size, count(*) as total')->
+                $this->undoSizes = DB::connection('mysql_sb')->table('output_rejects')->selectRaw('so_det.id as so_det_id, so_det.size, count(*) as total')->
                     leftJoin('so_det', 'so_det.id', '=', 'output_rejects.so_det_id')->
                     where('master_plan_id', $this->orderInfo->id)->
                     where('status', 'NORMAL')->
@@ -550,7 +550,7 @@ class ProductionPanel extends Component
                     get();
                 break;
             case 'rework' :
-                $this->undoSizes = Rework::selectRaw('so_det.id as so_det_id, so_det.size, count(*) as total')->
+                $this->undoSizes = DB::connection('mysql_sb')->table('output_reworks')->selectRaw('so_det.id as so_det_id, so_det.size, count(*) as total')->
                     leftJoin('output_defects', 'output_defects.id', '=', 'output_reworks.defect_id')->
                     leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
                     where('output_defects.master_plan_id', $this->orderInfo->id)->
