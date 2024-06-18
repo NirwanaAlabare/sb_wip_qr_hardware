@@ -15,7 +15,13 @@
     <script defer src="{{ asset('alpinejs/dist/cdn.min.js') }}"></script>
 </head>
 <body>
-    @include('layouts.navbar')
+    @php
+        $thisOrderDate = "";
+        if (isset($orderDate) && $orderDate) {
+            $thisOrderDate = $orderDate;
+        }
+    @endphp
+    @include('layouts.navbar', ["orderDate" => $thisOrderDate])
 
     @include('profile')
     @include('history')

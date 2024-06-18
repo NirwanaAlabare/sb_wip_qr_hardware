@@ -23,11 +23,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // show date
 function showDate() {
-    let date = new Date();
+    if (document.getElementById("tanggal") && (document.getElementById("tanggal").value == "" || document.getElementById("tanggal").value == null)) {
+        let date = new Date();
 
-    let dateFormat = setDateFormat(date);
+        let dateFormat = setDateFormat(date);
 
-    if (document.getElementById("tanggal")) {
         document.getElementById("tanggal").value = dateFormat;
     }
 }
