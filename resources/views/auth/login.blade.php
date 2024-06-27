@@ -18,7 +18,10 @@
     <div class="login-card card">
         <div class="row align-items-center g-0">
             <div class="col-md-6">
-                <img src="{{ asset('images/Frame 1.png') }}" class="img-fluid mt-auto mb-auto" alt="...">
+                <div class="d-flex flex-column justify-content-center align-items-center">
+                    <img src="{{ asset('images/Frame 1.png') }}" class="img-fluid mt-auto mb-auto" alt="...">
+                    <p class="fs-5 mt-3 w-75 mb-0 bg-sb text-light text-center rounded-3">QC ENDLINE <b>QR</b></p>
+                </div>
             </div>
             <div class="col-md-6">
                 <div class="card-body my-5">

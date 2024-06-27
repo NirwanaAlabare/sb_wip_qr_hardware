@@ -9,7 +9,10 @@
 <header>
     <nav class="navbar bg-body-secondary navbar-expand">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url('/') }}"><img src="{{ asset('images/Frame 1.png') }}" alt="" width="130"></a>
+            <div class="d-flex align-items-center">
+                <a class="navbar-brand" href="{{ url('/') }}"><img src="{{ asset('images/Frame 1.png') }}" alt="" width="130"></a>
+                <p class="mb-0 bg-sb p-1 text-light rounded-3 fw-bold">QC LINE QR</p>
+            </div>
             <ul class="navbar-nav align-items-center gap-3">
                 <div class="row justify-content-end align-items-center">
                     <div class="col-md-auto">
