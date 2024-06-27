@@ -221,7 +221,7 @@ class Rework extends Component
                 ]);
             }
             // update defect
-            $updateDefect = Defect::whereIn($defectIds)->update([
+            $updateDefect = Defect::whereIn("id", $defectIds)->update([
                 "defect_status" => "reworked"
             ]);
 
