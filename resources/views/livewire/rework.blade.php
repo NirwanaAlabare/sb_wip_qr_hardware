@@ -174,6 +174,7 @@
                     <table class="table table-bordered text-center align-middle">
                         <tr>
                             <th>No.</th>
+                            <th>Waktu</th>
                             <th>ID</th>
                             <th>Size</th>
                             <th>Defect Type</th>
@@ -190,6 +191,7 @@
                             @foreach ($defects as $defect)
                                 <tr>
                                     <td>{{ $defects->firstItem() + $loop->index }}</td>
+                                    <td>{{ $defect->updated_at ? $defect->updated_at : $defect->created_at }}</td>
                                     <td>{{ $defect->id }}</td>
                                     <td>{{ $defect->so_det_size }}</td>
                                     <td>{{ $defect->defect_type}}</td>
@@ -238,6 +240,7 @@
                     <table class="table table-bordered text-center align-middle">
                         <tr>
                             <th>No.</th>
+                            <th>Waktu</th>
                             <th>ID</th>
                             <th>Size</th>
                             <th>Defect Type</th>
@@ -254,6 +257,7 @@
                             @foreach ($reworks as $rework)
                                 <tr>
                                     <td>{{ $reworks->firstItem() + $loop->index }}</td>
+                                    <td>{{ $rework->updated_at ? $rework->updated_at : $rework->created_at }}</td>
                                     <td>{{ $rework->defect->id }}</td>
                                     <td>{{ $rework->so_det_size }}</td>
                                     <td>{{ $rework->defect_type}}</td>
