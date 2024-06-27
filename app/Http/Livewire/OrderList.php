@@ -61,8 +61,7 @@ class OrderList extends Component
                 DB::raw("
                     (
                         select
-                            master_plan.tgl_plan,
-                            master_plan.id_ws,
+                            master_plan.id as master_plan_id,
                             count(output_rfts.id) as progress
                         from
                             master_plan
@@ -70,39 +69,31 @@ class OrderList extends Component
                             output_rfts on output_rfts.master_plan_id = master_plan.id
                         where
                             master_plan.sewing_line = '".strtoupper(Auth::user()->username)."' AND
+                            DATE(output_rfts.updated_at) = '".$this->date."' AND
                             master_plan.cancel = 'N'
                         group by
-                            master_plan.id_ws,
-                            master_plan.tgl_plan
+                            master_plan.id
                     ) output"
                 ),
-                function ($join) {
-                    $join->on("output.id_ws", "=", "master_plan.id_ws");
-                    $join->on("output.tgl_plan", "=", "master_plan.tgl_plan");
-                }
+                "output.master_plan_id", "=", "master_plan.id"
             )
             ->leftJoin(
                 DB::raw("
                     (
                         select
-                            id_ws,
-                            tgl_plan,
+                            id,
                             sum(plan_target) as target
                         from
                             master_plan
                         where
                             sewing_line = '".strtoupper(Auth::user()->username)."' AND
+                            master_plan.tgl_plan = '".$this->date."' AND
                             master_plan.cancel = 'N'
-                            ".$additionalQuery."
                         group by
-                            id_ws,
-                            tgl_plan
+                            id
                     ) plan"
                 ),
-                function ($join) {
-                    $join->on("plan.id_ws", "=", "master_plan.id_ws");
-                    $join->on("plan.tgl_plan", "=", "master_plan.tgl_plan");
-                }
+                "plan.id", "=", "master_plan.id"
             )
             ->where('master_plan.sewing_line', strtoupper(Auth::user()->username))
             ->where('so_det.cancel', 'N')

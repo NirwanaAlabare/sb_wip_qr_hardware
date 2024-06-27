@@ -60,12 +60,12 @@
                             </table>
                             <div class="mx-2">
                                 <div class="d-flex justify-content-between w-100">
-                                    <p class="mb-1">Output : <b>{{ $order->progress }}</b></p>
-                                    <p class="mb-1">Target : <b>{{ $order->target }}</b></p>
+                                    <p class="mb-1">Output : <b>{{ $order->progress ? $order->progress : 0 }}</b></p>
+                                    <p class="mb-1">Target : <b>{{ $order->target ? $order->target : 0 }}</b></p>
                                 </div>
                                 <div class="progress" role="progressbar" aria-valuenow="{{ $order->progress }}" aria-valuemin="0" aria-valuemax="{{ $order->target }}" style="height: 15px">
                                     @php
-                                        $outputProgress = $order->progress > 0 ? floatval($order->progress)/floatval($order->target) * 100 : 0;
+                                        $outputProgress = $order->target > 0 ? floatval($order->progress)/floatval($order->target) * 100 : 0;
                                     @endphp
                                     <div class="progress-bar fw-bold {{ $outputProgress > 100 ? 'bg-rft' : 'bg-sb' }}" style="width:{{  $outputProgress }}%">{{ $outputProgress > 100 ? 'TARGET TERLAMPAUI' : '' }}</div>
                                 </div>
