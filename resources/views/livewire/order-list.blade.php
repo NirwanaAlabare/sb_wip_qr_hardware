@@ -8,7 +8,7 @@
             </div>
         </div>
         <div class="col-md-12 col-lg-2">
-            <a href="{{ url('/production-panel/universal/') }}" class="btn btn-sb w-100">
+            <a href="{{ url($baseUrl.'/production-panel/universal/') }}" class="btn btn-sb w-100">
                 <h5 class="mb-0"><i class="fa-solid fa-globe"></i></h5>
             </a href="/production-panel/universal/">
         </div>
@@ -28,7 +28,7 @@
             {{-- <h5 class="text-center text-muted mt-3"><i class="fa-solid fa-circle-exclamation"></i> Order tidak ditemukan</h5> --}}
         @else
             @foreach ($orders as $order)
-                <a href="{{ url('/production-panel/index/'.$order->id) }}" class="order col-md-6 h-100">
+                <a href="{{ url($baseUrl.'/production-panel/index/'.$order->id) }}" class="order col-md-6 h-100">
                     <div class="card h-100">
                         <div class="card-body justify-content-start">
                             <table class="table table-responsive mb-1">
@@ -72,10 +72,10 @@
                             </div>
                         </div>
                     </div>
-                </a href="/production-panel/index/{{ $order->id }}">
+                </a href="{{ $baseUrl }}/production-panel/index/{{ $order->id }}">
             @endforeach
         @endif
-        <a href="{{ url('/production-panel/temporary/') }}" class="order col-md-6 h-100">
+        <a href="{{ url($baseUrl.'/production-panel/temporary/') }}" class="order col-md-6 h-100">
             <div class="card h-100">
                 <div class="card-body justify-content-start">
                     <div class="mx-2">
@@ -86,7 +86,7 @@
                     </div>
                 </div>
             </div>
-        </a href="/production-panel/temporary/">
+        </a href="{{ $baseUrl }}/production-panel/temporary/">
     </div>
 
     <div class="w-100 mt-3">

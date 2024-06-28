@@ -16,6 +16,8 @@ class OrderList extends Component
     public $date = '';
     public $temporaryOutput;
 
+    public $baseUrl;
+
     public $listeners = ['setDate'];
 
     public function mount(SessionManager $session)
@@ -23,6 +25,7 @@ class OrderList extends Component
         $session->forget('orderInfo');
         $session->forget('orderWsDetails');
         $this->date = date('Y-m-d');
+        $this->baseUrl = url('/');
     }
 
     public function setDate($date)
@@ -47,18 +50,22 @@ class OrderList extends Component
                 act_costing.kpno as ws_number,
                 mastersupplier.supplier as buyer_name,
                 act_costing.styleno as style_name,
-                SUM(output.progress) as progress,
-                SUM(plan.target) as target,
+                output.progress as progress,
+                plan.target as target,
                 CONCAT(masterproduct.product_group, ' - ', masterproduct.product_item) as product_type
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
+            ->leftJoin('so', 'so.id_cost', '=', 'act_costing.id')
+            ->leftJoin('so_det', 'so_det.id_so', '=', 'so.id')
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
+            ->leftJoin('master_size_new', 'master_size_new.size', '=', 'so_det.size')
             ->leftJoin('masterproduct', 'masterproduct.id', '=', 'act_costing.id_product')
             ->leftJoin(
                 DB::raw("
                     (
                         select
-                            master_plan.id as master_plan_id,
+                            master_plan.tgl_plan,
+                            master_plan.id_ws,
                             count(output_rfts.id) as progress
                         from
                             master_plan
@@ -69,31 +76,42 @@ class OrderList extends Component
                             DATE(output_rfts.updated_at) = '".$this->date."' AND
                             master_plan.cancel = 'N'
                         group by
-                            master_plan.id
+                            master_plan.id_ws,
+                            master_plan.tgl_plan
                     ) output"
                 ),
-                "output.master_plan_id", "=", "master_plan.id"
+                function ($join) {
+                    $join->on("output.id_ws", "=", "master_plan.id_ws");
+                    $join->on("output.tgl_plan", "=", "master_plan.tgl_plan");
+                }
             )
             ->leftJoin(
                 DB::raw("
                     (
                         select
-                            id,
+                            id_ws,
+                            tgl_plan,
                             sum(plan_target) as target
                         from
                             master_plan
                         where
                             sewing_line = '".strtoupper(Auth::user()->username)."' AND
-                            master_plan.tgl_plan = '".$this->date."' AND
+                            tgl_plan = '".$this->date."' AND
                             master_plan.cancel = 'N'
                         group by
-                            id
+                            id_ws,
+                            tgl_plan
                     ) plan"
                 ),
-                "plan.id", "=", "master_plan.id"
+                function ($join) {
+                    $join->on("plan.id_ws", "=", "master_plan.id_ws");
+                    $join->on("plan.tgl_plan", "=", "master_plan.tgl_plan");
+                }
             )
             ->where('master_plan.sewing_line', strtoupper(Auth::user()->username))
+            ->where('so_det.cancel', 'N')
             ->where('master_plan.cancel', 'N')
+            ->where('master_plan.tgl_plan', $this->date)
             ->whereRaw("
                 master_plan.tgl_plan = '".$this->date."'
                 ".$additionalQuery."
@@ -111,7 +129,14 @@ class OrderList extends Component
             ")
             ->groupBy(
                 'master_plan.id_ws',
-                'master_plan.tgl_plan'
+                'master_plan.tgl_plan',
+                'act_costing.kpno',
+                'mastersupplier.supplier',
+                'act_costing.styleno',
+                'product_type',
+                'output.progress',
+                'plan.target',
+                'so.id'
             )
             ->orderBy('master_plan.tgl_plan', 'desc')
             ->get();
