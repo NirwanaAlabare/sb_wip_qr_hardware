@@ -47,15 +47,12 @@ class OrderList extends Component
                 act_costing.kpno as ws_number,
                 mastersupplier.supplier as buyer_name,
                 act_costing.styleno as style_name,
-                output.progress as progress,
-                plan.target as target,
+                SUM(output.progress) as progress,
+                SUM(plan.target) as target,
                 CONCAT(masterproduct.product_group, ' - ', masterproduct.product_item) as product_type
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
-            ->leftJoin('so', 'so.id_cost', '=', 'act_costing.id')
-            ->leftJoin('so_det', 'so_det.id_so', '=', 'so.id')
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
-            ->leftJoin('master_size_new', 'master_size_new.size', '=', 'so_det.size')
             ->leftJoin('masterproduct', 'masterproduct.id', '=', 'act_costing.id_product')
             ->leftJoin(
                 DB::raw("
@@ -96,7 +93,6 @@ class OrderList extends Component
                 "plan.id", "=", "master_plan.id"
             )
             ->where('master_plan.sewing_line', strtoupper(Auth::user()->username))
-            ->where('so_det.cancel', 'N')
             ->where('master_plan.cancel', 'N')
             ->whereRaw("
                 master_plan.tgl_plan = '".$this->date."'
@@ -115,14 +111,7 @@ class OrderList extends Component
             ")
             ->groupBy(
                 'master_plan.id_ws',
-                'master_plan.tgl_plan',
-                'act_costing.kpno',
-                'mastersupplier.supplier',
-                'act_costing.styleno',
-                'product_type',
-                'output.progress',
-                'plan.target',
-                'so.id'
+                'master_plan.tgl_plan'
             )
             ->orderBy('master_plan.tgl_plan', 'desc')
             ->get();
