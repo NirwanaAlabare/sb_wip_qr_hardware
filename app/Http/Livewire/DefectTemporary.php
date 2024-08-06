@@ -407,7 +407,11 @@ class DefectTemporary extends Component
             $this->rapidDefectCount += 1;
 
             if ($numberingInput) {
-                $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $numberingInput)->first();
+                if (str_contains($numberingInput, 'WIP')) {
+                    $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $numberingInput)->first();
+                } else {
+                    $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $numberingInput)->first();
+                }
 
                 if ($numberingData) {
                     $sizeInput = $numberingData->so_det_id;

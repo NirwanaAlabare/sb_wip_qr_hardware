@@ -225,7 +225,11 @@ class DefectUniversal extends Component
     public function preSubmitInput()
     {
         if ($this->numberingInput) {
-            $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $this->numberingInput)->first();
+            if (str_contains($this->numberingInput, 'WIP')) {
+                $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->numberingInput)->first();
+            } else {
+                $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->numberingInput)->first();
+            }
 
             if ($numberingData) {
                 $this->sizeInput = $numberingData->so_det_id;
@@ -333,7 +337,11 @@ class DefectUniversal extends Component
             if (($numberingInput && $item['numberingInput'] == $numberingInput)) {
                 $exist = true;
             } else {
-                $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $numberingInput)->first();
+                if (str_contains($numberingInput, 'WIP')) {
+                    $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $numberingInput)->first();
+                } else {
+                    $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $numberingInput)->first();
+                }
 
                 if ($numberingData) {
                     if ($item['masterPlanId'] != $this->orderWsDetailSizes->where("so_det_id", $numberingData->so_det_id)->first()['master_plan_id']) {
@@ -347,7 +355,11 @@ class DefectUniversal extends Component
             $this->rapidDefectCount += 1;
 
             if ($numberingInput) {
-                $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $numberingInput)->first();
+                if (str_contains($this->numberingInput, 'WIP')) {
+                    $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->numberingInput)->first();
+                } else {
+                    $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->numberingInput)->first();
+                }
 
                 if ($numberingData) {
                     $sizeInput = $numberingData->so_det_id;
