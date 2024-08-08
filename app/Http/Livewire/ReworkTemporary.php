@@ -169,7 +169,7 @@ class ReworkTemporary extends Component
     }
 
     public function submitAllRework() {
-        $allDefect = DB::connection('mysql_sb')->table('output_defects')->selectRaw('output_defects.id id, output_defects.master_plan_id master_plan_id, output_defects.kode_numbering, output_defects.so_det_id so_det_id')->
+        $allDefect = DB::connection('mysql_sb')->table('output_defects')->selectRaw('output_defects.id id, output_defects.master_plan_id master_plan_id, output_defects.kode_numbering, output_defects.no_cut_size, output_defects.so_det_id so_det_id')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
             where('output_defects.defect_status', 'defect')->
