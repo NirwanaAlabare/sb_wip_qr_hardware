@@ -97,7 +97,14 @@ class RejectTemporary extends Component
             if (str_contains($this->numberingInput, 'WIP')) {
                 $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->numberingInput)->first();
             } else {
-                $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->numberingInput)->first();
+                $numberingCodes = explode('_', $this->numberingInput);
+
+                if (count($numberingCodes) > 2) {
+                    $this->numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
+                    $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
+                } else {
+                    $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->numberingInput)->first();
+                }
             }
 
             if ($numberingData) {
@@ -193,13 +200,19 @@ class RejectTemporary extends Component
         $success = 0;
         $temporary = 0;
         $fail = 0;
-
         if ($this->rapidReject && count($this->rapidReject) > 0) {
             for ($i = 0; $i < count($this->rapidReject); $i++) {
                 if (str_contains($this->rapidReject[$i]['numberingInput'], 'WIP')) {
                     $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->rapidReject[$i]['numberingInput'])->first();
                 } else {
-                    $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->rapidReject[$i]['numberingInput'])->first();
+                    $numberingCodes = explode('_', $this->rapidReject[$i]['numberingInput']);
+
+                    if (count($numberingCodes) > 2) {
+                        $this->rapidReject[$i]['numberingInput'] = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
+                        $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->rapidReject[$i]['numberingInput'])->first();
+                    } else {
+                        $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->rapidReject[$i]['numberingInput'])->first();
+                    }
                 }
 
                 $thisOrderWsDetailSize = $this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->first();
