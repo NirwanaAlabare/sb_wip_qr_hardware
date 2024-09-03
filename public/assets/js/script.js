@@ -550,7 +550,7 @@ function showSelectDefectArea(defectAreaImage) {
     document.body.style.overflow = 'hidden';
 
     let defectAreaImageElement = document.getElementById('defect-area-img');
-    defectAreaImageElement.src = 'http://10.10.5.62:8080/erp1/pages/prod_new/upload_files/'+defectAreaImage;
+    defectAreaImageElement.src = 'http://10.10.5.62:8080/erp/pages/prod_new/upload_files/'+defectAreaImage;
 
     let selectDefectArea = document.getElementById('select-defect-area');
     selectDefectArea.style.display = 'flex';
