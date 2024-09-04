@@ -34,7 +34,7 @@
                         <li class="nav-item dropdown w-100">
                             <button class="btn btn-sm bg-white dropdown-toggle w-100" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fa-regular fa-gear"></i>
-                                <span>{{ strtoupper(substr(Auth::user()->name, 0, 5)).(strlen(Auth::user()->name) > 5 ? '...' : '') }}</span>
+                                <span>{{ strtoupper(substr(Auth::user()->name, 0, 8)).(strlen(Auth::user()->name) > 8 ? '...' : '') }}</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profile"><i class="fa-regular fa-gear"></i> {{ strtoupper(Auth::user()->name) }}</a></li>
