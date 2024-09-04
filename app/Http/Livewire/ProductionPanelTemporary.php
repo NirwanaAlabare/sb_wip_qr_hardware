@@ -119,7 +119,7 @@ class ProductionPanelTemporary extends Component
             ->where('so_det.cancel', '!=', 'Y')
             ->where('master_plan.cancel', '!=', 'Y')
             ->where('master_plan.tgl_plan', $this->orderDate)
-            ->where('master_plan.sewing_line', Auth::user()->username)
+            ->where('master_plan.sewing_line', Auth::user()->line->username)
             ->groupBy('master_plan.id', 'so_det.color', 'so_det.size', 'so_det.dest', 'so_det.id')
             ->orderBy('so_det_id')
             ->get();

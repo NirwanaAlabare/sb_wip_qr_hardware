@@ -36,20 +36,20 @@ class HistoryContent extends Component
         // $latestOutput = DB::select(DB::raw("
         //     SELECT output_rfts.created_at, output_rfts.updated_at FROM output_rfts
         //     LEFT JOIN master_plan ON master_plan.id = output_rfts.master_plan_id
-        //     WHERE master_plan.sewing_line = '".Auth::user()->username."'
+        //     WHERE master_plan.sewing_line = '".Auth::user()->line->username."'
         //     UNION
         //     SELECT output_defects.created_at, output_defects.updated_at FROM output_defects
         //     LEFT JOIN master_plan ON master_plan.id = output_defects.master_plan_id
-        //     WHERE master_plan.sewing_line = '".Auth::user()->username."'
+        //     WHERE master_plan.sewing_line = '".Auth::user()->line->username."'
         //     UNION
         //     SELECT output_rejects.created_at, output_rejects.updated_at FROM output_rejects
         //     LEFT JOIN master_plan ON master_plan.id = output_rejects.master_plan_id
-        //     WHERE master_plan.sewing_line = '".Auth::user()->username."'
+        //     WHERE master_plan.sewing_line = '".Auth::user()->line->username."'
         //     UNION
         //     SELECT output_reworks.created_at, output_reworks.updated_at FROM output_reworks
         //     LEFT JOIN output_defects ON output_defects.id = output_reworks.defect_id
         //     LEFT JOIN master_plan ON master_plan.id = output_defects.master_plan_id
-        //     WHERE master_plan.sewing_line = '".Auth::user()->username."'
+        //     WHERE master_plan.sewing_line = '".Auth::user()->line->username."'
         //     ORDER BY updated_at DESC, created_at DESC
         //     LIMIT 10
         // "));
@@ -58,7 +58,7 @@ class HistoryContent extends Component
             leftJoin('master_plan', 'master_plan.id', '=', 'output_rfts.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_rfts.so_det_id')->
             where('output_rfts.status', 'normal')->
-            where('master_plan.sewing_line', Auth::user()->username);
+            where('master_plan.sewing_line', Auth::user()->line->username);
             if ($this->masterPlan) {
                 $latestOutputRfts->where('master_plan.id', $this->masterPlan);
             }
@@ -85,7 +85,7 @@ class HistoryContent extends Component
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
             where('output_defects.defect_status', 'defect')->
-            where('master_plan.sewing_line', Auth::user()->username);
+            where('master_plan.sewing_line', Auth::user()->line->username);
             if ($this->masterPlan) {
                 $latestOutputDefects->where('master_plan.id', $this->masterPlan);
             }
@@ -108,7 +108,7 @@ class HistoryContent extends Component
         $latestOutputRejects = Reject::selectRaw('output_rejects.updated_at, so_det.size as size, count(*) as total')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_rejects.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_rejects.so_det_id')->
-            where('master_plan.sewing_line', Auth::user()->username);
+            where('master_plan.sewing_line', Auth::user()->line->username);
             if ($this->masterPlan) {
                 $latestOutputRejects->where('master_plan.id', $this->masterPlan);
             }
@@ -136,7 +136,7 @@ class HistoryContent extends Component
             leftJoin('output_defect_areas', 'output_defect_areas.id', '=', 'output_defects.defect_area_id')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
-            where('master_plan.sewing_line', Auth::user()->username);
+            where('master_plan.sewing_line', Auth::user()->line->username);
             if ($this->masterPlan) {
                 $latestOutputReworks->where('master_plan.id', $this->masterPlan);
             }

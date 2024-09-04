@@ -173,7 +173,7 @@ class ReworkTemporary extends Component
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
             where('output_defects.defect_status', 'defect')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             get();
 
@@ -201,7 +201,7 @@ class ReworkTemporary extends Component
                 ]);
             }
             // update defect
-            $masterPlanIds = MasterPlan::where("sewing_line", Auth::user()->username)->
+            $masterPlanIds = MasterPlan::where("sewing_line", Auth::user()->line->username)->
                 where("tgl_plan", $this->orderDate)->
                 pluck("id")->
                 toArray();
@@ -259,7 +259,7 @@ class ReworkTemporary extends Component
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
             where('output_defects.defect_status', 'defect')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             where('output_defects.defect_type_id', $this->massDefectType)->
             where('output_defects.defect_area_id', $this->massDefectArea)->

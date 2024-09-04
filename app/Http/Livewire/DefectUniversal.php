@@ -469,7 +469,7 @@ class DefectUniversal extends Component
         // Defect
         $this->defect = DB::connection('mysql_sb')->table('output_defects')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             where('defect_status', 'defect')->
             whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->

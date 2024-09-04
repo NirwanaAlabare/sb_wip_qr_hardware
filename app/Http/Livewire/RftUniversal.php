@@ -227,7 +227,7 @@ class RftUniversal extends Component
             connection("mysql_sb")->
             table("output_rfts")->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_rfts.master_plan_id')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             where('status', 'NORMAL')->
             whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->

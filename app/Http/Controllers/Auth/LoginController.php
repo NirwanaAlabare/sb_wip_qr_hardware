@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginRequest;
 use App\Models\SignalBit\UserPassword;
+use App\Models\SignalBit\UserSbWip;
 
 class LoginController extends Controller
 {

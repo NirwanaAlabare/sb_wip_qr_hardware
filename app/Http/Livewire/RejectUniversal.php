@@ -226,7 +226,7 @@ class RejectUniversal extends Component
         // Reject
         $this->reject = DB::connection('mysql_sb')->table('output_rejects')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_rejects.master_plan_id')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->
             get();

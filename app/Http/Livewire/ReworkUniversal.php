@@ -172,7 +172,7 @@ class ReworkUniversal extends Component
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
             where('output_defects.defect_status', 'defect')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             get();
 
@@ -200,7 +200,7 @@ class ReworkUniversal extends Component
                 ]);
             }
             // update defect
-            $masterPlanIds = MasterPlan::where("sewing_line", Auth::user()->username)->
+            $masterPlanIds = MasterPlan::where("sewing_line", Auth::user()->line->username)->
                 where("tgl_plan", $this->orderDate)->
                 pluck("id")->
                 toArray();
@@ -237,7 +237,7 @@ class ReworkUniversal extends Component
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
             where('output_defects.defect_status', 'defect')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             where('output_defects.defect_type_id', $this->massDefectType)->
             where('output_defects.defect_area_id', $this->massDefectArea)->
@@ -477,12 +477,12 @@ class ReworkUniversal extends Component
 
         $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
-        $this->allDefectImage = DB::connection('mysql_sb')->table('master_plan')->select('id', 'gambar')->where('sewing_line', Auth::user()->username)->where('tgl_plan', $this->orderDate)->get();
+        $this->allDefectImage = DB::connection('mysql_sb')->table('master_plan')->select('id', 'gambar')->where('sewing_line', Auth::user()->line->username)->where('tgl_plan', $this->orderDate)->get();
 
         $this->allDefectPosition = DB::connection('mysql_sb')->table('output_defects')->selectRaw('output_defects.*')->where('output_defects.defect_status', 'defect')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
             where('output_defects.defect_status', 'defect')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             get();
 
@@ -491,7 +491,7 @@ class ReworkUniversal extends Component
             leftJoin('output_defect_areas', 'output_defect_areas.id', '=', 'output_defects.defect_area_id')->
             leftJoin('output_defect_types', 'output_defect_types.id', '=', 'output_defects.defect_type_id')->
             where('output_defects.defect_status', 'defect')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             whereRaw("
                 (
@@ -509,7 +509,7 @@ class ReworkUniversal extends Component
             leftJoin('output_defect_areas', 'output_defect_areas.id', '=', 'output_defects.defect_area_id')->
             leftJoin('output_defect_types', 'output_defect_types.id', '=', 'output_defects.defect_type_id')->
             where('output_defects.defect_status', 'defect')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             whereRaw("(
                 output_defects.id LIKE '%".$this->searchDefect."%' OR
@@ -527,7 +527,7 @@ class ReworkUniversal extends Component
             leftJoin('output_defect_types', 'output_defect_types.id', '=', 'output_defects.defect_type_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
             where('output_defects.defect_status', 'reworked')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             whereRaw("(
                 output_reworks.id LIKE '%".$this->searchRework."%' OR
@@ -544,7 +544,7 @@ class ReworkUniversal extends Component
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
             where('output_defects.defect_status', 'defect')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             where('output_defects.defect_type_id', $this->massDefectType)->
             where('output_defects.defect_area_id', $this->massDefectArea)->
@@ -553,7 +553,7 @@ class ReworkUniversal extends Component
 
         $this->rework = DB::connection('mysql_sb')->table('output_defects')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             where('defect_status', 'reworked')->
             whereRaw("DATE(output_defects.updated_at) = '".date('Y-m-d')."'")->

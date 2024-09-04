@@ -37,7 +37,7 @@ class ProfileContent extends Component
 
         $totalRftSql = Rft::select('output_rfts.*')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_rfts.master_plan_id')->
-            where('master_plan.sewing_line', Auth::user()->username);
+            where('master_plan.sewing_line', Auth::user()->line->username);
             if ($this->masterPlan) {
                 $totalRftSql->where('master_plan.id', $this->masterPlan);
             }
@@ -49,7 +49,7 @@ class ProfileContent extends Component
         $totalDefectSql = Defect::select('output_defects.*')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
             where('output_defects.defect_status', 'defect')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('output_defects.defect_status', 'defect');
             if ($this->masterPlan) {
                 $totalDefectSql->where('master_plan.id', $this->masterPlan);
@@ -60,7 +60,7 @@ class ProfileContent extends Component
 
         $totalRejectSql = Reject::select('output_rejects.*')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_rejects.master_plan_id')->
-            where('master_plan.sewing_line', Auth::user()->username);
+            where('master_plan.sewing_line', Auth::user()->line->username);
             if ($this->masterPlan) {
                 $totalRejectSql->where('master_plan.id', $this->masterPlan);
             }
@@ -71,7 +71,7 @@ class ProfileContent extends Component
         $totalReworkSql = Rework::select('output_reworks.*')->
             leftJoin('output_defects', 'output_defects.id', '=', 'output_reworks.defect_id')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
-            where('master_plan.sewing_line', Auth::user()->username);
+            where('master_plan.sewing_line', Auth::user()->line->username);
             if ($this->masterPlan) {
                 $totalReworkSql->where('master_plan.id', $this->masterPlan);
             }

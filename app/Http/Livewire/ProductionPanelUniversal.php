@@ -118,7 +118,7 @@ class ProductionPanelUniversal extends Component
             ->where('so_det.cancel', '!=', 'Y')
             ->where('master_plan.cancel', '!=', 'Y')
             ->where('master_plan.tgl_plan', $this->orderDate)
-            ->where('master_plan.sewing_line', Auth::user()->username)
+            ->where('master_plan.sewing_line', Auth::user()->line->username)
             ->groupBy('master_plan.id', 'so_det.color', 'so_det.size', 'so_det.dest', 'so_det.id')
             ->orderBy('so_det_id')
             ->get();
@@ -220,24 +220,24 @@ class ProductionPanelUniversal extends Component
 
         $this->outputRft = DB::connection("mysql_sb")->table("output_rfts")->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_rfts.master_plan_id')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             where('status', 'NORMAL')->
             count();
         $this->outputDefect = DB::connection("mysql_sb")->table("output_defects")->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             where('defect_status', 'defect')->
             count();
         $this->outputReject = DB::connection("mysql_sb")->table("output_rejects")->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_rejects.master_plan_id')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             count();
         $this->outputRework = DB::connection("mysql_sb")->table("output_defects")->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_defects.master_plan_id')->
-            where('master_plan.sewing_line', Auth::user()->username)->
+            where('master_plan.sewing_line', Auth::user()->line->username)->
             where('master_plan.tgl_plan', $this->orderDate)->
             where('defect_status', 'reworked')->
             count();

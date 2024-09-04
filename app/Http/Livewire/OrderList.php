@@ -35,7 +35,7 @@ class OrderList extends Component
 
     public function render()
     {
-        $masterPlanBefore = MasterPlan::select("id")->where("sewing_line", strtoupper(Auth::user()->username))->where("master_plan.cancel", "N")->where("tgl_plan", "<", $this->date)->orderBy("tgl_plan", "desc")->first();
+        $masterPlanBefore = MasterPlan::select("id")->where("sewing_line", strtoupper(Auth::user()->line->username))->where("master_plan.cancel", "N")->where("tgl_plan", "<", $this->date)->orderBy("tgl_plan", "desc")->first();
 
         $additionalQuery = "";
         if ($masterPlanBefore) {
@@ -72,7 +72,7 @@ class OrderList extends Component
                         left join
                             output_rfts on output_rfts.master_plan_id = master_plan.id
                         where
-                            master_plan.sewing_line = '".strtoupper(Auth::user()->username)."' AND
+                            master_plan.sewing_line = '".strtoupper(Auth::user()->line->username)."' AND
                             DATE(output_rfts.updated_at) = '".$this->date."' AND
                             master_plan.cancel = 'N'
                         group by
@@ -95,7 +95,7 @@ class OrderList extends Component
                         from
                             master_plan
                         where
-                            sewing_line = '".strtoupper(Auth::user()->username)."' AND
+                            sewing_line = '".strtoupper(Auth::user()->line->username)."' AND
                             tgl_plan = '".$this->date."' AND
                             master_plan.cancel = 'N'
                         group by
@@ -108,7 +108,7 @@ class OrderList extends Component
                     $join->on("plan.tgl_plan", "=", "master_plan.tgl_plan");
                 }
             )
-            ->where('master_plan.sewing_line', strtoupper(Auth::user()->username))
+            ->where('master_plan.sewing_line', strtoupper(Auth::user()->line->username))
             ->where('so_det.cancel', 'N')
             ->where('master_plan.cancel', 'N')
             ->where('master_plan.tgl_plan', $this->date)
