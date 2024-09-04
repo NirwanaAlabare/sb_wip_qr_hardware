@@ -35,7 +35,7 @@ class OrderList extends Component
 
     public function render()
     {
-        $masterPlanBefore = MasterPlan::select("id")->where("sewing_line", strtoupper(Auth::user()->username))->where("master_plan.cancel", "N")->where("tgl_plan", "<", $this->date)->orderBy("tgl_plan", "desc")->first();
+        $masterPlanBefore = MasterPlan::selectRaw("MAX(id)")->where("sewing_line", strtoupper(Auth::user()->username))->where("master_plan.cancel", "N")->where("tgl_plan", "<", $this->date)->groupBy("master_plan.id_ws", "master_plan.color")->orderBy("tgl_plan", "desc")->first();
 
         $additionalQuery = "";
         if ($masterPlanBefore) {
