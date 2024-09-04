@@ -303,7 +303,8 @@ class DefectUniversal extends Component
                 'defect_area_y' => $this->defectAreaPositionY,
                 'status' => 'NORMAL',
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
+                'created_by' => Auth::user()->id
             ]);
 
             if ($insertDefect) {
@@ -433,7 +434,8 @@ class DefectUniversal extends Component
                         'defect_area_y' => $this->defectAreaPositionY,
                         'status' => 'NORMAL',
                         'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
+                        'updated_at' => Carbon::now(),
+                        'created_by' => Auth::user()->id
                     ]);
 
                     $success += 1;

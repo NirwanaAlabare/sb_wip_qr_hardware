@@ -136,7 +136,8 @@ class Reject extends Component
                 'kode_numbering' => $this->numberingInput,
                 'status' => 'NORMAL',
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
+                'created_by' => Auth::user()->id,
             ]);
 
             if ($insertReject) {
@@ -212,7 +213,8 @@ class Reject extends Component
                         'kode_numbering' => $this->rapidReject[$i]['numberingInput'],
                         'status' => 'NORMAL',
                         'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
+                        'updated_at' => Carbon::now(),
+                        'created_by' => Auth::user()->id
                     ]);
 
                     $success += 1;

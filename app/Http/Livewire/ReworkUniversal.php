@@ -194,9 +194,9 @@ class ReworkUniversal extends Component
                     'so_det_id' => $defect->so_det_id,
                     "status" => "REWORK",
                     "rework_id" => $createRework->id,
-                    'created_by' => Auth::user()->id,
                     "created_at" => Carbon::now(),
-                    "updated_at" => Carbon::now()
+                    "updated_at" => Carbon::now(),
+                    'created_by' => Auth::user()->id
                 ]);
             }
             // update defect
@@ -451,7 +451,8 @@ class ReworkUniversal extends Component
                         'rework_id' => $createRework->id,
                         'status' => 'REWORK',
                         'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
+                        'updated_at' => Carbon::now(),
+                        'created_by' => Auth::user()->id
                     ]);
 
                     $success += 1;
