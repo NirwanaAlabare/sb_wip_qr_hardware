@@ -243,7 +243,7 @@ class ProductionPanelTemporary extends Component
                             'kode_numbering' => $tmpOutput->kode_numbering,
                             'status' => 'NORMAL',
                             'rework_id' => '',
-                            'created_by' => Auth::user()->line_id,
+                            'created_by' => Auth::user()->id,
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
                         ]);
@@ -261,7 +261,7 @@ class ProductionPanelTemporary extends Component
                             'defect_area_y' => $tmpOutput->defect_area_y,
                             'defect_status' => 'defect',
                             'status' => 'NORMAL',
-                            'created_by' => Auth::user()->line_id,
+                            'created_by' => Auth::user()->id,
                             'created_at' => $tmpOutput->created_at,
                             'updated_at' => Carbon::now()
                         ]);
@@ -278,14 +278,14 @@ class ProductionPanelTemporary extends Component
                             'defect_area_y' => $tmpOutput->defect_area_y,
                             'defect_status' => 'reworked',
                             'status' => 'NORMAL',
-                            'created_by' => Auth::user()->line_id,
+                            'created_by' => Auth::user()->id,
                             'created_at' => $tmpOutput->created_at
                         ]);
 
                         $rework = Rework::create([
                             'defect_id' => $defect->id,
                             'status' => 'NORMAL',
-                            'created_by' => Auth::user()->line_id,
+                            'created_by' => Auth::user()->id,
                             'created_at' => $tmpOutput->created_at
                         ]);
 
@@ -296,7 +296,7 @@ class ProductionPanelTemporary extends Component
                             'kode_numbering' => $tmpOutput->kode_numbering,
                             'status' => 'REWORK',
                             'rework_id' => $rework->id,
-                            'created_by' => Auth::user()->line_id,
+                            'created_by' => Auth::user()->id,
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
                         ]);
@@ -308,7 +308,7 @@ class ProductionPanelTemporary extends Component
                             'no_cut_size' => $tmpOutput->no_cut_size,
                             'kode_numbering' => $tmpOutput->kode_numbering,
                             'status' => 'NORMAL',
-                            'created_by' => Auth::user()->line_id,
+                            'created_by' => Auth::user()->id,
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
                         ]);
