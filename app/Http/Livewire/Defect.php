@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Session\SessionManager;
+use Illuminate\Support\Facades\Auth;
 use App\Models\SignalBit\MasterPlan;
 use App\Models\SignalBit\ProductType;
 use App\Models\SignalBit\Defect as DefectModel;
