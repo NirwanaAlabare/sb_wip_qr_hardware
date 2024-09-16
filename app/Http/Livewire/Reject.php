@@ -40,6 +40,7 @@ class Reject extends Component
 
     protected $listeners = [
         'updateWsDetailSizes' => 'updateWsDetailSizes',
+        'updateOutputReject' => 'updateOutput',
         'setAndSubmitInputReject' => 'setAndSubmitInput',
         'toInputPanel' => 'resetError'
     ];

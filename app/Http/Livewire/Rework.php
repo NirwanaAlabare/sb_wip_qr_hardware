@@ -77,6 +77,7 @@ class Rework extends Component
         'cancelRework' => 'cancelRework',
         'hideDefectAreaImageClear' => 'hideDefectAreaImage',
         'updateWsDetailSizes' => 'updateWsDetailSizes',
+        'updateOutputRework' => 'updateOutput',
         'setAndSubmitInputRework' => 'setAndSubmitInput',
         'toInputPanel' => 'resetError'
     ];

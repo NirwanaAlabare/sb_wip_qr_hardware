@@ -40,6 +40,7 @@ class Rft extends Component
 
     protected $listeners = [
         'updateWsDetailSizes' => 'updateWsDetailSizes',
+        'updateOutputRft' => 'updateOutput',
         'setAndSubmitInputRft' => 'setAndSubmitInput',
         'toInputPanel' => 'resetError'
     ];

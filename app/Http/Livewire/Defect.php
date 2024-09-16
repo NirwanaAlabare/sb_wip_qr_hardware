@@ -76,6 +76,7 @@ class Defect extends Component
     protected $listeners = [
         'setDefectAreaPosition' => 'setDefectAreaPosition',
         'updateWsDetailSizes' => 'updateWsDetailSizes',
+        'updateOutputDefect' => 'updateOutput',
         'setAndSubmitInputDefect' => 'setAndSubmitInput',
         'toInputPanel' => 'resetError'
     ];

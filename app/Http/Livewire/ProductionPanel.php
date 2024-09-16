@@ -225,6 +225,8 @@ class ProductionPanel extends Component
                 $deleteRft = $rftSql->delete();
 
                 if ($deleteRft)  {
+                    $this->emit('updateOutputRft');
+
                     $this->emit('alert', 'success', 'Output RFT dengan ukuran '.$size[0]->size.' berhasil di UNDO sebanyak '.$deleteRft.' kali.');
 
                     $this->emit('hideModal', 'undo');
@@ -268,6 +270,8 @@ class ProductionPanel extends Component
                 $defectAreaText = $defectArea ? 'dengan defect area = '.$defectArea->defect_area.' ' : '';
 
                 if ($getDefects->count() > 0) {
+                    $this->emit('updateOutputDefect');
+
                     $this->emit('alert', 'success', 'Output DEFECT dengan ukuran '.$size[0]->size.''.$defectTypeText.' '.$defectAreaText.'berhasil di UNDO sebanyak '.$getDefects->count().' kali.');
 
                     $this->emit('hideModal', 'undo');
@@ -298,6 +302,8 @@ class ProductionPanel extends Component
                 $deleteReject = $rejectSql->delete();
 
                 if ($deleteReject) {
+                    $this->emit('updateOutputReject');
+
                     $this->emit('alert', 'success', 'Output REJECT dengan ukuran '.$size[0]->size.' berhasil di UNDO sebanyak '.$deleteReject.' kali.');
 
                     $this->emit('hideModal', 'undo');
@@ -337,6 +343,8 @@ class ProductionPanel extends Component
                 $defectAreaText = $defectArea ? 'dengan defect area = '.$defectArea->defect_area.' ' : '';
 
                 if ($getDefects->count() > 0) {
+                    $this->emit('updateOutputRework');
+
                     $this->emit('alert', 'success', 'Output REWORK dengan ukuran '.$size[0]->size.''.$defectTypeText.' '.$defectAreaText.'berhasil di UNDO sebanyak '.$getDefects->count().' kali.');
 
                     $this->emit('hideModal', 'undo');
