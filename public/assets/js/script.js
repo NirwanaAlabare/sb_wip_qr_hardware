@@ -363,6 +363,15 @@ function showNotification(type, message) {
                 message: message,
                 position: 'topCenter'
             });
+
+            if (document.getElementById("success-sound")) {
+                let successSound = document.getElementById("success-sound");
+
+                successSound.pause();
+                successSound.currentTime = 0;
+                successSound.play();
+            }
+
             break;
         case 'warning' :
             iziToast.warning({
@@ -370,6 +379,15 @@ function showNotification(type, message) {
                 message: message,
                 position: 'topCenter'
             });
+
+            if (document.getElementById("warning-sound")) {
+                let warningSound = document.getElementById("warning-sound");
+
+                warningSound.pause();
+                warningSound.currentTime = 0;
+                warningSound.play();
+            }
+
             break;
         case 'error' :
             iziToast.error({
@@ -377,6 +395,15 @@ function showNotification(type, message) {
                 message: message,
                 position: 'topCenter'
             });
+
+            if (document.getElementById("error-sound")) {
+                let errorSound = document.getElementById("error-sound");
+
+                errorSound.pause();
+                errorSound.currentTime = 0;
+                errorSound.play();
+            }
+
             break;
     }
 }
