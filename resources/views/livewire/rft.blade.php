@@ -57,10 +57,10 @@
                             <div class="col-md-4">
                                 <div class="bg-rft text-white w-100 h-100 py-auto rounded-3 d-flex flex-column justify-content-center align-items-center">
                                     <p class="fs-3 mb-0">{{ $order->size }}</p>
-                                    @if ($order->dest != "-" && $order->dest != null)
+                                    {{-- @if ($order->dest != "-" && $order->dest != null)
                                         <p class="fs-6 mb-0">{{ $order->dest }}</p>
-                                    @endif
-                                    <p class="fs-5 mb-0">{{ $rft->where('so_det_id', $order->so_det_id)->count() }}</p>
+                                    @endif --}}
+                                    <p class="fs-5 mb-0">{{ $rft->where('size', $order->size)->count() }}</p>
                                 </div>
                             </div>
                         @endforeach
@@ -109,51 +109,51 @@
 @push('scripts')
     <script>
         // Scan QR
-        // if (document.getElementById("rft-reader")) {
-        //     function onScanSuccess(decodedText, decodedResult) {
-        //         // handle the scanned code as you like, for example:
+            // if (document.getElementById("rft-reader")) {
+            //     function onScanSuccess(decodedText, decodedResult) {
+            //         // handle the scanned code as you like, for example:
 
-        //         // break decoded text
-        //         let breakDecodedText = decodedText.split('-');
+            //         // break decoded text
+            //         let breakDecodedText = decodedText.split('-');
 
-        //         console.log(breakDecodedText);
+            //         console.log(breakDecodedText);
 
-        //         // set kode_numbering
-        //         @this.numberingInput = breakDecodedText[3];
+            //         // set kode_numbering
+            //         @this.numberingInput = breakDecodedText[3];
 
-        //         // set so_det_id
-        //         @this.sizeInput = breakDecodedText[4];
+            //         // set so_det_id
+            //         @this.sizeInput = breakDecodedText[4];
 
-        //         // set size
-        //         @this.sizeInputText = breakDecodedText[5];
+            //         // set size
+            //         @this.sizeInputText = breakDecodedText[5];
 
-        //         // submit
-        //         @this.submitInput();
+            //         // submit
+            //         @this.submitInput();
 
-        //         clearRftScan();
-        //     }
+            //         clearRftScan();
+            //     }
 
-        //     Livewire.on('renderQrScanner', async (type) => {
-        //         if (type == 'rft') {
-        //             document.getElementById('back-button').disabled = true;
-        //             await refreshRftScan(onScanSuccess);
-        //             document.getElementById('back-button').disabled = false;
-        //         }
-        //     });
+            //     Livewire.on('renderQrScanner', async (type) => {
+            //         if (type == 'rft') {
+            //             document.getElementById('back-button').disabled = true;
+            //             await refreshRftScan(onScanSuccess);
+            //             document.getElementById('back-button').disabled = false;
+            //         }
+            //     });
 
-        //     Livewire.on('toInputPanel', async (type) => {
-        //         if (type == 'rft') {
-        //             document.getElementById('back-button').disabled = true;
-        //             await @this.updateOutput();
-        //             await initRftScan(onScanSuccess);
-        //             document.getElementById('back-button').disabled = false;
-        //         }
-        //     });
+            //     Livewire.on('toInputPanel', async (type) => {
+            //         if (type == 'rft') {
+            //             document.getElementById('back-button').disabled = true;
+            //             await @this.updateOutput();
+            //             await initRftScan(onScanSuccess);
+            //             document.getElementById('back-button').disabled = false;
+            //         }
+            //     });
 
-        //     Livewire.on('fromInputPanel', () => {
-        //         clearRftScan();
-        //     });
-        // }
+            //     Livewire.on('fromInputPanel', () => {
+            //         clearRftScan();
+            //     });
+            // }
 
         var scannedItemRftInput = document.getElementById("scannedItemRft");
 
