@@ -131,7 +131,7 @@ class ProductionPanel extends Component
             ->where('master_plan.id', $this->orderInfo->id)
             ->where('act_costing.kpno', $this->orderInfo->ws_number)
             ->where('so_det.color', $this->selectedColorName)
-            ->groupBy('so_det.size', 'so_det.color')
+            ->groupBy('so_det.id','so_det.size', 'so_det.color')
             ->orderBy('so_det_id')
             ->get();
 
