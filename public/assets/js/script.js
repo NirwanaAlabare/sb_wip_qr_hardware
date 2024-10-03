@@ -635,91 +635,91 @@ function clearOutputInputJs() {
 }
 
 // Reminder
-function showReminder(hoursminutes) {
-    if (!swal.isVisible()) {
-        Swal.fire({
-            icon: 'info',
-            title: 'Reminder',
-            html: 'Waktu saat ini : <b>'+hoursminutes+'</b><br class="mb-3">Harap sempatkan untuk menginput data di setiap jam jika memungkinkan<br class="mb-3"><small>Jika ada kendala dalam penggunaan aplikasi tolong di infokan</small>',
-            showConfirmButton: true,
-            showDenyButton: false,
-            confirmButtonText: 'Oke',
-            confirmButtonColor: '#6531a0',
-        });
-    }
-}
+    // function showReminder(hoursminutes) {
+    //     if (!swal.isVisible()) {
+    //         Swal.fire({
+    //             icon: 'info',
+    //             title: 'Reminder',
+    //             html: 'Waktu saat ini : <b>'+hoursminutes+'</b><br class="mb-3">Harap sempatkan untuk menginput data di setiap jam jika memungkinkan<br class="mb-3"><small>Jika ada kendala dalam penggunaan aplikasi tolong di infokan</small>',
+    //             showConfirmButton: true,
+    //             showDenyButton: false,
+    //             confirmButtonText: 'Oke',
+    //             confirmButtonColor: '#6531a0',
+    //         });
+    //     }
+    // }
 
-if (document.getElementById("alert-sound")) {
-    var sound = document.getElementById("alert-sound");
-    var played = false;
+    // if (document.getElementById("alert-sound")) {
+    //     var sound = document.getElementById("alert-sound");
+    //     var played = false;
 
-    window.addEventListener('click', function(event) {
-        sound.pause();
-        sound.currentTime = 0;
-    });
+    //     window.addEventListener('click', function(event) {
+    //         sound.pause();
+    //         sound.currentTime = 0;
+    //     });
 
-    setInterval(function() {
-        let now = new Date();
-        let hours = String(now.getHours()).padStart(2, '0');
-        let minutes = String(now.getMinutes()).padStart(2, '0');
-        let seconds = now.getSeconds();
-        let hoursminutes = hours+':'+minutes;
+    //     setInterval(function() {
+    //         let now = new Date();
+    //         let hours = String(now.getHours()).padStart(2, '0');
+    //         let minutes = String(now.getMinutes()).padStart(2, '0');
+    //         let seconds = now.getSeconds();
+    //         let hoursminutes = hours+':'+minutes;
 
-        if (!played) {
-            switch (hoursminutes) {
-                case "07:53" :
-                    played = true;
-                    sound.play();
-                    showReminder(hoursminutes);
-                    break;
-                case "08:53" :
-                    played = true;
-                    sound.play();
-                    showReminder(hoursminutes);
-                    break;
-                case "09:53" :
-                    played = true;
-                    sound.play();
-                    showReminder(hoursminutes);
-                    break;
-                case "10:53" :
-                    played = true;
-                    sound.play();
-                    showReminder(hoursminutes);
-                    break;
-                case "11:53" :
-                    played = true;
-                    sound.play();
-                    showReminder(hoursminutes);
-                    break;
-                case "13:53" :
-                    played = true;
-                    sound.play();
-                    showReminder(hoursminutes);
-                    break;
-                case "14:53" :
-                    played = true;
-                    sound.play();
-                    showReminder(hoursminutes);
-                    break;
-                case "15:51" :
-                    played = true;
-                    sound.play();
-                    showReminder(hoursminutes);
-                    break;
-                case "16:53" :
-                    played = true;
-                    sound.play();
-                    showReminder(hoursminutes);
-                    break;
-            }
-        }
+    //         if (!played) {
+    //             switch (hoursminutes) {
+    //                 case "07:53" :
+    //                     played = true;
+    //                     sound.play();
+    //                     showReminder(hoursminutes);
+    //                     break;
+    //                 case "08:53" :
+    //                     played = true;
+    //                     sound.play();
+    //                     showReminder(hoursminutes);
+    //                     break;
+    //                 case "09:53" :
+    //                     played = true;
+    //                     sound.play();
+    //                     showReminder(hoursminutes);
+    //                     break;
+    //                 case "10:53" :
+    //                     played = true;
+    //                     sound.play();
+    //                     showReminder(hoursminutes);
+    //                     break;
+    //                 case "11:53" :
+    //                     played = true;
+    //                     sound.play();
+    //                     showReminder(hoursminutes);
+    //                     break;
+    //                 case "13:53" :
+    //                     played = true;
+    //                     sound.play();
+    //                     showReminder(hoursminutes);
+    //                     break;
+    //                 case "14:53" :
+    //                     played = true;
+    //                     sound.play();
+    //                     showReminder(hoursminutes);
+    //                     break;
+    //                 case "15:51" :
+    //                     played = true;
+    //                     sound.play();
+    //                     showReminder(hoursminutes);
+    //                     break;
+    //                 case "16:53" :
+    //                     played = true;
+    //                     sound.play();
+    //                     showReminder(hoursminutes);
+    //                     break;
+    //             }
+    //         }
 
-        if (seconds == "0") {
-            played = false;
-        }
-    }, 1000);
-}
+    //         if (seconds == "0") {
+    //             played = false;
+    //         }
+    //     }, 1000);
+    // }
 
 var batteryModal = document.getElementById('battery') ? document.getElementById('battery') : null;
 
