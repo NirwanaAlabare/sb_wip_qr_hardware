@@ -97,6 +97,8 @@ class Rft extends Component
         $this->rft = DB::
             connection('mysql_sb')->
             table('output_rfts')->
+            selectRaw('output_rfts.*, so_det.size')->
+            leftJoin('so_det', 'so_det.id', '=', 'output_rfts.so_det_id')->
             where('master_plan_id', $this->orderInfo->id)->
             where('status', 'NORMAL')->
             whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->

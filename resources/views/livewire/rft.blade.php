@@ -53,14 +53,14 @@
                         <div class="loading mx-auto"></div>
                     </div>
                     <div class="row h-100 row-gap-3" id="content-rft">
-                        @foreach ($orderWsDetailSizes as $order)
+                        @foreach ($orderWsDetailSizes->groupBy('size') as $key => $order)
                             <div class="col-md-4">
                                 <div class="bg-rft text-white w-100 h-100 py-auto rounded-3 d-flex flex-column justify-content-center align-items-center">
-                                    <p class="fs-3 mb-0">{{ $order->size }}</p>
+                                    <p class="fs-3 mb-0">{{ $key }}</p>
                                     {{-- @if ($order->dest != "-" && $order->dest != null)
                                         <p class="fs-6 mb-0">{{ $order->dest }}</p>
                                     @endif --}}
-                                    <p class="fs-5 mb-0">{{ $rft->where('size', $order->size)->count() }}</p>
+                                    <p class="fs-5 mb-0">{{ $rft->where('size', $key)->count() }}</p>
                                 </div>
                             </div>
                         @endforeach

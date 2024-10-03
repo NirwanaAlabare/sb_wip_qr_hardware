@@ -91,6 +91,8 @@ class Reject extends Component
 
         // Reject
         $this->reject = RejectModel::
+            selectRaw('output_rejects.*, so_det.size')->
+            leftJoin('so_det', 'so_det.id', '=', 'output_rejects.so_det_id')->
             where('master_plan_id', $this->orderInfo->id)->
             whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->
             get();
@@ -253,6 +255,8 @@ class Reject extends Component
 
         // Reject
         $this->reject = DB::connection('mysql_sb')->table('output_rejects')->
+            selectRaw('output_rejects.*, so_det.size')->
+            leftJoin('so_det', 'so_det.id', '=', 'output_rejects.so_det_id')->
             where('master_plan_id', $this->orderInfo->id)->
             whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->
             get();
