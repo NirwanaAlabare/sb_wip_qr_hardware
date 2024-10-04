@@ -177,20 +177,24 @@ class RejectTemporary extends Component
     public function pushRapidReject($numberingInput, $sizeInput, $sizeInputText) {
         $exist = false;
 
-        foreach ($this->rapidReject as $item) {
-            if (($numberingInput && $item['numberingInput'] == $numberingInput)) {
-                $exist = true;
+        if (count($this->rapidReject) < 100) {
+            foreach ($this->rapidReject as $item) {
+                if (($numberingInput && $item['numberingInput'] == $numberingInput)) {
+                    $exist = true;
+                }
             }
-        }
 
-        if (!$exist) {
-            if ($numberingInput) {
-                $this->rapidRejectCount += 1;
+            if (!$exist) {
+                if ($numberingInput) {
+                    $this->rapidRejectCount += 1;
 
-                array_push($this->rapidReject, [
-                    'numberingInput' => $numberingInput,
-                ]);
+                    array_push($this->rapidReject, [
+                        'numberingInput' => $numberingInput,
+                    ]);
+                }
             }
+        } else {
+            $this->emit('alert', 'error', "Anda sudah mencapai batas rapid scan. Harap klik selesai dahulu.");
         }
     }
 
@@ -251,9 +255,17 @@ class RejectTemporary extends Component
         $rapidRejectInsert = RejectModel::insert($rapidRejectFiltered);
         $temporaryInsert = TemporaryOutput::insert($rapidTemporaryFiltered);
 
-        $this->emit('alert', 'success', $success." output berhasil terekam. ");
-        $this->emit('alert', 'warning', $temporary." output berhasil terekam di TEMPORARY. ");
-        $this->emit('alert', 'error', $fail." output gagal terekam.");
+        if ($success > 0) {
+            $this->emit('alert', 'success', $success." output berhasil terekam. ");
+        }
+
+        if ($temporary > 0) {
+            $this->emit('alert', 'warning', $temporary." output berhasil terekam di TEMPORARY. ");
+        }
+
+        if ($fail > 0) {
+            $this->emit('alert', 'error', $fail." output gagal terekam.");
+        }
 
         $this->rapidReject = [];
         $this->rapidRejectCount = 0;

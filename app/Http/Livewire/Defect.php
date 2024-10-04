@@ -358,42 +358,69 @@ class Defect extends Component
     public function pushRapidDefect($numberingInput, $sizeInput, $sizeInputText) {
         $exist = false;
 
-        foreach ($this->rapidDefect as $item) {
-            if (($numberingInput && $item['numberingInput'] == $numberingInput)) {
-                $exist = true;
-            }
-        }
+        if (count($this->rapidDefect) < 100) {
+            foreach ($this->rapidDefect as $item) {
+                if (($numberingInput && $item['numberingInput'] == $numberingInput)) {
+                    $exist = true;
+                } else {
+                    if (str_contains($numberingInput, 'WIP')) {
+                        $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $numberingInput)->first();
+                    } else {
+                        $numberingCodes = explode('_', $numberingInput);
 
-        if (!$exist) {
-            if ($numberingInput) {
+                        if (count($numberingCodes) > 2) {
+                            $numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
+                            $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
+                        } else {
+                            $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $numberingInput)->first();
+                        }
+                    }
+
+                    if ($numberingData) {
+                        if ($item['masterPlanId'] && $item['masterPlanId'] != $this->orderWsDetailSizes->where("so_det_id", $numberingData->so_det_id)->first()['master_plan_id']) {
+                            $exist = true;
+                        }
+                    }
+                }
+            }
+
+            if (!$exist) {
                 $this->rapidDefectCount += 1;
 
-                if (str_contains($numberingInput, 'WIP')) {
-                    $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $numberingInput)->first();
-                } else {
-                    $numberingCodes = explode('_', $numberingInput);
-
-                    if (count($numberingCodes) > 2) {
-                        $numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
-                        $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
+                if ($numberingInput) {
+                    if (str_contains($numberingInput, 'WIP')) {
+                        $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $numberingInput)->first();
                     } else {
-                        $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $numberingInput)->first();
+                        $numberingCodes = explode('_', $numberingInput);
+
+                        if (count($numberingCodes) > 2) {
+                            $numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
+                            $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
+                        } else {
+                            $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $numberingInput)->first();
+                        }
+                    }
+
+                    if ($numberingData) {
+                        $sizeInput = $numberingData->so_det_id;
+                        $sizeInputText = $numberingData->size;
+                        $noCutInput = $numberingData->no_cut_size;
+                        $masterPlanId = $this->orderWsDetailSizes->where("so_det_id", $sizeInput)->first() ? $this->orderWsDetailSizes->where("so_det_id", $sizeInput)->first()['master_plan_id'] : null;
+
+                        array_push($this->rapidDefect, [
+                            'numberingInput' => $numberingInput,
+                            'sizeInput' => $sizeInput,
+                            'sizeInputText' => $sizeInputText,
+                            'noCutInput' => $noCutInput,
+                            'masterPlanId' => $masterPlanId
+                        ]);
                     }
                 }
 
-                if ($numberingData) {
-                    $sizeInput = $numberingData->so_det_id;
-                    $sizeInputText = $numberingData->size;
-                    $noCutInput = $numberingData->no_cut_size;
-
-                    array_push($this->rapidDefect, [
-                        'numberingInput' => $numberingInput,
-                        'sizeInput' => $sizeInput,
-                        'sizeInputText' => $sizeInputText,
-                        'noCutInput' => $noCutInput,
-                    ]);
-                }
+                $this->sizeInput = $sizeInput;
             }
+        } else {
+            $this->emit('alert', 'error', "Anda sudah mencapai batas rapid scan. Harap klik selesai dahulu.");
         }
     }
 
@@ -440,8 +467,14 @@ class Defect extends Component
 
         $rapidDefectInsert = DefectModel::insert($rapidDefectFiltered);
 
-        $this->emit('alert', 'success', $success." output berhasil terekam. ");
-        $this->emit('alert', 'error', $fail." output gagal terekam.");
+        if ($success > 0) {
+            $this->emit('alert', 'success', $success." output berhasil terekam. ");
+        }
+
+        if ($fail > 0) {
+            $this->emit('alert', 'error', $fail." output gagal terekam.");
+        }
+
         $this->emit('hideModal', 'defect', 'rapid');
 
         $this->rapidDefect = [];

@@ -350,7 +350,7 @@
                     confirmButtonText: 'Oke',
                     confirmButtonColor: '#6531a0'
                 }).then((result) => {
-                    // window.location.href = '{{ route('index') }}';
+                    window.location.href = '{{ route('index') }}';
                 });
             }
         }

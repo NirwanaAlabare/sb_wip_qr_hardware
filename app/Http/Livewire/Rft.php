@@ -167,20 +167,24 @@ class Rft extends Component
     public function pushRapidRft($numberingInput, $sizeInput, $sizeInputText) {
         $exist = false;
 
-        foreach ($this->rapidRft as $item) {
-            if (($numberingInput && $item['numberingInput'] == $numberingInput)) {
-                $exist = true;
+        if (count($this->rapidRft) < 100) {
+            foreach ($this->rapidRft as $item) {
+                if (($numberingInput && $item['numberingInput'] == $numberingInput)) {
+                    $exist = true;
+                }
             }
-        }
 
-        if (!$exist) {
-            if ($numberingInput) {
-                $this->rapidRftCount += 1;
+            if (!$exist) {
+                if ($numberingInput) {
+                    $this->rapidRftCount += 1;
 
-                array_push($this->rapidRft, [
-                    'numberingInput' => $numberingInput,
-                ]);
+                    array_push($this->rapidRft, [
+                        'numberingInput' => $numberingInput,
+                    ]);
+                }
             }
+        } else {
+            $this->emit('alert', 'error', "Anda sudah mencapai batas rapid scan. Harap klik selesai dahulu.");
         }
     }
 
@@ -204,7 +208,7 @@ class Rft extends Component
                     }
                 }
 
-                if (((DB::connection("mysql_sb")->table("output_rfts")->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() + DB::connection("mysql_sb")->table("output_defects")->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() + DB::connection("mysql_sb")->table("output_rejects")->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count()) < 1) && ($this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->count() > 0)) {
+                if ($numberingData && ((DB::connection("mysql_sb")->table("output_rfts")->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() + DB::connection("mysql_sb")->table("output_defects")->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() + DB::connection("mysql_sb")->table("output_rejects")->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count()) < 1) && ($this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->count() > 0)) {
                     array_push($rapidRftFiltered, [
                         'master_plan_id' => $this->orderInfo->id,
                         'so_det_id' => $numberingData->so_det_id,
@@ -225,8 +229,13 @@ class Rft extends Component
 
         $rapidRftInsert = RftModel::insert($rapidRftFiltered);
 
-        $this->emit('alert', 'success', $success." output berhasil terekam. ");
-        $this->emit('alert', 'error', $fail." output gagal terekam. ");
+        if ($success > 0) {
+            $this->emit('alert', 'success', $success." output berhasil terekam. ");
+        }
+
+        if ($fail > 0) {
+            $this->emit('alert', 'error', $fail." output gagal terekam. ");
+        }
 
         $this->rapidRft = [];
         $this->rapidRftCount = 0;

@@ -441,20 +441,24 @@ class ReworkTemporary extends Component
     public function pushRapidRework($numberingInput, $sizeInput, $sizeInputText) {
         $exist = false;
 
-        foreach ($this->rapidRework as $item) {
-            if (($numberingInput && $item['numberingInput'] == $numberingInput)) {
-                $exist = true;
+        if (count($this->rapidRework) < 100) {
+            foreach ($this->rapidRework as $item) {
+                if (($numberingInput && $item['numberingInput'] == $numberingInput)) {
+                    $exist = true;
+                }
             }
-        }
 
-        if (!$exist) {
-            if ($numberingInput) {
-                $this->rapidReworkCount += 1;
+            if (!$exist) {
+                if ($numberingInput) {
+                    $this->rapidReworkCount += 1;
 
-                array_push($this->rapidRework, [
-                    'numberingInput' => $numberingInput,
-                ]);
+                    array_push($this->rapidRework, [
+                        'numberingInput' => $numberingInput,
+                    ]);
+                }
             }
+        } else {
+            $this->emit('alert', 'error', "Anda sudah mencapai batas rapid scan. Harap klik selesai dahulu.");
         }
     }
 
@@ -508,9 +512,17 @@ class ReworkTemporary extends Component
         $rapidTemporaryDefectUpdate = TemporaryOutput::whereIn('id', $temporaryIds)->update(["tipe_output" => "rework"]);
         $rapidRftInsert = Rft::insert($rftData);
 
-        $this->emit('alert', 'success', $success." output berhasil terekam. ");
-        $this->emit('alert', 'warning', $temporary." output berhasil terekam di TEMPORARY. ");
-        $this->emit('alert', 'error', $fail." output gagal terekam.");
+        if ($success > 0) {
+            $this->emit('alert', 'success', $success." output berhasil terekam. ");
+        }
+
+        if ($temporary > 0) {
+            $this->emit('alert', 'warning', $temporary." output berhasil terekam di TEMPORARY. ");
+        }
+
+        if ($fail > 0) {
+            $this->emit('alert', 'error', $fail." output gagal terekam.");
+        }
 
         $this->rapidRework = [];
         $this->rapidReworkCount = 0;

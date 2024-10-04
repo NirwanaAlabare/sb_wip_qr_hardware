@@ -51,14 +51,11 @@ class OrderList extends Component
                 mastersupplier.supplier as buyer_name,
                 act_costing.styleno as style_name,
                 output.progress as progress,
-                plan.target as target,
+                sum(plan.target) as target,
                 CONCAT(masterproduct.product_group, ' - ', masterproduct.product_item) as product_type
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
-            ->leftJoin('so', 'so.id_cost', '=', 'act_costing.id')
-            ->leftJoin('so_det', 'so_det.id_so', '=', 'so.id')
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
-            ->leftJoin('master_size_new', 'master_size_new.size', '=', 'so_det.size')
             ->leftJoin('masterproduct', 'masterproduct.id', '=', 'act_costing.id_product')
             ->leftJoin(
                 DB::raw("
@@ -74,6 +71,7 @@ class OrderList extends Component
                         where
                             master_plan.sewing_line = '".strtoupper(Auth::user()->line->username)."' AND
                             DATE(output_rfts.updated_at) = '".$this->date."' AND
+                            (master_plan.tgl_plan = '".$this->date."' OR master_plan.tgl_plan = '".date('Y-m-d', strtotime('-1 day', strtotime($this->date)))."') AND
                             master_plan.cancel = 'N'
                         group by
                             master_plan.id_ws,
@@ -109,7 +107,6 @@ class OrderList extends Component
                 }
             )
             ->where('master_plan.sewing_line', strtoupper(Auth::user()->line->username))
-            ->where('so_det.cancel', 'N')
             ->where('master_plan.cancel', 'N')
             ->where('master_plan.tgl_plan', $this->date)
             ->whereRaw("
@@ -136,7 +133,6 @@ class OrderList extends Component
                 'product_type',
                 'output.progress',
                 'plan.target',
-                'so.id'
             )
             ->orderBy('master_plan.tgl_plan', 'desc')
             ->get();
