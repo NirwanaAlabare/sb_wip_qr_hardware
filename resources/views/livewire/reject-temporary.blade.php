@@ -10,7 +10,7 @@
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center bg-reject text-light">
                     <p class="mb-0 fs-5">Scan QR</p>
-                    <button class="btn btn-dark" wire:click="$emit('showModal', 'rapidReject')"><i class="fa-solid fa-layer-group"></i></button>
+                    {{-- <button class="btn btn-dark" wire:click="$emit('showModal', 'rapidReject')"><i class="fa-solid fa-layer-group"></i></button> --}}
                 </div>
                 <div class="card-body" wire:ignore.self>
                     @error('numberingInput')
