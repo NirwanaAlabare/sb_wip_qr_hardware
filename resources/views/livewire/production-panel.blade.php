@@ -53,35 +53,37 @@
     <div class="production-panel row row-gap-3" id="production-panel">
         @if ($panels)
             <div class="row row-gap-3">
-                <div class="col-md-6" id="rft-panel">
-                    <div class="d-flex h-100">
-                        <div class="card-custom bg-rft d-flex justify-content-between align-items-center w-75 h-100" {{-- onclick="toRft()" --}} wire:click='toRft'>
-                            <div class="d-flex flex-column gap-3">
-                                <p class="text-light"><i class="fa-regular fa-circle-check fa-2xl"></i></p>
-                                <p class="text-light">RFT</p>
-                            </div>
-                            <p class="text-light fs-1">{{ $outputRft }}</p>
-                        </div>
-                        <div class="card-custom-footer bg-light w-25 h-100">
-                            <div class="d-flex flex-column justify-content-center align-items-stretch h-100 gap-1">
-                                <div class="filter multi-item upper h-50 bg-pale">
-                                    <div class="d-flex flex-column justify-content-between w-100 h-100">
-                                        <select class="form-select" style="border-radius: 0 15px 0 0" wire:model="selectedSize">
-                                            <option value="all">All Sizes</option>
-                                            @foreach ($orderWsDetailSizes as $order)
-                                                <option value="{{ $order->so_det_id }}">{{ $order->size_dest }}</option>
-                                            @endforeach
-                                        </select>
-                                        <p class="text-center fs-3 mt-auto mb-auto">{{ $outputFiltered }}</p>
-                                    </div>
+                @if ($orderDate == date("Y-m-d"))
+                    <div class="col-md-6" id="rft-panel">
+                        <div class="d-flex h-100">
+                            <div class="card-custom bg-rft d-flex justify-content-between align-items-center w-75 h-100" {{-- onclick="toRft()" --}} wire:click='toRft'>
+                                <div class="d-flex flex-column gap-3">
+                                    <p class="text-light"><i class="fa-regular fa-circle-check fa-2xl"></i></p>
+                                    <p class="text-light">RFT</p>
                                 </div>
-                                <button type="button" class="reset multi-item lower btn btn-pale h-50" wire:click="preSubmitUndo('rft')">
-                                    <i class="fa-regular fa-rotate-left fa-2xl"></i>
-                                </button>
+                                <p class="text-light fs-1">{{ $outputRft }}</p>
+                            </div>
+                            <div class="card-custom-footer bg-light w-25 h-100">
+                                <div class="d-flex flex-column justify-content-center align-items-stretch h-100 gap-1">
+                                    <div class="filter multi-item upper h-50 bg-pale">
+                                        <div class="d-flex flex-column justify-content-between w-100 h-100">
+                                            <select class="form-select" style="border-radius: 0 15px 0 0" wire:model="selectedSize">
+                                                <option value="all">All Sizes</option>
+                                                @foreach ($orderWsDetailSizes as $order)
+                                                    <option value="{{ $order->so_det_id }}">{{ $order->size_dest }}</option>
+                                                @endforeach
+                                            </select>
+                                            <p class="text-center fs-3 mt-auto mb-auto">{{ $outputFiltered }}</p>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="reset multi-item lower btn btn-pale h-50" wire:click="preSubmitUndo('rft')">
+                                        <i class="fa-regular fa-rotate-left fa-2xl"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @endif
                 <div class="col-md-6" id="defect-panel">
                     <div class="d-flex h-100">
                         <div class="card-custom bg-defect d-flex justify-content-between align-items-center w-75 h-100" {{-- onclick="toDefect()" --}} wire:click='toDefect'>
@@ -109,22 +111,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6" id="reject-panel">
-                    <div class="d-flex h-100">
-                        <div class="card-custom bg-reject d-flex justify-content-between align-items-center w-75 h-100" {{-- onclick="toReject()" --}} wire:click='toReject'>
-                            <div class="d-flex flex-column gap-3">
-                                <p class="text-light"><i class="fa-regular fa-circle-xmark fa-2xl"></i></p>
-                                <p class="text-light">REJECT</p>
+                @if ($orderDate == date("Y-m-d"))
+                    <div class="col-md-6" id="reject-panel">
+                        <div class="d-flex h-100">
+                            <div class="card-custom bg-reject d-flex justify-content-between align-items-center w-75 h-100" {{-- onclick="toReject()" --}} wire:click='toReject'>
+                                <div class="d-flex flex-column gap-3">
+                                    <p class="text-light"><i class="fa-regular fa-circle-xmark fa-2xl"></i></p>
+                                    <p class="text-light">REJECT</p>
+                                </div>
+                                <p class="text-light fs-1">{{ $outputReject }}</p>
                             </div>
-                            <p class="text-light fs-1">{{ $outputReject }}</p>
-                        </div>
-                        <div class="card-custom-footer bg-light w-25 h-100">
-                            <button class="reset single-item btn btn-pale w-100 h-100" wire:click="preSubmitUndo('reject')">
-                                <i class="fa-regular fa-rotate-left fa-2xl"></i>
-                            </button>
+                            <div class="card-custom-footer bg-light w-25 h-100">
+                                <button class="reset single-item btn btn-pale w-100 h-100" wire:click="preSubmitUndo('reject')">
+                                    <i class="fa-regular fa-rotate-left fa-2xl"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endif
                 <div class="col-md-6" id="rework-panel">
                     <div class="d-flex h-100">
                         <div class="card-custom bg-rework d-flex justify-content-between align-items-center w-75 h-100" {{-- onclick="toRework()" --}} wire:click='toRework'>
