@@ -83,34 +83,34 @@
                             </div>
                         </div>
                     </div>
-                @endif
-                <div class="col-md-6" id="defect-panel">
-                    <div class="d-flex h-100">
-                        <div class="card-custom bg-defect d-flex justify-content-between align-items-center w-75 h-100" {{-- onclick="toDefect()" --}} wire:click='toDefect'>
-                            <div class="d-flex flex-column gap-3">
-                                <p class="text-light"><i class="fa-regular fa-circle-exclamation fa-2xl"></i></p>
-                                <p class="text-light">DEFECT</p>
+                    <div class="col-md-6" id="defect-panel">
+                        <div class="d-flex h-100">
+                            <div class="card-custom bg-defect d-flex justify-content-between align-items-center w-75 h-100" {{-- onclick="toDefect()" --}} wire:click='toDefect'>
+                                <div class="d-flex flex-column gap-3">
+                                    <p class="text-light"><i class="fa-regular fa-circle-exclamation fa-2xl"></i></p>
+                                    <p class="text-light">DEFECT</p>
+                                </div>
+                                <p class="text-light fs-1">{{ $outputDefect }}</p>
                             </div>
-                            <p class="text-light fs-1">{{ $outputDefect }}</p>
-                        </div>
-                        <div class="card-custom-footer bg-light w-25 h-100">
-                            <div class="d-flex flex-column justify-content-center align-items-stretch h-100 gap-1">
-                                <button class="history multi-item upper btn btn-pale h-50" {{-- onclick="toDefectHistory()" --}} wire:click='toDefectHistory'>
-                                    <div class="d-flex flex-column justify-content-center align-items-center w-100 h-100">
-                                        <p class="mb-1">HISTORY</p>
-                                        <p class="mb-0"><i class="fa-regular fa-clock-rotate-left fa-xl"></i></p>
-                                    </div>
-                                </button>
-                                <button type="button" class="reset multi-item lower btn btn-pale h-50" wire:click="preSubmitUndo('defect')">
-                                    <div class="d-flex flex-column justify-content-center align-items-center w-100 h-100">
-                                        <p class="mb-1">UNDO</p>
-                                        <p class="mb-0"><i class="fa-regular fa-rotate-left fa-xl"></i></p>
-                                    </div>
-                                </button>
+                            <div class="card-custom-footer bg-light w-25 h-100">
+                                <div class="d-flex flex-column justify-content-center align-items-stretch h-100 gap-1">
+                                    <button class="history multi-item upper btn btn-pale h-50" {{-- onclick="toDefectHistory()" --}} wire:click='toDefectHistory'>
+                                        <div class="d-flex flex-column justify-content-center align-items-center w-100 h-100">
+                                            <p class="mb-1">HISTORY</p>
+                                            <p class="mb-0"><i class="fa-regular fa-clock-rotate-left fa-xl"></i></p>
+                                        </div>
+                                    </button>
+                                    <button type="button" class="reset multi-item lower btn btn-pale h-50" wire:click="preSubmitUndo('defect')">
+                                        <div class="d-flex flex-column justify-content-center align-items-center w-100 h-100">
+                                            <p class="mb-1">UNDO</p>
+                                            <p class="mb-0"><i class="fa-regular fa-rotate-left fa-xl"></i></p>
+                                        </div>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @endif
                 @if ($orderDate == date("Y-m-d"))
                     <div class="col-md-6" id="reject-panel">
                         <div class="d-flex h-100">
