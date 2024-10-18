@@ -487,9 +487,12 @@
         scannedDefectItemInput.addEventListener("change", function () {
             @this.numberingInput = this.value;
 
-            // submit
-            @this.preSubmitInput();
+            this.setAttribute("disabled", true);
 
+            // submit
+            await @this.submitInput();
+
+            this.removeAttribute("disabled");
             this.value = '';
         });
 
