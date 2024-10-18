@@ -271,7 +271,8 @@ class Rework extends Component
                 // create rework
                 $createRework = ReworkModel::create([
                     "defect_id" => $defect->id,
-                    "status" => "NORMAL"
+                    "status" => "NORMAL",
+                    "created_by" => Auth::user()->id
                 ]);
 
                 // update defect
@@ -287,6 +288,7 @@ class Rework extends Component
                     'so_det_id' => $defect->so_det_id,
                     "status" => "REWORK",
                     "rework_id" => $createRework->id,
+                    'created_by' => Auth::user()->id
                 ]);
             }
 
@@ -324,7 +326,8 @@ class Rework extends Component
                 'kode_numbering' => $defect->kode_numbering,
                 'so_det_id' => $defect->so_det_id,
                 'status' => 'REWORK',
-                'rework_id' => $createRework->id
+                'rework_id' => $createRework->id,
+                'created_by' => Auth::user()->id
             ]);
 
             if ($createRework && $createRft) {
@@ -389,7 +392,8 @@ class Rework extends Component
             // add to rework
             $createRework = ReworkModel::create([
                 "defect_id" => $scannedDefectData->id,
-                "status" => "NORMAL"
+                "status" => "NORMAL",
+                "created_by" => Auth::user()->id
             ]);
 
             // remove from defect
@@ -403,7 +407,8 @@ class Rework extends Component
                 'kode_numbering' => $scannedDefectData->kode_numbering,
                 'so_det_id' => $scannedDefectData->so_det_id,
                 "status" => "REWORK",
-                "rework_id" => $createRework->id
+                "rework_id" => $createRework->id,
+                "created_by" => Auth::user()->id
             ]);
 
             $this->sizeInput = '';
@@ -466,7 +471,8 @@ class Rework extends Component
                 if (($scannedDefectData) && ($this->orderWsDetailSizes->where('so_det_id', $scannedDefectData->so_det_id)->count() > 0)) {
                     $createRework = ReworkModel::create([
                         'defect_id' => $scannedDefectData->id,
-                        'status' => 'NORMAL'
+                        'status' => 'NORMAL',
+                        "created_by" => Auth::user()->id
                     ]);
 
                     array_push($defectIds, $scannedDefectData->id);
@@ -480,7 +486,7 @@ class Rework extends Component
                         'status' => 'REWORK',
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
-                        'created_by' => Auth::user()->id
+                        "created_by" => Auth::user()->id
                     ]);
 
                     $success += 1;
