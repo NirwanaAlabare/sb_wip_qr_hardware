@@ -249,7 +249,8 @@ class ReworkUniversal extends Component
                 // create rework
                 $createRework = ReworkModel::create([
                     "defect_id" => $defect->id,
-                    "status" => "NORMAL"
+                    "status" => "NORMAL",
+                    "created_by" => Auth::user()->id
                 ]);
 
                 // update defect
@@ -265,6 +266,7 @@ class ReworkUniversal extends Component
                     'so_det_id' => $defect->so_det_id,
                     "status" => "REWORK",
                     "rework_id" => $createRework->id,
+                    "created_by" => Auth::user()->id
                 ]);
             }
 
@@ -287,7 +289,8 @@ class ReworkUniversal extends Component
             // add to rework
             $createRework = ReworkModel::create([
                 "defect_id" => $defectId,
-                "status" => "NORMAL"
+                "status" => "NORMAL",
+                "created_by" => Auth::user()->id
             ]);
 
             // remove from defect
@@ -302,7 +305,8 @@ class ReworkUniversal extends Component
                 'kode_numbering' => $defect->kode_numbering,
                 'so_det_id' => $defect->so_det_id,
                 "status" => "REWORK",
-                "rework_id" => $createRework->id
+                "rework_id" => $createRework->id,
+                "created_by" => Auth::user()->id
             ]);
 
             if ($createRework && $createRft) {
@@ -367,7 +371,8 @@ class ReworkUniversal extends Component
             // add to rework
             $createRework = ReworkModel::create([
                 "defect_id" => $scannedDefectData->id,
-                "status" => "NORMAL"
+                "status" => "NORMAL",
+                "created_by" => Auth::user()->id
             ]);
 
             // remove from defect
@@ -381,7 +386,8 @@ class ReworkUniversal extends Component
                 'kode_numbering' => $scannedDefectData->kode_numbering,
                 'so_det_id' => $scannedDefectData->so_det_id,
                 "status" => "REWORK",
-                "rework_id" => $createRework->id
+                "rework_id" => $createRework->id,
+                "created_by" => Auth::user()->id
             ]);
 
             $this->sizeInput = '';
