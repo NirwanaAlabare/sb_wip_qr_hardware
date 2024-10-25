@@ -157,15 +157,23 @@
 
         var scannedItemRftInput = document.getElementById("scannedItemRft");
 
+        // scannedItemRftInput.addEventListener("change", async function () {
+        //     @this.numberingInput = this.value;
+
+        //     this.setAttribute("disabled", true);
+
+        //     // submit
+        //     await @this.submitInput();
+
+        //     this.removeAttribute("disabled");
+        //     this.value = '';
+        // });
         scannedItemRftInput.addEventListener("change", async function () {
             @this.numberingInput = this.value;
 
-            this.setAttribute("disabled", true);
-
             // submit
-            await @this.submitInput();
+            @this.submitInput();
 
-            this.removeAttribute("disabled");
             this.value = '';
         });
 
