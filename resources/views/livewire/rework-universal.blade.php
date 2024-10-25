@@ -468,8 +468,12 @@
             @this.numberingInput = this.value;
 
             // submit
-            @this.submitInput();
+            this.setAttribute("disabled", true);
 
+            // submit
+            await @this.submitInput();
+
+            this.removeAttribute("disabled");
             this.value = '';
         });
 
