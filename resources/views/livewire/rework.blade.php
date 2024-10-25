@@ -439,7 +439,7 @@
 
         var scannedReworkItemInput = document.getElementById("scannedReworkItem");
 
-        scannedReworkItemInput.addEventListener("change", function () {
+        scannedReworkItemInput.addEventListener("change", async function () {
             @this.numberingInput = this.value;
 
             // submit

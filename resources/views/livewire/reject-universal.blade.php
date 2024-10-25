@@ -160,7 +160,7 @@
 
         var scannedRejectItemInput = document.getElementById("scannedRejectItem");
 
-        scannedRejectItemInput.addEventListener("change", function () {
+        scannedRejectItemInput.addEventListener("change", async function () {
             @this.numberingInput = this.value;
 
             // submit

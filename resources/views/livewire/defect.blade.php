@@ -478,7 +478,7 @@
         // }
         var scannedDefectItemInput = document.getElementById("scannedDefectItem");
 
-        scannedDefectItemInput.addEventListener("change", function () {
+        scannedDefectItemInput.addEventListener("change", async function () {
             @this.numberingInput = this.value;
 
             this.setAttribute("disabled", true);
