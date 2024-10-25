@@ -158,10 +158,6 @@
         var scannedItemRftInput = document.getElementById("scannedItemRft");
 
         scannedItemRftInput.addEventListener("change", async function () {
-            let i = 0;
-            let j = 1;
-            let k = 2;
-
             @this.numberingInput = this.value;
 
             // submit

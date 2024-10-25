@@ -132,32 +132,36 @@ class Rft extends Component
                 $this->sizeInput = $numberingData->so_det_id;
                 $this->sizeInputText = $numberingData->size;
                 $this->noCutInput = $numberingData->no_cut_size;
-            }
-        }
 
-        $validatedData = $this->validate();
+                $validatedData = $this->validate();
 
-        if ($this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
-            $insertRft = RftModel::create([
-                'master_plan_id' => $this->orderInfo->id,
-                'so_det_id' => $this->sizeInput,
-                'no_cut_size' => $this->noCutInput,
-                'kode_numbering' => $this->numberingInput,
-                'status' => 'NORMAL',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-                'created_by' => Auth::user()->id
-            ]);
+                if ($this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
+                    $insertRft = RftModel::create([
+                        'master_plan_id' => $this->orderInfo->id,
+                        'so_det_id' => $this->sizeInput,
+                        'no_cut_size' => $this->noCutInput,
+                        'kode_numbering' => $this->numberingInput,
+                        'status' => 'NORMAL',
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                        'created_by' => Auth::user()->id
+                    ]);
 
-            if ($insertRft) {
-                $this->emit('alert', 'success', "1 output berukuran ".$this->sizeInputText." berhasil terekam.");
+                    if ($insertRft) {
+                        $this->emit('alert', 'success', "1 output berukuran ".$this->sizeInputText." berhasil terekam.");
 
-                $this->sizeInput = '';
-                $this->sizeInputText = '';
-                $this->noCutInput = '';
-                $this->numberingInput = '';
+                        $this->sizeInput = '';
+                        $this->sizeInputText = '';
+                        $this->noCutInput = '';
+                        $this->numberingInput = '';
+                    } else {
+                        $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
+                    }
+                } else {
+                    $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
+                }
             } else {
-                $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
+                $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
             }
         } else {
             $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
