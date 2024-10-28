@@ -484,7 +484,7 @@
             this.setAttribute("disabled", true);
 
             // submit
-            await @this.submitInput();
+            await @this.preSubmitInput();
 
             this.removeAttribute("disabled");
             this.value = '';
