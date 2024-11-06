@@ -34,7 +34,7 @@
                             <p class="mb-1 fs-5">:</p>
                             <p id="reject-qty" class="mb-1 fs-5">{{ $reject->count() }}</p>
                         </div>
-                        <button class="btn btn-dark"  wire:click="$emit('preSubmitUndo', 'reject')">
+                        <button class="btn btn-dark"  wire:click="$emit('preSubmitUndo', 'reject')" disabled>
                             <i class="fa-regular fa-rotate-left"></i>
                         </button>
                         {{-- <button class="btn btn-dark">

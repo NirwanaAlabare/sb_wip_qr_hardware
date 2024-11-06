@@ -5,7 +5,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center bg-defect text-light">
                     <p class="mb-0 fs-5">Defect History</p>
                     <div class="d-flex justify-content-end align-items-center gap-1">
-                        <button type="button" class="btn btn-dark" wire:click="$emit('preSubmitUndo', 'defect')">
+                        <button type="button" class="btn btn-dark" wire:click="$emit('preSubmitUndo', 'defect')" disabled>
                             <i class="fa-regular fa-rotate-left"></i>
                         </button>
                     </div>
