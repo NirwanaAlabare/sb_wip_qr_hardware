@@ -1,17 +1,18 @@
 <div>
     <div class="row mb-3">
-        <div class="col-md-12 col-lg-10">
+        {{-- <div class="col-md-12 col-lg-10"> --}}
+        <div class="col-md-12">
             <div class="input-group mb-3">
                 <input type="hidden" wire:model='date'>
                 <input type="text" class="form-control" wire:model='search' placeholder="Search Order...">
                 <button class="btn btn-sb" type="button" id="button-search-order"><i class="fa-regular fa-magnifying-glass"></i></button>
             </div>
         </div>
-        <div class="col-md-12 col-lg-2">
+        {{-- <div class="col-md-12 col-lg-2">
             <a href="{{ url($baseUrl.'/production-panel/universal/') }}" class="btn btn-sb w-100">
                 <h5 class="mb-0"><i class="fa-solid fa-globe"></i></h5>
             </a href="/production-panel/universal/">
-        </div>
+        </div> --}}
     </div>
 
     <div class="w-100" wire:loading wire:target='search, date'>
@@ -78,7 +79,7 @@
                 </a href="{{ $baseUrl }}/production-panel/index/{{ $order->id }}">
             @endforeach
         @endif
-        <a href="{{ url($baseUrl.'/production-panel/temporary/') }}" class="order col-md-6 h-100">
+        {{-- <a href="{{ url($baseUrl.'/production-panel/temporary/') }}" class="order col-md-6 h-100">
             <div class="card h-100">
                 <div class="card-body justify-content-start">
                     <div class="mx-2">
@@ -89,7 +90,7 @@
                     </div>
                 </div>
             </div>
-        </a href="{{ $baseUrl }}/production-panel/temporary/">
+        </a href="{{ $baseUrl }}/production-panel/temporary/"> --}}
     </div>
 
     <div class="w-100 mt-3">

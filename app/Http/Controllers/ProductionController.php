@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SignalBit\MasterPlan;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use DB;
@@ -136,10 +137,14 @@ class ProductionController extends Controller
     }
 
     public function universal() {
+        return Redirect::to('/');
+
         return view('production-panel-universal');
     }
 
     public function temporary() {
+        return Redirect::to('/');
+
         return view('production-panel-temporary');
     }
 }
