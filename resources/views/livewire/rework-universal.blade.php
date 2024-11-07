@@ -203,7 +203,7 @@
                     <table class="table table-bordered text-center align-middle">
                         <tr>
                             <th>No.</th>
-                            <th>ID</th>
+                            <th>QR</th>
                             <th>Size</th>
                             <th>Defect Type</th>
                             <th>Defect Area</th>
@@ -219,7 +219,7 @@
                             @foreach ($defects as $defect)
                                 <tr>
                                     <td>{{ $defects->firstItem() + $loop->index }}</td>
-                                    <td>{{ $defect->id }}</td>
+                                    <td>{{ $defect->kode_numbering }}</td>
                                     <td>{{ $defect->so_det_size }}</td>
                                     <td>{{ $defect->defect_type}}</td>
                                     <td>{{ $defect->defect_area }}</td>
@@ -267,7 +267,7 @@
                     <table class="table table-bordered text-center align-middle">
                         <tr>
                             <th>No.</th>
-                            <th>ID</th>
+                            <th>QR</th>
                             <th>Size</th>
                             <th>Defect Type</th>
                             <th>Defect Area</th>
@@ -283,7 +283,7 @@
                             @foreach ($reworks as $rework)
                                 <tr>
                                     <td>{{ $reworks->firstItem() + $loop->index }}</td>
-                                    <td>{{ $rework->defect->id }}</td>
+                                    <td>{{ $rework->defect->kode_numbering }}</td>
                                     <td>{{ $rework->so_det_size }}</td>
                                     <td>{{ $rework->defect_type}}</td>
                                     <td>{{ $rework->defect_area }}</td>
