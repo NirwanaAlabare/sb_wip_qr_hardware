@@ -346,7 +346,7 @@ class Defect extends Component
                 $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
             }
         } else {
-            $this->emit('alert', 'error', "Tidak dapat input backdate.");
+            $this->emit('alert', 'error', "Tidak dapat input backdate. Harap refresh browser anda.");
         }
     }
 

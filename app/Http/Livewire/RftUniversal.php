@@ -144,7 +144,7 @@ class RftUniversal extends Component
                     $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
                 }
             } else {
-                $this->emit('alert', 'error', "Tidak dapat backdate input.");
+                $this->emit('alert', 'error', "Tidak dapat backdate input. Harap refresh browser anda.");
             }
         } else {
             $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
