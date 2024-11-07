@@ -119,27 +119,32 @@ class RftUniversal extends Component
         $validatedData = $this->validate();
 
         $thisOrderWsDetailSize = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->first();
+
         if ($thisOrderWsDetailSize) {
-            $insertRft = RftModel::create([
-                'master_plan_id' => $thisOrderWsDetailSize['master_plan_id'],
-                'so_det_id' => $this->sizeInput,
-                'no_cut_size' => $this->noCutInput,
-                'kode_numbering' => $this->numberingInput,
-                'status' => 'NORMAL',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-                'created_by' => Auth::user()->id
-            ]);
+            if ($thisOrderWsDetailSize['tgl_plan'] == Carbon::now()->format("Y-m-d")) {
+                $insertRft = RftModel::create([
+                    'master_plan_id' => $thisOrderWsDetailSize['master_plan_id'],
+                    'so_det_id' => $this->sizeInput,
+                    'no_cut_size' => $this->noCutInput,
+                    'kode_numbering' => $this->numberingInput,
+                    'status' => 'NORMAL',
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                    'created_by' => Auth::user()->id
+                ]);
 
-            if ($insertRft) {
-                $this->emit('alert', 'success', "1 output berukuran ".$this->sizeInputText." berhasil terekam.");
+                if ($insertRft) {
+                    $this->emit('alert', 'success', "1 output berukuran ".$this->sizeInputText." berhasil terekam.");
 
-                $this->sizeInput = '';
-                $this->sizeInputText = '';
-                $this->noCutInput = '';
-                $this->numberingInput = '';
+                    $this->sizeInput = '';
+                    $this->sizeInputText = '';
+                    $this->noCutInput = '';
+                    $this->numberingInput = '';
+                } else {
+                    $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
+                }
             } else {
-                $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
+                $this->emit('alert', 'error', "Tidak dapat backdate input.");
             }
         } else {
             $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");

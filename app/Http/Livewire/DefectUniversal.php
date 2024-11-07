@@ -291,39 +291,43 @@ class DefectUniversal extends Component
 
         $thisOrderWsDetailSize = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->first();
         if ($thisOrderWsDetailSize) {
-            $insertDefect = DefectModel::create([
-                'master_plan_id' => $thisOrderWsDetailSize['master_plan_id'],
-                'no_cut_size' => $this->noCutInput,
-                'kode_numbering' => $this->numberingInput,
-                'so_det_id' => $this->sizeInput,
-                // 'product_type_id' => $this->productType,
-                'defect_type_id' => $this->defectType,
-                'defect_area_id' => $this->defectArea,
-                'defect_area_x' => $this->defectAreaPositionX,
-                'defect_area_y' => $this->defectAreaPositionY,
-                'status' => 'NORMAL',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-                'created_by' => Auth::user()->id
-            ]);
+            if ($thisOrderWsDetailSize['tgl_plan'] == Carbon::now()->format("Y-m-d")) {
+                $insertDefect = DefectModel::create([
+                    'master_plan_id' => $thisOrderWsDetailSize['master_plan_id'],
+                    'no_cut_size' => $this->noCutInput,
+                    'kode_numbering' => $this->numberingInput,
+                    'so_det_id' => $this->sizeInput,
+                    // 'product_type_id' => $this->productType,
+                    'defect_type_id' => $this->defectType,
+                    'defect_area_id' => $this->defectArea,
+                    'defect_area_x' => $this->defectAreaPositionX,
+                    'defect_area_y' => $this->defectAreaPositionY,
+                    'status' => 'NORMAL',
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                    'created_by' => Auth::user()->id
+                ]);
 
-            if ($insertDefect) {
-                $type = DefectType::select('defect_type')->find($this->defectType);
-                $area = DefectArea::select('defect_area')->find($this->defectArea);
-                $getSize = DB::table('so_det')
-                    ->select('id', 'size')
-                    ->where('id', $this->sizeInput)
-                    ->first();
+                if ($insertDefect) {
+                    $type = DefectType::select('defect_type')->find($this->defectType);
+                    $area = DefectArea::select('defect_area')->find($this->defectArea);
+                    $getSize = DB::table('so_det')
+                        ->select('id', 'size')
+                        ->where('id', $this->sizeInput)
+                        ->first();
 
-                $this->emit('alert', 'success', "1 output DEFECT berukuran ".$getSize->size." dengan jenis defect : ".$type->defect_type." dan area defect : ".$area->defect_area." berhasil terekam.");
-                $this->emit('hideModal', 'defect', 'regular');
+                    $this->emit('alert', 'success', "1 output DEFECT berukuran ".$getSize->size." dengan jenis defect : ".$type->defect_type." dan area defect : ".$area->defect_area." berhasil terekam.");
+                    $this->emit('hideModal', 'defect', 'regular');
 
-                $this->sizeInput = '';
-                $this->sizeInputText = '';
-                $this->noCutInput = '';
-                $this->numberingInput = '';
+                    $this->sizeInput = '';
+                    $this->sizeInputText = '';
+                    $this->noCutInput = '';
+                    $this->numberingInput = '';
+                } else {
+                    $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
+                }
             } else {
-                $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
+                $this->emit('alert', 'error', "Tidak dapat input backdate. Harap refresh browser anda.");
             }
 
             $this->emit('qrInputFocus', 'defect');

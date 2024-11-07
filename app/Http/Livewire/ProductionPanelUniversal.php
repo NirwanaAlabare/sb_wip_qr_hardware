@@ -101,6 +101,7 @@ class ProductionPanelUniversal extends Component
 
         $this->orderWsDetailSizes = DB::table('master_plan')->selectRaw("
                 master_plan.id as master_plan_id,
+                master_plan.tgl_plan,
                 MIN(act_costing.kpno) as ws,
                 so_det.color as color,
                 so_det.id as so_det_id,
