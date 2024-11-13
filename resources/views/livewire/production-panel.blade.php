@@ -111,24 +111,22 @@
                         </div>
                     </div>
                 @endif
-                @if ($orderDate == date("Y-m-d"))
-                    <div class="col-md-6" id="reject-panel">
-                        <div class="d-flex h-100">
-                            <div class="card-custom bg-reject d-flex justify-content-between align-items-center w-75 h-100" {{-- onclick="toReject()" --}} wire:click='toReject'>
-                                <div class="d-flex flex-column gap-3">
-                                    <p class="text-light"><i class="fa-regular fa-circle-xmark fa-2xl"></i></p>
-                                    <p class="text-light">REJECT</p>
-                                </div>
-                                <p class="text-light fs-1">{{ $outputReject }}</p>
+                <div class="col-md-6" id="reject-panel">
+                    <div class="d-flex h-100">
+                        <div class="card-custom bg-reject d-flex justify-content-between align-items-center w-75 h-100" {{-- onclick="toReject()" --}} wire:click='toReject'>
+                            <div class="d-flex flex-column gap-3">
+                                <p class="text-light"><i class="fa-regular fa-circle-xmark fa-2xl"></i></p>
+                                <p class="text-light">REJECT</p>
                             </div>
-                            <div class="card-custom-footer bg-light w-25 h-100">
-                                <button class="reset single-item btn btn-pale w-100 h-100 invisible" wire:click="preSubmitUndo('reject')" disabled>
-                                    <i class="fa-regular fa-rotate-left fa-2xl"></i>
-                                </button>
-                            </div>
+                            <p class="text-light fs-1">{{ $outputReject }}</p>
+                        </div>
+                        <div class="card-custom-footer bg-light w-25 h-100">
+                            <button class="reset single-item btn btn-pale w-100 h-100 invisible" wire:click="preSubmitUndo('reject')" disabled>
+                                <i class="fa-regular fa-rotate-left fa-2xl"></i>
+                            </button>
                         </div>
                     </div>
-                @endif
+                </div>
                 <div class="col-md-6" id="rework-panel">
                     <div class="d-flex h-100">
                         <div class="card-custom bg-rework d-flex justify-content-between align-items-center w-75 h-100" {{-- onclick="toRework()" --}} wire:click='toRework'>

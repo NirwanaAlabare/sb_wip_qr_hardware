@@ -29,7 +29,7 @@ class Reject extends Component
     protected $rules = [
         'sizeInput' => 'required',
         'noCutInput' => 'required',
-        'numberingInput' => 'required|unique:output_rfts,kode_numbering|unique:output_defects,kode_numbering|unique:output_rejects,kode_numbering',
+        'numberingInput' => 'required|unique:output_rfts,kode_numbering|unique:output_rejects,kode_numbering',
     ];
 
     protected $messages = [
@@ -134,26 +134,50 @@ class Reject extends Component
 
         if ($this->orderInfo->tgl_plan == Carbon::now()->format('Y-m-d')) {
             if ($this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
-                $insertReject = RejectModel::create([
-                    'master_plan_id' => $this->orderInfo->id,
-                    'so_det_id' => $this->sizeInput,
-                    'no_cut_size' => $this->noCutInput,
-                    'kode_numbering' => $this->numberingInput,
-                    'status' => 'NORMAL',
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                    'created_by' => Auth::user()->id,
-                ]);
+                $continue = false;
 
-                if ($insertReject) {
-                    $this->emit('alert', 'success', "1 output berukuran ".$this->sizeInputText." berhasil terekam.");
+                $scannedDefectData = Defect::where("kode_numbering", $this->numberingInput)->first();
 
-                    $this->sizeInput = '';
-                    $this->sizeInputText = '';
-                    $this->noCutInput = '';
-                    $this->numberingInput = '';
+                // check defect
+                if ($scannedDefectData) {
+                    if ($scannedDefectData->defect_status == "defect") {
+                        $scannedDefectData->defect_status = "rejected";
+                        $scannedDefectData->save();
+
+                        $continue = true;
+                    } else {
+                        $continue = false;
+                    }
                 } else {
-                    $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
+                    $continue = true;
+                }
+
+                // continue
+                if ($continue) {
+                    $insertReject = RejectModel::create([
+                        'master_plan_id' => $this->orderInfo->id,
+                        'so_det_id' => $this->sizeInput,
+                        'no_cut_size' => $this->noCutInput,
+                        'kode_numbering' => $this->numberingInput,
+                        "defect_id" => $scannedDefectData ? $scannedDefectData->id : null,
+                        'status' => 'NORMAL',
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                        'created_by' => Auth::user()->id,
+                    ]);
+
+                    if ($insertReject) {
+                        $this->emit('alert', 'success', "1 output berukuran ".$this->sizeInputText." berhasil terekam.");
+
+                        $this->sizeInput = '';
+                        $this->sizeInputText = '';
+                        $this->noCutInput = '';
+                        $this->numberingInput = '';
+                    } else {
+                        $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
+                    }
+                } else {
+                    $this->emit('alert', 'warning', "QR Sudah discan.");
                 }
             } else {
                 $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
