@@ -219,6 +219,7 @@ class ProductionPanel extends Component
                         'master_plan_id' => $getRft->master_plan_id,
                         'so_det_id' => $getRft->so_det_id,
                         'output_rft_id' => $getRft->id,
+                        'kode_numbering' => $getRft->kode_numbering,
                         'keterangan' => 'rft',
                     ]);
                 }
@@ -261,6 +262,7 @@ class ProductionPanel extends Component
                         'master_plan_id' => $getDefect->master_plan_id,
                         'so_det_id' => $getDefect->so_det_id,
                         'output_defect_id' => $getDefect->defect_id,
+                        'kode_numbering' => $getDefect->kode_numbering,
                         'keterangan' => 'defect',
                     ]);
 
@@ -296,6 +298,7 @@ class ProductionPanel extends Component
                         'master_plan_id' => $reject->master_plan_id,
                         'so_det_id' => $reject->so_det_id,
                         'output_reject_id' => $reject->id,
+                        'kode_numbering' => $reject->kode_numbering,
                         'keterangan' => 'reject',
                     ]);
                 }
@@ -334,7 +337,7 @@ class ProductionPanel extends Component
 
                 // update defect & delete rework
                 foreach ($getDefects as $defect) {
-                    Undo::create(['master_plan_id' => $defect->master_plan_id, 'so_det_id' => $defect->so_det_id, 'output_rework_id' => $defect->rework->id, 'keterangan' => 'rework',]);
+                    Undo::create(['master_plan_id' => $defect->master_plan_id, 'so_det_id' => $defect->so_det_id, 'output_rework_id' => $defect->rework->id, 'kode_numbering' => $defect->kode_numbering, 'keterangan' => 'rework',]);
                     Defect::where('id', $defect->defect_id)->update(['defect_status' => 'defect']);
                     Rft::leftJoin('output_reworks', 'output_reworks.id', '=', 'output_rfts.rework_id')->where('output_reworks.defect_id', $defect->defect_id)->delete();
                     Rework::where('defect_id', $defect->defect_id)->delete();
