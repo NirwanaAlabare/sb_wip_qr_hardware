@@ -20,6 +20,7 @@ class Reject extends Model
         'no_cut_size',
         'kode_numbering',
         'status',
+        'defect_id',
         'created_at',
         'updated_at',
         'created_by',
@@ -28,6 +29,11 @@ class Reject extends Model
     public function masterPlan()
     {
         return $this->belongsTo(MasterPlan::class, 'master_plan_id', 'id');
+    }
+
+    public function defect()
+    {
+        return $this->hasOne(Defect::class, 'id', 'defect_id');
     }
 
     public function undo()

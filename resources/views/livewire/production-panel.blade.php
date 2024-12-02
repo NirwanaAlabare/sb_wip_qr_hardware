@@ -76,9 +76,12 @@
                                             <p class="text-center fs-3 mt-auto mb-auto">{{ $outputFiltered }}</p>
                                         </div>
                                     </div>
-                                    <button type="button" class="reset multi-item lower btn btn-pale h-50 invisible" wire:click="preSubmitUndo('rft')" disabled>
-                                        <i class="fa-regular fa-rotate-left fa-2xl"></i>
+                                    <button type="button" class="reset multi-item lower btn btn-pale h-50">
+                                        <i class="fa-regular fa-rotate-left fa-2xl invisible"></i>
                                     </button>
+                                    {{-- <button type="button" class="reset multi-item lower btn btn-pale h-50" wire:click="preSubmitUndo('rft')">
+                                        <i class="fa-regular fa-rotate-left fa-2xl"></i>
+                                    </button> --}}
                                 </div>
                             </div>
                         </div>
@@ -100,12 +103,15 @@
                                             <p class="mb-0"><i class="fa-regular fa-clock-rotate-left fa-xl"></i></p>
                                         </div>
                                     </button>
-                                    <button type="button" class="reset multi-item lower btn btn-pale h-50 invisible" wire:click="preSubmitUndo('defect')" disabled>
+                                    <button type="button" class="reset multi-item lower btn btn-pale h-50">
+                                        <i class="fa-regular fa-rotate-left fa-2xl invisible"></i>
+                                    </button>
+                                    {{-- <button type="button" class="reset multi-item lower btn btn-pale h-50" wire:click="preSubmitUndo('defect')">
                                         <div class="d-flex flex-column justify-content-center align-items-center w-100 h-100">
                                             <p class="mb-1">UNDO</p>
                                             <p class="mb-0"><i class="fa-regular fa-rotate-left fa-xl"></i></p>
                                         </div>
-                                    </button>
+                                    </button> --}}
                                 </div>
                             </div>
                         </div>
@@ -121,9 +127,12 @@
                             <p class="text-light fs-1">{{ $outputReject }}</p>
                         </div>
                         <div class="card-custom-footer bg-light w-25 h-100">
-                            <button class="reset single-item btn btn-pale w-100 h-100 invisible" wire:click="preSubmitUndo('reject')" disabled>
-                                <i class="fa-regular fa-rotate-left fa-2xl"></i>
+                            <button type="button" class="reset single-item btn btn-pale w-100 h-100">
+                                <i class="fa-regular fa-rotate-left fa-2xl invisible"></i>
                             </button>
+                            {{-- <button class="reset single-item btn btn-pale w-100 h-100" wire:click="preSubmitUndo('reject')">
+                                <i class="fa-regular fa-rotate-left fa-2xl"></i>
+                            </button> --}}
                         </div>
                     </div>
                 </div>
@@ -137,9 +146,12 @@
                             <p class="text-light fs-1">{{ $outputRework }}</p>
                         </div>
                         <div class="card-custom-footer bg-light w-25 h-100">
-                            <button class="reset single-item btn btn-pale w-100 h-100 invisible" wire:click="preSubmitUndo('rework')" disabled>
-                                <i class="fa-regular fa-rotate-left fa-2xl"></i>
+                            <button type="button" class="reset single-item btn btn-pale w-100 h-100">
+                                <i class="fa-regular fa-rotate-left fa-2xl invisible"></i>
                             </button>
+                            {{-- <button class="reset single-item btn btn-pale w-100 h-100" wire:click="preSubmitUndo('rework')">
+                                <i class="fa-regular fa-rotate-left fa-2xl"></i>
+                            </button> --}}
                         </div>
                     </div>
                 </div>

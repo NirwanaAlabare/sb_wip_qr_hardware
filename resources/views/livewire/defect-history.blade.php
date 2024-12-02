@@ -106,6 +106,7 @@
                                 <option value="all" selected>Semua Status</option>
                                 <option class="text-defect fw-bold" value="defect">Defect</option>
                                 <option class="text-rework fw-bold" value="reworked">Reworked</option>
+                                <option class="text-reject fw-bold" value="rejected">Rejected</option>
                             </select>
                         </div>
                     </div>

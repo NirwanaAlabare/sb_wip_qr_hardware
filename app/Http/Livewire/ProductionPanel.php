@@ -284,6 +284,8 @@ class ProductionPanel extends Component
 
                 break;
             case 'reject' :
+                $defectIds = [];
+
                 // Undo REJECT
                 $rejectSql = Reject::where('master_plan_id', $this->orderInfo->id)->
                     where('so_det_id', $this->undoSize)->
@@ -301,9 +303,13 @@ class ProductionPanel extends Component
                         'kode_numbering' => $reject->kode_numbering,
                         'keterangan' => 'reject',
                     ]);
+
+                    array_push($defectIds, $reject->defect_id);
                 }
 
                 $deleteReject = $rejectSql->delete();
+
+                $updateDefect = Defect::whereIn('id', $defectIds)->update(['defect_status' => 'defect']);
 
                 if ($deleteReject) {
                     $this->emit('updateOutputReject');
