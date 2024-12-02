@@ -21,6 +21,7 @@ class Undo extends Model
         'output_defect_id',
         'output_reject_id',
         'output_rework_id',
+        'kode_numbering',
         'keterangan',
         'created_at',
         'updated_at',
