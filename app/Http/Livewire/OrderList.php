@@ -51,7 +51,7 @@ class OrderList extends Component
                 mastersupplier.supplier as buyer_name,
                 act_costing.styleno as style_name,
                 output.progress as progress,
-                sum(plan.target) as target,
+                plan.target as target,
                 CONCAT(masterproduct.product_group, ' - ', masterproduct.product_item) as product_type
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
