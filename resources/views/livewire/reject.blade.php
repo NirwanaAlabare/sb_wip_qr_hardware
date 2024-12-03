@@ -1,5 +1,5 @@
 <div>
-    <div class="loading-container-fullscreen" wire:loading wire:target="setAndSubmitInput, submitInput, updateOrder, submitRapidInput">
+    <div class="loading-container-fullscreen" wire:loading wire:target="selectDefectAreaPosition, setAndSubmitInput, preSubmitInput, submitInput, updateOrder, submitRapidInput">
         <div class="loading-container">
             <div class="loading"></div>
         </div>
@@ -180,7 +180,7 @@
                         </tr>
                         @if ($defects->count() < 1)
                             <tr>
-                                <td colspan='8'>Defect tidak ditemukan</td>
+                                <td colspan='9'>Defect tidak ditemukan</td>
                             </tr>
                         @else
                             @foreach ($defects as $defect)
@@ -247,29 +247,39 @@
                         </tr>
                         @if ($rejects->count() < 1)
                             <tr>
-                                <td colspan='8'>Rework tidak ditemukan</td>
+                                <td colspan='9'>Reject tidak ditemukan</td>
                             </tr>
                         @else
                             @foreach ($rejects as $reject)
                                 <tr>
                                     <td>{{ $rejects->firstItem() + $loop->index }}</td>
                                     <td>{{ $reject->updated_at ? $reject->created_at : $reject->updated_at }}</td>
-                                    <td>{{ $reject->defect->kode_numbering }}</td>
+                                    <td>{{ $reject->defect ? $reject->defect->kode_numbering : $reject->kode_numbering }}</td>
                                     <td>{{ $reject->so_det_size }}</td>
-                                    <td>{{ $reject->defect->defectType ? $reject->defect->defectType->defect_type : '-' }}</td>
-                                    <td>{{ $reject->defect->defectArea ? $reject->defect->defectArea->defect_area : '-' }}</td>
-                                    <td class="text-reject fw-bold">{{ strtoupper($reject->defect->defect_status) }}</td>
+                                    <td>{{ $reject->defect ? ($reject->defect->defectType ? $reject->defect->defectType->defect_type : '-') : ($reject->defectType ? $reject->defectType->defect_type : '-') }}</td>
+                                    <td>{{ $reject->defect ? ($reject->defect->defectArea ? $reject->defect->defectArea->defect_area : '-') : ($reject->defectArea ? $reject->defectArea->defect_area : '-') }}</td>
                                     <td>
-                                        <button type="button" class="btn btn-dark" wire:click="showDefectAreaImage('{{$reject->defect->masterPlan->gambar}}', {{$reject->defect->defect_area_x}}, {{$reject->defect->defect_area_y}})'">
-                                            <i class="fa-regular fa-image"></i>
-                                        </button>
+                                        @if ($reject->defect)
+                                            <button type="button" class="btn btn-dark" wire:click="showDefectAreaImage('{{$reject->defect->masterPlan->gambar}}', {{$reject->defect->defect_area_x}}, {{$reject->defect->defect_area_y}})'">
+                                                <i class="fa-regular fa-image"></i>
+                                            </button>
+                                        @else
+                                            <button type="button" class="btn btn-dark" wire:click="showDefectAreaImage('{{$reject->masterPlan->gambar}}', {{$reject->reject_area_x}}, {{$reject->reject_area_y}})'">
+                                                <i class="fa-regular fa-image"></i>
+                                            </button>
+                                        @endif
                                     </td>
+                                    <td class="text-reject fw-bold">{{ $reject->defect ? strtoupper($reject->defect->defect_status) : strtoupper($reject->reject_status) }}</td>
                                     <td>
                                         <div wire:loading>
                                             <div class="loading-small"></div>
                                         </div>
                                         <div wire:loading.remove>
-                                            <button class="btn btn-sm btn-defect fw-bold w-100" wire:click="$emit('preCancelReject', '{{ $reject->id }}', '{{ $reject->defect->id }}', '{{ $reject->so_det_size }}', '{{ $reject->defect->defectType ? $reject->defect->defectType->defect_type : '-' }}', '{{ ($reject->defect->defectArea ? $reject->defect->defectArea->defect_area : '-') }}', '{{$reject->defect->masterPlan->gambar}}', {{$reject->defect->defect_area_x}}, {{$reject->defect->defect_area_y}})">CANCEL</button>
+                                            @if ($reject->defect)
+                                                <button class="btn btn-sm btn-defect fw-bold w-100" wire:click="$emit('preCancelReject', '{{ $reject->id }}', '{{ $reject->defect->id }}', '{{ $reject->so_det_size }}', '{{ $reject->defect->defectType ? $reject->defect->defectType->defect_type : '-' }}', '{{ ($reject->defect->defectArea ? $reject->defect->defectArea->defect_area : '-') }}', '{{$reject->defect->masterPlan->gambar}}', {{$reject->defect->defect_area_x}}, {{$reject->defect->defect_area_y}})">CANCEL</button>
+                                            @else
+                                                <button class="btn btn-sm btn-muted fw-bold w-100" disabled>MATI</button>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -282,14 +292,136 @@
         </div>
     </div>
 
-    {{-- Footer --}}
-    <footer class="footer fixed-bottom py-3">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-end">
-                <button class="btn btn-dark btn-lg ms-auto fs-3" wire:click='submitInput'>SELESAI</button>
+     {{-- Reject Modal --}}
+     <div class="modal" tabindex="-1" id="reject-modal" wire:ignore.self>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-reject text-light">
+                    <h5 class="modal-title">REJECT</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        {{-- <div class="mb-3">
+                            @error('productType')
+                                <div class="alert alert-danger alert-dismissible fade show mb-0 rounded-0" role="alert">
+                                    <small>
+                                        <strong>Error</strong> {{$message}}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </small>
+                                </div>
+                            @enderror
+                            <div class="d-flex align-items-center mb-1">
+                                <button type="button" class="btn btn-sm btn-light rounded-0 me-1" wire:click="$emit('showModal', 'addProductType')">
+                                    <i class="fa-regular fa-plus fa-xs"></i>
+                                </button>
+                                <label class="form-label me-1 mb-0">Product Type</label>
+                            </div>
+                            <div wire:ignore id="select-product-type-container">
+                                <select class="form-select @error('productType') is-invalid @enderror" id="product-type-select2" wire:model='productType'>
+                                    <option value="" selected>Select product type</option>
+                                    @foreach ($productTypes as $product)
+                                        <option value="{{ $product->id }}">
+                                            {{ $product->product_type }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div> --}}
+                        <div class="mb-3">
+                            @error('rejectType')
+                                <div class="alert alert-danger alert-dismissible fade show mb-0 rounded-0" role="alert">
+                                    <small>
+                                        <strong>Error</strong> {{$message}}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </small>
+                                </div>
+                            @enderror
+                            <div class="d-flex align-items-center mb-1">
+                                <label class="form-label me-1 mb-0">Reject Type</label>
+                            </div>
+                            <div wire:ignore id="select-reject-type-container">
+                                <select class="form-select @error('rejectType') is-invalid @enderror" id="reject-type-select2" wire:model='rejectType'>
+                                    <option value="" selected>Select reject type</option>
+                                    @foreach ($defectTypes as $defect)
+                                        <option value="{{ $defect->id }}">
+                                            {{ $defect->defect_type }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            @error('rejectArea')
+                                <div class="alert alert-danger alert-dismissible fade show mb-0 rounded-0" role="alert">
+                                    <small>
+                                        <strong>Error</strong> {{$message}}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </small>
+                                </div>
+                            @enderror
+                            <div class="d-flex align-items-center mb-1">
+                                <label class="form-label me-1 mb-0">Reject Area</label>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <div class="w-75" wire:ignore id="select-reject-area-container">
+                                    <select class="form-select @error('rejectArea') is-invalid @enderror" id="reject-area-select2" wire:model='rejectArea'>
+                                        <option value="" selected>Select defect area</option>
+                                        @foreach ($defectAreas as $defect)
+                                            <option value="{{ $defect->id }}">
+                                                {{ $defect->defect_area }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="w-25">
+                                    <button type="button" wire:click="selectRejectAreaPosition" class="btn btn-dark w-100">
+                                        <i class="fa-regular fa-image"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            @if ($errors->has('rejectAreaPositionX') || $errors->has('rejectAreaPositionY'))
+                                <div class="alert alert-danger alert-dismissible fade show mb-0 rounded-0" role="alert">
+                                    <small>
+                                        <strong>Error</strong> Harap tentukan posisi reject area dengan mengklik tombol <button type="button"class="btn btn-dark btn-sm"><i class="fa-regular fa-image fa-2xs"></i></button> di samping 'select defect area'.
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </small>
+                                </div>
+                            @endif
+                            <div class="d-none">
+                                <label class="form-label me-1 mb-2">Reject Area Position</label>
+                                <div class="row">
+                                    <div class="col d-flex justify-content-center align-items-center">
+                                        <label class="form-label me-1 mb-0">X </label>
+                                        <div class="d-flex">
+                                            <input class="form-control @error('rejectAreaPositionX') is-invalid @enderror" id="reject-area-position-x-livewire" wire:model='rejectAreaPositionX' readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col d-flex justify-content-center align-items-center">
+                                        <label class="form-label me-1 mb-1">Y </label>
+                                        <div class="d-flex">
+                                            <input class="form-control @error('rejectAreaPositionY') is-invalid @enderror" id="reject-area-position-x-livewire" wire:model='rejectAreaPositionY' readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                    <div id="regular-submit-reject" wire:ignore.self>
+                        <button type="button" class="btn btn-success" wire:click='submitInput'>Selesai</button>
+                    </div>
+                    <div id="rapid-submit-reject" wire:ignore.self>
+                        <button type="button" class="btn btn-success" wire:click='submitRapidInput'>Selesai</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </footer>
+    </div>
 
     {{-- Rapid Reject --}}
     <div class="modal" tabindex="-1" id="rapid-reject-modal" wire:ignore.self>
@@ -307,15 +439,57 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-success" data-bs-dismiss="modal" wire:click='submitRapidInput'>Selesai</button>
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal" wire:click='preSubmitRapidInput'>Lanjut</button>
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- Footer --}}
+    <footer class="footer fixed-bottom py-3">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-dark btn-lg ms-auto fs-3" wire:click='preSubmitInput'>LANJUT</button>
+            </div>
+        </div>
+    </footer>
 </div>
 
 @push('scripts')
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Reject Type
+            $('#reject-type-select2').select2({
+                theme: "bootstrap-5",
+                width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+                placeholder: $( this ).data( 'placeholder' ),
+                dropdownParent: $('#reject-modal .modal-content #select-reject-type-container')
+            });
+
+            $('#reject-type-select2').on('change', function (e) {
+                var rejectType = $('#reject-type-select2').select2("val");
+                @this.set('rejectType', rejectType);
+            });
+
+            // Reject Area
+            $('#reject-area-select2').select2({
+                theme: "bootstrap-5",
+                width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+                placeholder: $( this ).data( 'placeholder' ),
+                dropdownParent: $('#reject-modal .modal-content #select-reject-area-container')
+            });
+
+            $('#reject-area-select2').on('change', function (e) {
+                var rejectArea = $('#reject-area-select2').select2("val");
+                @this.set('rejectArea', rejectArea);
+            });
+
+            Livewire.on('clearSelectRejectAreaPoint', () => {
+                $('#reject-type-select2').val("").trigger('change');
+                $('#reject-area-select2').val("").trigger('change');
+            });
+        })
+
         // Scan QR
         // if (document.getElementById("reject-reader")) {
         //     function onScanSuccess(decodedText, decodedResult) {
@@ -369,11 +543,10 @@
         scannedRejectItemInput.addEventListener("change", async function () {
             @this.numberingInput = this.value;
 
-            // submit
             this.setAttribute("disabled", true);
 
             // submit
-            await @this.submitInput();
+            await @this.preSubmitInput();
 
             this.removeAttribute("disabled");
             this.value = '';
@@ -403,5 +576,9 @@
         // Livewire.on('fromInputPanel', () => {
         //     clearRejectScan();
         // });
+
+        $('#reject-area-modal').on('hidden.bs.modal', function () {
+            scannedRejectItemInput.focus();
+        })
     </script>
 @endpush

@@ -56,6 +56,11 @@ class Defect extends Model
         return $this->hasOne(Rework::class, 'defect_id', 'id');
     }
 
+    public function reject()
+    {
+        return $this->hasOne(Reject::class, 'defect_id', 'id');
+    }
+
     public function undo()
     {
         return $this->hasOne(Undo::class, 'output_defect_id', 'id');

@@ -21,6 +21,11 @@ class Reject extends Model
         'kode_numbering',
         'status',
         'defect_id',
+        'reject_type_id',
+        'reject_area_id',
+        'reject_area_x',
+        'reject_area_y',
+        'reject_status',
         'created_at',
         'updated_at',
         'created_by',
@@ -34,6 +39,16 @@ class Reject extends Model
     public function defect()
     {
         return $this->hasOne(Defect::class, 'id', 'defect_id');
+    }
+
+    public function defectType()
+    {
+        return $this->belongsTo(DefectType::class, 'reject_type_id', 'id');
+    }
+
+    public function defectArea()
+    {
+        return $this->belongsTo(DefectArea::class, 'reject_area_id', 'id');
     }
 
     public function undo()
