@@ -69,7 +69,7 @@
         </div>
         <div class="defect-area-img-container" id="reject-area-img-container">
             <div class="defect-area-img-point" id="reject-area-img-point"></div>
-            <img src="" alt="" class="img-fluid reject-area-img" id="reject-area-img">
+            <img src="" alt="" class="img-fluid defect-area-img" id="reject-area-img">
         </div>
     </div>
 

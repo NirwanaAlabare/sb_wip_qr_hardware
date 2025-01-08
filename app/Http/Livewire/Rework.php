@@ -320,7 +320,7 @@ class Rework extends Component
 
             // remove from defect
             $defect = Defect::where('id', $defectId)->first();
-            $defect->defect_status = 'rework';
+            $defect->defect_status = 'reworked';
             $defect->save();
 
             // add to rft
