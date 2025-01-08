@@ -164,7 +164,7 @@ class Defect extends Component
             ]);
 
             if ($createProductType) {
-                $this->emit('alert', 'success', 'Product Time : '.$this->productTypeAdd.' berhasil ditambahkan.');
+                $this->emit('alert', 'success', 'Product Type : '.$this->productTypeAdd.' berhasil ditambahkan.');
 
                 $this->productTypeAdd = null;
                 $this->productTypeImageAdd = null;
@@ -332,6 +332,7 @@ class Defect extends Component
 
                     $this->emit('alert', 'success', "1 output DEFECT berukuran ".$getSize->size." dengan jenis defect : ".$type->defect_type." dan area defect : ".$area->defect_area." berhasil terekam.");
                     $this->emit('hideModal', 'defect', 'regular');
+                    $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
 
                     $this->sizeInput = '';
                     $this->sizeInputText = '';
@@ -473,6 +474,8 @@ class Defect extends Component
 
         if ($success > 0) {
             $this->emit('alert', 'success', $success." output berhasil terekam. ");
+
+            $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
         }
 
         if ($fail > 0) {

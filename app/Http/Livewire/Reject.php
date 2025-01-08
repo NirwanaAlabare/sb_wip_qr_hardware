@@ -331,6 +331,7 @@ class Reject extends Component
                     if ($insertReject) {
                         $this->emit('alert', 'success', "1 output berukuran ".$this->sizeInputText." berhasil terekam.");
                         $this->emit('hideModal', 'reject', 'regular');
+                        $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
 
                         $this->sizeInput = '';
                         $this->sizeInputText = '';
@@ -445,6 +446,8 @@ class Reject extends Component
 
         if ($success > 0) {
             $this->emit('alert', 'success', $success." output berhasil terekam. ");
+
+            $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
         }
 
         if ($fail > 0) {

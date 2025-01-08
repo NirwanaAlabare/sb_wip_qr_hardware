@@ -311,6 +311,8 @@ class ReworkUniversal extends Component
 
             if ($createRework && $createRft) {
                 $this->emit('alert', 'success', "DEFECT dengan ID : ".$defectId." berhasil di REWORK.");
+
+                $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
             } else {
                 $this->emit('alert', 'error', "Terjadi kesalahan. DEFECT dengan ID : ".$defectId." tidak berhasil di REWORK.");
             }
@@ -333,6 +335,8 @@ class ReworkUniversal extends Component
 
         if ($deleteRework && $updateDefect && $deleteRft) {
             $this->emit('alert', 'success', "REWORK dengan REWORK ID : ".$reworkId." dan DEFECT ID : ".$defectId." berhasil di kembalikan ke DEFECT.");
+
+            $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
         } else {
             $this->emit('alert', 'error', "Terjadi kesalahan. REWORK dengan REWORK ID : ".$reworkId." dan DEFECT ID : ".$defectId." tidak berhasil dikembalikan ke DEFECT.");
         }
@@ -397,6 +401,8 @@ class ReworkUniversal extends Component
 
             if ($createRework && $createRft) {
                 $this->emit('alert', 'success', "DEFECT dengan ID : ".$scannedDefectData->id." berhasil di REWORK.");
+
+                $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
             } else {
                 $this->emit('alert', 'error', "Terjadi kesalahan. DEFECT dengan ID : ".$scannedDefectData->id." tidak berhasil di REWORK.");
             }
@@ -477,6 +483,8 @@ class ReworkUniversal extends Component
 
         if ($success > 0) {
             $this->emit('alert', 'success', $success." output berhasil terekam. ");
+
+            $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
         }
 
         if ($fail > 0) {
