@@ -694,5 +694,33 @@
                 $('#content-undo').addClass('hidden');
             }
         });
+
+        function triggerDashboard(line, tanggal) {
+            console.log("Sending Trigger...");
+
+            $.ajax({
+                url: "http://10.10.5.62:8000/nds_wip/public/index.php/api/trigger-wip-line/dashboard-line/wip-line-sign",
+                type: "post",
+                data: {
+                    line_id: line,
+                    tanggal: tanggal,
+                },
+                dataType: "json",
+                success: function (response) {
+                    console.log(response);
+
+                    console.log("Trigger Sent!");
+                },
+                error: function (jqXHR) {
+                    console.error(jqXHR);
+
+                    console.error("Trigger Fail!");
+                }
+            });
+        }
+
+        Livewire.on('triggerDashboard', (line, tanggal) => {
+            triggerDashboard(line, tanggal);
+        });
     </script>
 @endsection
