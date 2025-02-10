@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use Illuminate\Session\SessionManager;
 use Illuminate\Support\Facades\Auth;
 use App\Models\SignalBit\Reject as RejectModel;
@@ -18,6 +19,10 @@ use DB;
 
 class Reject extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
+
     public $orderInfo;
     public $orderWsDetailSizes;
     public $output;
