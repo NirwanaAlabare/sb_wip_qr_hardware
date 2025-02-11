@@ -116,7 +116,7 @@
                                 <tbody>
                                     @if ($allDefectList->count() < 1)
                                         <tr>
-                                            <td colspan="4" class="text-center">
+                                            <td colspan="5" class="text-center">
                                                 <div wire:loading>
                                                     <div class="loading-small"></div>
                                                 </div>
@@ -158,7 +158,7 @@
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center bg-rework text-light">
                     <p class="mb-0 fs-5">Data Defect</p>
-                    <div class="d-flex justify-content-end align-items-center gap-1"> 
+                    <div class="d-flex justify-content-end align-items-center gap-1">
                         <button type="button" class="btn btn-dark" wire:click="$emit('preSubmitUndo', 'defect')" disabled>
                             <i class="fa-regular fa-rotate-left"></i>
                         </button>
@@ -185,7 +185,7 @@
                         </tr>
                         @if ($defects->count() < 1)
                             <tr>
-                                <td colspan='8'>Defect tidak ditemukan</td>
+                                <td colspan='9'>Defect tidak ditemukan</td>
                             </tr>
                         @else
                             @foreach ($defects as $defect)
@@ -251,7 +251,7 @@
                         </tr>
                         @if ($reworks->count() < 1)
                             <tr>
-                                <td colspan='8'>Rework tidak ditemukan</td>
+                                <td colspan='9'>Rework tidak ditemukan</td>
                             </tr>
                         @else
                             @foreach ($reworks as $rework)
