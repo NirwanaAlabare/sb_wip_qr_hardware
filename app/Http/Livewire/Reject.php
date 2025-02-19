@@ -298,11 +298,16 @@ class Reject extends Component
             if ($this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
                 $continue = false;
 
-                $scannedDefectData = Defect::where("kode_numbering", $this->numberingInput)->first();
+                $scannedDefectData = Defect::selectRaw("output_defects.*, output_defect_in_out.status in_out_status")->
+                    leftJoin("output_defect_in_out", function ($join) {
+                        $join->on("output_defect_in_out.defect_id", "=", "output_defects.id");
+                        $join->on("output_defect_in_out.output_type", "=", DB::raw("'qc'"));
+                    })->
+                    where("output_defects.kode_numbering", $this->numberingInput)->first();
 
                 // check defect
                 if ($scannedDefectData) {
-                    if ($scannedDefectData->defect_status == "defect") {
+                    if ($scannedDefectData->defect_status == "defect" && $scannedDefectData->master_plan_id == $this->orderInfo->id) {
                         $scannedDefectData->defect_status = "rejected";
                         $scannedDefectData->save();
 
@@ -421,7 +426,12 @@ class Reject extends Component
                 }
 
                 if (((DB::connection('mysql_sb')->table('output_rejects')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_rfts')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_defects')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count()) < 1) && ($this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->count() > 0)) {
-                    $scannedDefectData = Defect::where("kode_numbering", $this->rapidReject[$i]['numberingInput'])->first();
+                    $scannedDefectData = Defect::where("defect_status", "defect")->where("kode_numbering", $this->rapidReject[$i]['numberingInput'])->first();
+
+                    if ($scannedDefectData) {
+                        $scannedDefectData->defect_status = 'rejected';
+                        $scannedDefectData->save();
+                    }
 
                     array_push($rapidRejectFiltered, [
                         'master_plan_id' => $this->orderInfo->id,
@@ -429,10 +439,10 @@ class Reject extends Component
                         'no_cut_size' => $numberingData->no_cut_size,
                         'kode_numbering' => $this->rapidReject[$i]['numberingInput'],
                         'defect_id' => $scannedDefectData ? $scannedDefectData->id : null,
-                        'reject_type_id' => $this->rejectType,
-                        'reject_area_id' => $this->rejectArea,
-                        'reject_area_x' => $this->rejectAreaPositionX,
-                        'reject_area_y' => $this->rejectAreaPositionY,
+                        'reject_type_id' => $scannedDefectData ? $scannedDefectData->defectType->defect_type_id : $this->rejectType,
+                        'reject_area_id' => $scannedDefectData ? $scannedDefectData->defectArea->defect_area_id : $this->rejectArea,
+                        'reject_area_x' => $scannedDefectData ? $scannedDefectData->defect_area_x : $this->rejectAreaPositionX,
+                        'reject_area_y' => $scannedDefectData ? $scannedDefectData->defect_area_y : $this->rejectAreaPositionY,
                         'reject_status' => 'mati',
                         'status' => 'NORMAL',
                         'created_at' => Carbon::now(),
@@ -506,7 +516,10 @@ class Reject extends Component
 
         $allDefect = Defect::selectRaw('output_defects.id id, output_defects.master_plan_id master_plan_id, output_defects.so_det_id so_det_id, output_defects.kode_numbering, output_defects.no_cut_size, output_defect_types.allocation, output_defect_in_out.status in_out_status')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
-            leftJoin('output_defect_in_out', 'output_defect_in_out.defect_id', '=', 'output_defects.id')->
+            leftJoin("output_defect_in_out", function ($join) {
+                $join->on("output_defect_in_out.defect_id", "=", "output_defects.id");
+                $join->on("output_defect_in_out.output_type", "=", DB::raw("'qc'"));
+            })->
             leftJoin('output_defect_types', 'output_defect_types.id', '=', 'output_defects.defect_type_id')->
             where('output_defects.defect_status', 'defect')->
             where('output_defects.master_plan_id', $this->orderInfo->id)->
@@ -515,7 +528,7 @@ class Reject extends Component
         if ($allDefect->count() > 0) {
             $defectIds = [];
             foreach ($allDefect as $defect) {
-                if ($defect->in_out_status != "defect") {
+                // if ($defect->in_out_status != "defect") {
                     // create reject
                     $createReject = RejectModel::create([
                         "master_plan_id" => $defect->master_plan_id,
@@ -532,9 +545,9 @@ class Reject extends Component
                     array_push($defectIds, $defect->id);
 
                     $availableReject += 1;
-                } else {
-                    $externalReject += 1;
-                }
+                // } else {
+                //     $externalReject += 1;
+                // }
             }
             // update defect
             $defectSql = Defect::whereIn('id', $defectIds)->update([
@@ -573,7 +586,10 @@ class Reject extends Component
 
         $selectedDefect = Defect::selectRaw('output_defects.id id, output_defects.master_plan_id master_plan_id, output_defects.so_det_id so_det_id, output_defects.kode_numbering, output_defects.no_cut_size, output_defect_types.allocation, so_det.size, output_defect_in_out.status in_out_status')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
-            leftJoin('output_defect_in_out', 'output_defect_in_out.defect_id', '=', 'output_defects.id')->
+            leftJoin("output_defect_in_out", function ($join) {
+                $join->on("output_defect_in_out.defect_id", "=", "output_defects.id");
+                $join->on("output_defect_in_out.output_type", "=", DB::raw("'qc'"));
+            })->
             leftJoin('output_defect_types', 'output_defect_types.id', '=', 'output_defects.defect_type_id')->
             where('output_defects.defect_status', 'defect')->
             where('output_defects.master_plan_id', $this->orderInfo->id)->
@@ -585,7 +601,7 @@ class Reject extends Component
         if ($selectedDefect->count() > 0) {
             $defectIds = [];
             foreach ($selectedDefect as $defect) {
-                if ($defect->in_out_status != "defect") {
+                // if ($defect->in_out_status != "defect") {
                     // create reject
                     $createReject = RejectModel::create([
                         "master_plan_id" => $defect->master_plan_id,
@@ -602,9 +618,9 @@ class Reject extends Component
                     array_push($defectIds, $defect->id);
 
                     $availableReject += 1;
-                } else {
-                    $externalReject += 1;
-                }
+                // } else {
+                //     $externalReject += 1;
+                // }
             }
             // update defect
             $defectSql = Defect::whereIn('id', $defectIds)->update([
@@ -633,11 +649,17 @@ class Reject extends Component
         $thisDefectReject = RejectModel::where('defect_id', $defectId)->count();
 
         if ($thisDefectReject < 1) {
-            // remove from defect
+            // get defect
             $defect = Defect::where('id', $defectId);
-            $getDefect = Defect::selectRaw('output_defects.*, output_defect_in_out.status')->leftJoin('output_defect_in_out', 'output_defect_in_out.defect_id', '=', 'output_defects.id')->where('output_defects.id', $defectId)->first();
+            $getDefect = Defect::selectRaw('output_defects.*, output_defect_in_out.status')->leftJoin("output_defect_in_out", function ($join) {
+                $join->on("output_defect_in_out.defect_id", "=", "output_defects.id");
+                $join->on("output_defect_in_out.output_type", "=", DB::raw("'qc'"));
+            })->
+            where('output_defects.id', $defectId)->
+            first();
 
             if ($getDefect->status != 'defect') {
+                // remove from defect
                 $updateDefect = $defect->update([
                     "defect_status" => "rejected"
                 ]);
@@ -668,15 +690,15 @@ class Reject extends Component
     }
 
     public function cancelReject($rejectId, $defectId) {
-        // delete from reject
-        $deleteReject = RejectModel::where('id', $rejectId)->delete();
-
         // add to defect
         $defect = Defect::where('id', $defectId);
         $getDefect = $defect->first();
         $updateDefect = $defect->update([
             "defect_status" => "defect"
         ]);
+
+        // delete from reject
+        $deleteReject = RejectModel::where('id', $rejectId)->delete();
 
         if ($deleteReject && $updateDefect) {
             $this->emit('alert', 'success', "REJECT dengan REJECT ID : ".$rejectId." dan DEFECT ID : ".$defectId." berhasil di kembalikan ke DEFECT.");
