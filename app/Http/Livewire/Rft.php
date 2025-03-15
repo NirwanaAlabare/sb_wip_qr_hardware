@@ -16,7 +16,6 @@ class Rft extends Component
 {
     public $orderInfo;
     public $orderWsDetailSizes;
-    public $output;
     public $sizeInput;
     public $sizeInputText;
     public $numberingCode;
@@ -49,7 +48,6 @@ class Rft extends Component
     {
         $this->orderWsDetailSizes = $orderWsDetailSizes;
         $session->put('orderWsDetailSizes', $orderWsDetailSizes);
-        $this->output = 0;
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->noCutInput = null;
@@ -87,22 +85,7 @@ class Rft extends Component
 
     public function updateOutput()
     {
-        $this->output = DB::
-            connection('mysql_sb')->
-            table('output_rfts')->
-            where('master_plan_id', $this->orderInfo->id)->
-            where('status', 'NORMAL')->
-            count();
-
-        $this->rft = DB::
-            connection('mysql_sb')->
-            table('output_rfts')->
-            selectRaw('output_rfts.*, so_det.size')->
-            leftJoin('so_det', 'so_det.id', '=', 'output_rfts.so_det_id')->
-            where('master_plan_id', $this->orderInfo->id)->
-            where('status', 'NORMAL')->
-            whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->
-            get();
+        $this->rft = collect(DB::select("select output_rfts.*, so_det.size, COUNT(output_rfts.id) output from `output_rfts` left join `so_det` on `so_det`.`id` = `output_rfts`.`so_det_id` where `master_plan_id` = '".$this->orderInfo->id."' and `status` = 'NORMAL' group by so_det.id"));
     }
 
     public function clearInput()
@@ -272,24 +255,8 @@ class Rft extends Component
         $this->orderInfo = $session->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
-        // Get total output
-        $this->output = DB::
-            connection('mysql_sb')->
-            table('output_rfts')->
-            where('master_plan_id', $this->orderInfo->id)->
-            where('status', 'normal')->
-            count();
-
         // Rft
-        $this->rft = DB::
-            connection('mysql_sb')->
-            table('output_rfts')->
-            selectRaw('output_rfts.*, so_det.size')->
-            leftJoin('so_det', 'so_det.id', '=', 'output_rfts.so_det_id')->
-            where('master_plan_id', $this->orderInfo->id)->
-            where('status', 'NORMAL')->
-            whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->
-            get();
+        $this->rft = collect(DB::select("select output_rfts.*, so_det.size, COUNT(output_rfts.id) output from `output_rfts` left join `so_det` on `so_det`.`id` = `output_rfts`.`so_det_id` where `master_plan_id` = '".$this->orderInfo->id."' and `status` = 'NORMAL' group by so_det.id"));
 
         return view('livewire.rft');
     }

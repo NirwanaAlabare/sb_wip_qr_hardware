@@ -24,7 +24,6 @@ class Defect extends Component
 
     public $orderInfo;
     public $orderWsDetailSizes;
-    public $output;
     public $sizeInput;
     public $sizeInputText;
     public $noCutInput;
@@ -85,7 +84,6 @@ class Defect extends Component
     {
         $this->orderWsDetailSizes = $orderWsDetailSizes;
         $session->put('orderWsDetailSizes', $orderWsDetailSizes);
-        $this->output = 0;
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->noCutInput = null;
@@ -130,18 +128,7 @@ class Defect extends Component
 
     public function updateOutput()
     {
-        $this->output = DB::connection('mysql_sb')->table('output_defects')->
-            where('master_plan_id', $this->orderInfo->id)->
-            where('defect_status', 'defect')->
-            count();
-
-        $this->defect = DB::connection('mysql_sb')->table('output_defects')->
-            selectRaw('output_defects.*, so_det.size')->
-            leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
-            where('master_plan_id', $this->orderInfo->id)->
-            where('defect_status', 'defect')->
-            whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->
-            get();
+        $this->defect = collect(DB::select("select output_defects.*, so_det.size, COUNT(output_defects.id) output from `output_defects` left join `so_det` on `so_det`.`id` = `output_defects`.`so_det_id` where `master_plan_id` = '".$this->orderInfo->id."' and `defect_status` = 'defect' group by so_det.id"));
     }
 
     public function updatedproductTypeImageAdd()
@@ -499,12 +486,6 @@ class Defect extends Component
         $this->orderInfo = $session->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
-        // Get total output
-        $this->output = DB::connection('mysql_sb')->table('output_defects')->
-            where('master_plan_id', $this->orderInfo->id)->
-            where('defect_status', 'defect')->
-            count();
-
         // Defect types
         $this->productTypes = ProductType::orderBy('product_type')->get();
 
@@ -515,14 +496,7 @@ class Defect extends Component
         $this->defectAreas = DefectArea::orderBy('defect_area')->get();
 
         // Defect
-        $this->defect = DB::connection('mysql_sb')->
-            table('output_defects')->
-            selectRaw('output_defects.*, so_det.size')->
-            leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
-            where('master_plan_id', $this->orderInfo->id)->
-            where('defect_status', 'defect')->
-            whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->
-            get();
+        $this->defect = collect(DB::select("select output_defects.*, so_det.size, COUNT(output_defects.id) output from `output_defects` left join `so_det` on `so_det`.`id` = `output_defects`.`so_det_id` where `master_plan_id` = '".$this->orderInfo->id."' and `defect_status` = 'defect' group by so_det.id"));
 
         return view('livewire.defect');
     }

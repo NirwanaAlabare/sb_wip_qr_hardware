@@ -147,18 +147,8 @@ class Reject extends Component
 
     public function updateOutput()
     {
-        // Get total output
-        $this->output = RejectModel::
-            where('master_plan_id', $this->orderInfo->id)->
-            count();
-
         // Reject
-        $this->reject = RejectModel::
-            selectRaw('output_rejects.*, so_det.size')->
-            leftJoin('so_det', 'so_det.id', '=', 'output_rejects.so_det_id')->
-            where('master_plan_id', $this->orderInfo->id)->
-            whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->
-            get();
+        $this->reject = collect(DB::select("select output_rejects.*, so_det.size, COUNT(output_rejects.id) output from `output_rejects` left join `so_det` on `so_det`.`id` = `output_rejects`.`so_det_id` where `master_plan_id` = '".$this->orderInfo->id."' and `status` = 'NORMAL' group by so_det.id"));
     }
 
     public function clearInput()
@@ -728,12 +718,7 @@ class Reject extends Component
             count();
 
         // Reject
-        $this->reject = DB::connection('mysql_sb')->table('output_rejects')->
-            selectRaw('output_rejects.*, so_det.size')->
-            leftJoin('so_det', 'so_det.id', '=', 'output_rejects.so_det_id')->
-            where('master_plan_id', $this->orderInfo->id)->
-            whereRaw("DATE(updated_at) = '".date('Y-m-d')."'")->
-            get();
+        $this->reject = collect(DB::select("select output_rejects.*, so_det.size, COUNT(output_rejects.id) output from `output_rejects` left join `so_det` on `so_det`.`id` = `output_rejects`.`so_det_id` where `master_plan_id` = '".$this->orderInfo->id."' and `status` = 'NORMAL' group by so_det.id"));
 
         $this->allDefectImage = MasterPlan::select('gambar')->find($this->orderInfo->id);
 
