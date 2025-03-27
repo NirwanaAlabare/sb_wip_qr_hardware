@@ -207,43 +207,52 @@ class Rework extends Component
         if ($allDefect->count() > 0) {
             $defectIds = [];
             $rftArray = [];
-            foreach ($allDefect as $defect) {
-                if ($defect->in_out_status != "defect") {
-                    // create rework
-                    $createRework = ReworkModel::create([
-                        "defect_id" => $defect->id,
-                        "status" => "NORMAL",
-                        "created_by" => Auth::user()->id
-                    ]);
 
-                    // add defect ids
-                    array_push($defectIds, $defect->id);
+            DB::beginTransaction();
+            try {
+                foreach ($allDefect as $defect) {
+                    if ($defect->in_out_status != "defect") {
+                        // create rework
+                        $createRework = ReworkModel::create([
+                            "defect_id" => $defect->id,
+                            "status" => "NORMAL",
+                            "created_by" => Auth::user()->id
+                        ]);
 
-                    // add rft array
-                    array_push($rftArray, [
-                        'master_plan_id' => $defect->master_plan_id,
-                        'no_cut_size' => $defect->no_cut_size,
-                        'kode_numbering' => $defect->kode_numbering,
-                        'so_det_id' => $defect->so_det_id,
-                        "status" => "REWORK",
-                        "rework_id" => $createRework->id,
-                        "created_at" => Carbon::now(),
-                        "updated_at" => Carbon::now(),
-                        'created_by' => Auth::user()->id
-                    ]);
+                        // add defect ids
+                        array_push($defectIds, $defect->id);
 
-                    $availableRework += 1;
-                } else {
-                    $externalRework += 1;
+                        // add rft array
+                        array_push($rftArray, [
+                            'master_plan_id' => $defect->master_plan_id,
+                            'no_cut_size' => $defect->no_cut_size,
+                            'kode_numbering' => $defect->kode_numbering,
+                            'so_det_id' => $defect->so_det_id,
+                            "status" => "REWORK",
+                            "rework_id" => $createRework->id,
+                            "created_at" => Carbon::now(),
+                            "updated_at" => Carbon::now(),
+                            'created_by' => Auth::user()->id
+                        ]);
+
+                        $availableRework += 1;
+                    } else {
+                        $externalRework += 1;
+                    }
                 }
-            }
-            // update defect
-            $updateDefect = Defect::whereIn("id", $defectIds)->update([
-                "defect_status" => "reworked"
-            ]);
 
-            // create rft
-            $createRft = Rft::insert($rftArray);
+                // update defect
+                $updateDefect = Defect::whereIn("id", $defectIds)->update([
+                    "defect_status" => "reworked"
+                ]);
+
+                // create rft
+                $createRft = Rft::insert($rftArray);
+
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+            }
 
             if ($availableRework > 0) {
                 $this->emit('alert', 'success', $availableRework." DEFECT berhasil di REWORK");
@@ -297,30 +306,34 @@ class Rework extends Component
         if ($selectedDefect->count() > 0) {
             foreach ($selectedDefect as $defect) {
                 if ($defect->in_out_status != "defect") {
-                    // create rework
-                    $createRework = ReworkModel::create([
-                        "defect_id" => $defect->id,
-                        "status" => "NORMAL",
-                        "created_by" => Auth::user()->id
-                    ]);
+                    $transaction = DB::transaction(function () use ($defect) {
+                        // create rework
+                        $createRework = ReworkModel::create([
+                            "defect_id" => $defect->id,
+                            "status" => "NORMAL",
+                            "created_by" => Auth::user()->id
+                        ]);
 
-                    // update defect
-                    $defectSql = Defect::where('id', $defect->id)->update([
-                        "defect_status" => "reworked"
-                    ]);
+                        // update defect
+                        $defectSql = Defect::where('id', $defect->id)->update([
+                            "defect_status" => "reworked"
+                        ]);
 
-                    // create rft
-                    $createRft = Rft::create([
-                        'master_plan_id' => $defect->master_plan_id,
-                        'no_cut_size' => $defect->no_cut_size,
-                        'kode_numbering' => $defect->kode_numbering,
-                        'so_det_id' => $defect->so_det_id,
-                        "status" => "REWORK",
-                        "rework_id" => $createRework->id,
-                        'created_by' => Auth::user()->id
-                    ]);
+                        // create rft
+                        $createRft = Rft::create([
+                            'master_plan_id' => $defect->master_plan_id,
+                            'no_cut_size' => $defect->no_cut_size,
+                            'kode_numbering' => $defect->kode_numbering,
+                            'so_det_id' => $defect->so_det_id,
+                            "status" => "REWORK",
+                            "rework_id" => $createRework->id,
+                            'created_by' => Auth::user()->id
+                        ]);
 
-                    $availableRework++;
+                        return true;
+                    }, 3);
+
+                    if ($transaction) $availableRework++;
                 } else {
                     $externalRework++;
                 }
@@ -359,34 +372,36 @@ class Rework extends Component
                 first();
 
             if ($getDefect->in_out_status != 'defect') {
-                // add to rework
-                $createRework = ReworkModel::create([
-                    "defect_id" => $defectId,
-                    "status" => "NORMAL"
-                ]);
 
-                // remove from defect
-                $updateDefect = $defect->update([
-                    "defect_status" => "reworked"
-                ]);
+                // Transaction
+                DB::connection("mysql_sb")->beginTransaction();
+                try {
+                    // add to rework
+                    $createRework = ReworkModel::create([
+                        "defect_id" => $defectId,
+                        "status" => "NORMAL"
+                    ]);
 
-                // add to rft
-                $createRft = Rft::create([
-                    'master_plan_id' => $defect->master_plan_id,
-                    'no_cut_size' => $defect->no_cut_size,
-                    'kode_numbering' => $defect->kode_numbering,
-                    'so_det_id' => $defect->so_det_id,
-                    'status' => 'REWORK',
-                    'rework_id' => $createRework->id,
-                    'created_by' => Auth::user()->id
-                ]);
+                    // remove from defect
+                    $updateDefect = $defect->update([
+                        "defect_status" => "reworked"
+                    ]);
 
-                if ($createRework && $createRft) {
-                    $this->emit('alert', 'success', "DEFECT dengan ID : ".$defectId." berhasil di REWORK.");
+                    // add to rft
+                    $createRft = Rft::create([
+                        'master_plan_id' => $defect->master_plan_id,
+                        'no_cut_size' => $defect->no_cut_size,
+                        'kode_numbering' => $defect->kode_numbering,
+                        'so_det_id' => $defect->so_det_id,
+                        'status' => 'REWORK',
+                        'rework_id' => $createRework->id,
+                        'created_by' => Auth::user()->id
+                    ]);
 
-                    // $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
-                } else {
-                    $this->emit('alert', 'error', "Terjadi kesalahan. DEFECT dengan ID : ".$defectId." tidak berhasil di REWORK.");
+                    DB::connection("mysql_sb")->commit();
+                } catch (\Exception $e) {
+
+                    DB::connection("mysql_sb")->rollBack();
                 }
             } else {
                 $this->emit('alert', 'error', "DEFECT ini masih di proses MANDING/SPOTCLEANING. DEFECT dengan ID : ".$defectId." tidak berhasil di REWORK.");
@@ -397,18 +412,22 @@ class Rework extends Component
     }
 
     public function cancelRework($reworkId, $defectId) {
-        // delete from rework
-        $deleteRework = ReworkModel::where('id', $reworkId)->delete();
+        $transaction = DB::transaction(function () use ($reworkId, $defectId) {
+            // delete from rework
+            $deleteRework = ReworkModel::where('id', $reworkId)->delete();
 
-        // add to defect
-        $defect = Defect::where('id', $defectId)->first();
-        $defect->defect_status = 'defect';
-        $defect->save();
+            // add to defect
+            $defect = Defect::where('id', $defectId)->first();
+            $defect->defect_status = 'defect';
+            $defect->save();
 
-        // delete from rft
-        $deleteRft = Rft::where('rework_id', $reworkId)->delete();
+            // delete from rft
+            $deleteRft = Rft::where('rework_id', $reworkId)->delete();
 
-        if ($deleteRework && $defect && $deleteRft) {
+            return true;
+        }, 3);
+
+        if ($transaction) {
             $this->emit('alert', 'success', "REWORK dengan REWORK ID : ".$reworkId." dan DEFECT ID : ".$defectId." berhasil di kembalikan ke DEFECT.");
 
             // $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
@@ -457,34 +476,38 @@ class Rework extends Component
         if ($scannedDefectData && $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
             if ($scannedDefectData->master_plan_id == $this->orderInfo->id) {
                 if ($scannedDefectData->in_out_status != "defect") {
-                    // add to rework
-                    $createRework = ReworkModel::create([
-                        "defect_id" => $scannedDefectData->id,
-                        "status" => "NORMAL",
-                        "created_by" => Auth::user()->id
-                    ]);
+                    $transaction = DB::transaction(function () use ($scannedDefectData) {
+                        // add to rework
+                        $createRework = ReworkModel::create([
+                            "defect_id" => $scannedDefectData->id,
+                            "status" => "NORMAL",
+                            "created_by" => Auth::user()->id
+                        ]);
 
-                    // update defect
-                    $scannedDefectData->defect_status = "reworked";
-                    $scannedDefectData->save();
+                        // update defect
+                        $scannedDefectData->defect_status = "reworked";
+                        $scannedDefectData->save();
 
-                    // add to rft
-                    $createRft = Rft::create([
-                        'master_plan_id' => $scannedDefectData->master_plan_id,
-                        'no_cut_size' => $scannedDefectData->no_cut_size,
-                        'kode_numbering' => $scannedDefectData->kode_numbering,
-                        'so_det_id' => $scannedDefectData->so_det_id,
-                        "status" => "REWORK",
-                        "rework_id" => $createRework->id,
-                        "created_by" => Auth::user()->id
-                    ]);
+                        // add to rft
+                        $createRft = Rft::create([
+                            'master_plan_id' => $scannedDefectData->master_plan_id,
+                            'no_cut_size' => $scannedDefectData->no_cut_size,
+                            'kode_numbering' => $scannedDefectData->kode_numbering,
+                            'so_det_id' => $scannedDefectData->so_det_id,
+                            "status" => "REWORK",
+                            "rework_id" => $createRework->id,
+                            "created_by" => Auth::user()->id
+                        ]);
+
+                        return true;
+                    }, 3);
 
                     $this->sizeInput = '';
                     $this->sizeInputText = '';
                     $this->noCutInput = '';
                     $this->numberingInput = '';
 
-                    if ($createRework && $createRft) {
+                    if ($transaction) {
                         $this->emit('alert', 'success', "DEFECT dengan ID : ".$scannedDefectData->id." berhasil di REWORK.");
 
                         // $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
@@ -540,56 +563,64 @@ class Rework extends Component
         $success = 0;
         $fail = 0;
 
-        if ($this->rapidRework && count($this->rapidRework) > 0) {
-            for ($i = 0; $i < count($this->rapidRework); $i++) {
-                $scannedDefectData = DB::connection('mysql_sb')->
-                    table('output_defects')->
-                    selectRaw('output_defects.*, output_defects.master_plan_id, master_plan.sewing_line, output_defect_in_out.status in_out_status')->
-                    leftJoin("output_defect_in_out", function ($join) {
-                        $join->on("output_defect_in_out.defect_id", "=", "output_defects.id");
-                        $join->on("output_defect_in_out.output_type", "=", DB::raw("'qc'"));
-                    })->
-                    leftJoin("master_plan", "master_plan.id", "=", "output_defects.master_plan_id")->
-                    where("output_defects.defect_status", "defect")->
-                    where("output_defects.kode_numbering", $this->rapidRework[$i]['numberingInput'])->
-                    first();
+        DB::beginTransaction();
+        try {
+            if ($this->rapidRework && count($this->rapidRework) > 0) {
+                for ($i = 0; $i < count($this->rapidRework); $i++) {
+                    $scannedDefectData = DB::connection('mysql_sb')->
+                        table('output_defects')->
+                        selectRaw('output_defects.*, output_defects.master_plan_id, master_plan.sewing_line, output_defect_in_out.status in_out_status')->
+                        leftJoin("output_defect_in_out", function ($join) {
+                            $join->on("output_defect_in_out.defect_id", "=", "output_defects.id");
+                            $join->on("output_defect_in_out.output_type", "=", DB::raw("'qc'"));
+                        })->
+                        leftJoin("master_plan", "master_plan.id", "=", "output_defects.master_plan_id")->
+                        where("output_defects.defect_status", "defect")->
+                        where("output_defects.kode_numbering", $this->rapidRework[$i]['numberingInput'])->
+                        first();
 
-                if (($scannedDefectData) && ($this->orderWsDetailSizes->where('so_det_id', $scannedDefectData->so_det_id)->count() > 0)) {
-                    if ($scannedDefectData->master_plan_id == $this->orderInfo->id) {
-                        if ($scannedDefectData->in_out_status != "defect") {
-                            $createRework = ReworkModel::create([
-                                'defect_id' => $scannedDefectData->id,
-                                'status' => 'NORMAL',
-                                "created_by" => Auth::user()->id
-                            ]);
+                    if (($scannedDefectData) && ($this->orderWsDetailSizes->where('so_det_id', $scannedDefectData->so_det_id)->count() > 0)) {
+                        if ($scannedDefectData->master_plan_id == $this->orderInfo->id) {
+                            if ($scannedDefectData->in_out_status != "defect") {
+                                $createRework = ReworkModel::create([
+                                    'defect_id' => $scannedDefectData->id,
+                                    'status' => 'NORMAL',
+                                    "created_by" => Auth::user()->id
+                                ]);
 
-                            array_push($defectIds, $scannedDefectData->id);
+                                array_push($defectIds, $scannedDefectData->id);
 
-                            array_push($rftData, [
-                                'master_plan_id' => $this->orderInfo->id,
-                                'so_det_id' => $scannedDefectData->so_det_id,
-                                'no_cut_size' => $scannedDefectData->no_cut_size,
-                                'kode_numbering' => $scannedDefectData->kode_numbering,
-                                'rework_id' => $createRework->id,
-                                'status' => 'REWORK',
-                                'created_at' => Carbon::now(),
-                                'updated_at' => Carbon::now(),
-                                "created_by" => Auth::user()->id
-                            ]);
+                                array_push($rftData, [
+                                    'master_plan_id' => $this->orderInfo->id,
+                                    'so_det_id' => $scannedDefectData->so_det_id,
+                                    'no_cut_size' => $scannedDefectData->no_cut_size,
+                                    'kode_numbering' => $scannedDefectData->kode_numbering,
+                                    'rework_id' => $createRework->id,
+                                    'status' => 'REWORK',
+                                    'created_at' => Carbon::now(),
+                                    'updated_at' => Carbon::now(),
+                                    "created_by" => Auth::user()->id
+                                ]);
 
-                            $success += 1;
+                                $success += 1;
+                            }
+                        } else {
+                            $fail += 1;
                         }
                     } else {
                         $fail += 1;
                     }
-                } else {
-                    $fail += 1;
                 }
             }
-        }
 
-        $rapidDefectUpdate = Defect::whereIn('id', $defectIds)->update(["defect_status" => "reworked"]);
-        $rapidRftInsert = Rft::insert($rftData);
+            $rapidDefectUpdate = Defect::whereIn('id', $defectIds)->update(["defect_status" => "reworked"]);
+            $rapidRftInsert = Rft::insert($rftData);
+
+            DB::commit();
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+        }
 
         if ($success > 0) {
             $this->emit('alert', 'success', $success." output berhasil terekam. ");
