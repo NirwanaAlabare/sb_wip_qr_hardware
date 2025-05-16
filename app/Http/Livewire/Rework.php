@@ -455,7 +455,7 @@ class Rework extends Component
             first();
 
         if ($scannedDefectData && $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
-            if ($scannedDefectData->master_plan_id == $this->orderInfo->id) {
+            if ($scannedDefectData->sewing_line == $this->orderInfo->sewing_line) {
                 if ($scannedDefectData->in_out_status != "defect") {
                     // add to rework
                     $createRework = ReworkModel::create([
