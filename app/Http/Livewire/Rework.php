@@ -444,7 +444,7 @@ class Rework extends Component
 
         $validatedData = $this->validate();
 
-        $scannedDefectData = Defect::selectRaw("output_defects.*, output_defects.master_plan_id, master_plan.sewing_line, output_defect_in_out.status as in_out_status")->
+        $scannedDefectData = Defect::selectRaw("output_defects.*, output_defects.master_plan_id, master_plan.sewing_line, master_plan.tgl_plan, master_plan.color, output_defect_in_out.status as in_out_status")->
             leftJoin("output_defect_in_out", function ($join) {
                 $join->on("output_defect_in_out.defect_id", "=", "output_defects.id");
                 $join->on("output_defect_in_out.output_type", "=", DB::raw("'qc'"));
@@ -495,7 +495,7 @@ class Rework extends Component
                     $this->emit('alert', 'error', "DEFECT dengan ID : ".$scannedDefectData->id." masih ada di MENDING/SPOTCLEANING.");
                 }
             } else {
-                $this->emit('alert', 'error', "Data DEFECT berada di Line lain (<b>".strtoupper(str_replace("_", " ", $scannedDefectData->sewing_line))."</b>)");
+                $this->emit('alert', 'error', "Data DEFECT berada di Plan lain (<b>ID :".$scannedDefectData->master_plan_id."/".$scannedDefectData->tgl_plan."/".$scannedDefectData->color."/".strtoupper(str_replace("_", " ", $scannedDefectData->sewing_line))."</b>)");
             }
         } else {
             $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
