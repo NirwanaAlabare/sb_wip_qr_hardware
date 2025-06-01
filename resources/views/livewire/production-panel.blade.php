@@ -335,6 +335,8 @@
         });
 
         window.addEventListener("focus", () => {
+            Livewire.emit('updateOrder');
+
             restrictYesterdayMasterPlan();
         });
 
