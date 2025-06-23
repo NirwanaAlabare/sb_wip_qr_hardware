@@ -423,6 +423,7 @@ class ProductionPanel extends Component
 
         $this->orderWsDetailSizes = DB::table('master_plan')->selectRaw("
                 so_det.id as so_det_id,
+                so_det.color as color,
                 so_det.size as size,
                 so_det.dest as dest,
                 CONCAT(so_det.size, '-', so_det.dest) size_dest

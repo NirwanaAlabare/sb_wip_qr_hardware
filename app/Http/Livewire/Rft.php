@@ -119,7 +119,8 @@ class Rft extends Component
 
                     $validatedData = $this->validate();
 
-                    if ($this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
+                    $currentData = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->first();
+                    if ($currentData && $this->orderInfo && ($currentData['color'] == $this->orderInfo->color)) {
                         $insertRft = RftModel::create([
                             'master_plan_id' => $this->orderInfo->id,
                             'so_det_id' => $this->sizeInput,
