@@ -254,7 +254,7 @@ class Rework extends Component
             }
 
             if ($externalRework > 0) {
-                $this->emit('alert', 'warning', $externalRework." DEFECT masih di proses MANDING/SPOTCLEANING.");
+                $this->emit('alert', 'warning', $externalRework." DEFECT masih di proses MENDING/SPOTCLEANING.");
             }
         } else {
             $this->emit('alert', 'warning', "Data tidak ditemukan.");
@@ -335,7 +335,7 @@ class Rework extends Component
             }
 
             if ($externalRework > 0) {
-                $this->emit('alert', 'warning', $externalRework." DEFECT masih ada yang di proses MANDING/SPOTCLEANING.");
+                $this->emit('alert', 'warning', $externalRework." DEFECT masih ada yang di proses MENDING/SPOTCLEANING.");
             }
         } else {
             $this->emit('alert', 'warning', "Data tidak ditemukan.");
@@ -389,7 +389,7 @@ class Rework extends Component
                     $this->emit('alert', 'error', "Terjadi kesalahan. DEFECT dengan ID : ".$defectId." tidak berhasil di REWORK.");
                 }
             } else {
-                $this->emit('alert', 'error', "DEFECT ini masih di proses MANDING/SPOTCLEANING. DEFECT dengan ID : ".$defectId." tidak berhasil di REWORK.");
+                $this->emit('alert', 'error', "DEFECT ini masih di proses MENDING/SPOTCLEANING. DEFECT dengan ID : ".$defectId." tidak berhasil di REWORK.");
             }
         } else {
             $this->emit('alert', 'warning', "Pencegahan data redundant. DEFECT dengan ID : ".$defectId." sudah ada di REWORK.");
