@@ -61,14 +61,13 @@ class Rework extends Component
     protected $rules = [
         'sizeInput' => 'required',
         'noCutInput' => 'required',
-        'numberingInput' => 'required|unique:output_rfts,kode_numbering|unique:output_rejects,kode_numbering',
+        'numberingInput' => 'required',
     ];
 
     protected $messages = [
         'sizeInput.required' => 'Harap scan qr.',
         'noCutInput.required' => 'Harap scan qr.',
-        'numberingInput.required' => 'Harap scan qr.',
-        'numberingInput.unique' => 'Kode qr sudah discan.',
+        'numberingInput.required' => 'Harap scan qr.'
     ];
 
     protected $listeners = [
@@ -81,6 +80,21 @@ class Rework extends Component
         'setAndSubmitInputRework' => 'setAndSubmitInput',
         'toInputPanel' => 'resetError'
     ];
+
+    private function checkIfNumberingExists(): bool
+    {
+        if (DB::table('output_rfts')->where('kode_numbering', $this->numberingInput)->exists()) {
+            $this->addError('numberingInput', 'Kode QR sudah discan di RFT.');
+            return true;
+        }
+
+        if (DB::table('output_rejects')->where('kode_numbering', $this->numberingInput)->exists()) {
+            $this->addError('numberingInput', 'Kode QR sudah discan di Reject.');
+            return true;
+        }
+
+        return false;
+    }
 
     public function dehydrate()
     {
@@ -422,18 +436,21 @@ class Rework extends Component
         $this->emit('renderQrScanner', 'rework');
 
         if ($this->numberingInput) {
-            if (str_contains($this->numberingInput, 'WIP')) {
-                $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->numberingInput)->first();
-            } else {
-                $numberingCodes = explode('_', $this->numberingInput);
+            // if (str_contains($this->numberingInput, 'WIP')) {
+            //     $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->numberingInput)->first();
+            // } else {
+            //     $numberingCodes = explode('_', $this->numberingInput);
 
-                if (count($numberingCodes) > 2) {
-                    $this->numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
-                    $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
-                } else {
-                    $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->numberingInput)->first();
-                }
-            }
+            //     if (count($numberingCodes) > 2) {
+            //         $this->numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
+            //         $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
+            //     } else {
+            //         $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->numberingInput)->first();
+            //     }
+            // }
+
+            // One Straight Format
+            $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
 
             if ($numberingData) {
                 $this->sizeInput = $numberingData->so_det_id;
@@ -443,6 +460,10 @@ class Rework extends Component
         }
 
         $validatedData = $this->validate();
+
+        if ($this->checkIfNumberingExists()) {
+            return;
+        }
 
         $scannedDefectData = Defect::selectRaw("output_defects.*, output_defects.master_plan_id, master_plan.sewing_line, master_plan.tgl_plan, master_plan.color, output_defect_in_out.status as in_out_status")->
             leftJoin("output_defect_in_out", function ($join) {
@@ -607,10 +628,17 @@ class Rework extends Component
 
     public function render(SessionManager $session)
     {
-        if (isset($this->errorBag->messages()['numberingInput']) && collect($this->errorBag->messages()['numberingInput'])->contains("Kode qr sudah discan.")) {
-            $this->emit('alert', 'warning', "QR sudah discan.");
-        } else if ((isset($this->errorBag->messages()['numberingInput']) && collect($this->errorBag->messages()['numberingInput'])->contains("Harap scan qr.")) || (isset($this->errorBag->messages()['sizeInput']) && collect($this->errorBag->messages()['sizeInput'])->contains("Harap scan qr."))) {
-            $this->emit('alert', 'error', "Harap scan QR.");
+        // if (isset($this->errorBag->messages()['numberingInput']) && collect($this->errorBag->messages()['numberingInput'])->contains(function ($message) {return Str::contains($message, 'Kode QR sudah discan');})) {
+        //     foreach ($this->errorBag->messages()['numberingInput'] as $message) {
+        //         $this->emit('alert', 'warning', $message);
+        //     }
+        // } else if ((isset($this->errorBag->messages()['numberingInput']) && collect($this->errorBag->messages()['numberingInput'])->contains("Harap scan qr.")) || (isset($this->errorBag->messages()['sizeInput']) && collect($this->errorBag->messages()['sizeInput'])->contains("Harap scan qr."))) {
+        //     $this->emit('alert', 'error', "Harap scan QR.");
+        // }
+        if (isset($this->errorBag->messages()['numberingInput'])) {
+            foreach ($this->errorBag->messages()['numberingInput'] as $message) {
+                $this->emit('alert', 'error', $message);
+            }
         }
 
         $this->emit('loadReworkPageJs');

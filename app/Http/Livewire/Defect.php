@@ -52,7 +52,7 @@ class Defect extends Component
     protected $rules = [
         'sizeInput' => 'required',
         'noCutInput' => 'required',
-        'numberingInput' => 'required|unique:output_rfts,kode_numbering|unique:output_defects,kode_numbering|unique:output_rejects,kode_numbering',
+        'numberingInput' => 'required',
         // 'productType' => 'required',
         'defectType' => 'required',
         'defectArea' => 'required',
@@ -64,7 +64,6 @@ class Defect extends Component
         'sizeInput.required' => 'Harap scan qr.',
         'noCutInput.required' => 'Harap scan qr.',
         'numberingInput.required' => 'Harap scan qr.',
-        'numberingInput.unique' => 'Kode qr sudah discan.',
         // 'productType.required' => 'Harap tentukan tipe produk.',
         'defectType.required' => 'Harap tentukan jenis defect.',
         'defectArea.required' => 'Harap tentukan area defect.',
@@ -79,6 +78,26 @@ class Defect extends Component
         'setAndSubmitInputDefect' => 'setAndSubmitInput',
         'toInputPanel' => 'resetError'
     ];
+
+    private function checkIfNumberingExists(): bool
+    {
+        if (DB::table('output_rfts')->where('kode_numbering', $this->numberingInput)->exists()) {
+            $this->addError('numberingInput', 'Kode QR sudah discan di RFT.');
+            return true;
+        }
+
+        if (DB::table('output_defects')->where('kode_numbering', $this->numberingInput)->exists()) {
+            $this->addError('numberingInput', 'Kode QR sudah discan di Defect.');
+            return true;
+        }
+
+        if (DB::table('output_rejects')->where('kode_numbering', $this->numberingInput)->exists()) {
+            $this->addError('numberingInput', 'Kode QR sudah discan di Reject.');
+            return true;
+        }
+
+        return false;
+    }
 
     public function mount(SessionManager $session, $orderWsDetailSizes)
     {
@@ -227,18 +246,21 @@ class Defect extends Component
     public function preSubmitInput()
     {
         if ($this->numberingInput) {
-            if (str_contains($this->numberingInput, 'WIP')) {
-                $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->numberingInput)->first();
-            } else {
-                $numberingCodes = explode('_', $this->numberingInput);
+            // if (str_contains($this->numberingInput, 'WIP')) {
+            //     $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->numberingInput)->first();
+            // } else {
+            //     $numberingCodes = explode('_', $this->numberingInput);
 
-                if (count($numberingCodes) > 2) {
-                    $this->numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
-                    $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
-                } else {
-                    $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->numberingInput)->first();
-                }
-            }
+            //     if (count($numberingCodes) > 2) {
+            //         $this->numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
+            //         $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
+            //     } else {
+            //         $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->numberingInput)->first();
+            //     }
+            // }
+
+            // One Straight Format
+            $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
 
             if ($numberingData) {
                 $this->sizeInput = $numberingData->so_det_id;
@@ -254,13 +276,16 @@ class Defect extends Component
         ], [
             'sizeInput' => 'required',
             'noCutInput' => 'required',
-            'numberingInput' => 'required|unique:output_rfts,kode_numbering|unique:output_defects,kode_numbering|unique:output_rejects,kode_numbering'
+            'numberingInput' => 'required'
         ], [
             'sizeInput.required' => 'Harap scan qr.',
             'noCutInput.required' => 'Harap scan qr.',
-            'numberingInput.required' => 'Harap scan qr.',
-            'numberingInput.unique' => 'Kode qr sudah discan.',
+            'numberingInput.required' => 'Harap scan qr.'
         ]);
+
+        if ($this->checkIfNumberingExists()) {
+            return;
+        }
 
         if ($validation->fails()) {
             $this->emit('qrInputFocus', 'defect');
@@ -290,6 +315,10 @@ class Defect extends Component
     public function submitInput(SessionManager $session)
     {
         $validatedData = $this->validate();
+
+        if ($this->checkIfNumberingExists()){
+            return;
+        }
 
         if ($this->orderInfo->tgl_plan == Carbon::now()->format('Y-m-d')) {
             $currentData = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->first();
@@ -356,18 +385,21 @@ class Defect extends Component
                 if (($numberingInput && $item['numberingInput'] == $numberingInput)) {
                     $exist = true;
                 } else {
-                    if (str_contains($numberingInput, 'WIP')) {
-                        $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $numberingInput)->first();
-                    } else {
-                        $numberingCodes = explode('_', $numberingInput);
+                    // if (str_contains($numberingInput, 'WIP')) {
+                    //     $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $numberingInput)->first();
+                    // } else {
+                    //     $numberingCodes = explode('_', $numberingInput);
 
-                        if (count($numberingCodes) > 2) {
-                            $numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
-                            $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
-                        } else {
-                            $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $numberingInput)->first();
-                        }
-                    }
+                    //     if (count($numberingCodes) > 2) {
+                    //         $numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
+                    //         $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
+                    //     } else {
+                    //         $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $numberingInput)->first();
+                    //     }
+                    // }
+
+                    // One Straight Format
+                    $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
 
                     if ($numberingData) {
                         if ($item['masterPlanId'] && $item['masterPlanId'] != $this->orderWsDetailSizes->where("so_det_id", $numberingData->so_det_id)->first()['master_plan_id']) {
@@ -381,18 +413,21 @@ class Defect extends Component
                 $this->rapidDefectCount += 1;
 
                 if ($numberingInput) {
-                    if (str_contains($numberingInput, 'WIP')) {
-                        $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $numberingInput)->first();
-                    } else {
-                        $numberingCodes = explode('_', $numberingInput);
+                    // if (str_contains($numberingInput, 'WIP')) {
+                    //     $numberingData = DB::connection('mysql_nds')->table('stocker_numbering')->where("kode", $numberingInput)->first();
+                    // } else {
+                    //     $numberingCodes = explode('_', $numberingInput);
 
-                        if (count($numberingCodes) > 2) {
-                            $numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
-                            $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
-                        } else {
-                            $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $numberingInput)->first();
-                        }
-                    }
+                    //     if (count($numberingCodes) > 2) {
+                    //         $numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
+                    //         $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
+                    //     } else {
+                    //         $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $numberingInput)->first();
+                    //     }
+                    // }
+
+                    // One Straight Format
+                    $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
 
                     if ($numberingData) {
                         $sizeInput = $numberingData->so_det_id;
@@ -478,10 +513,17 @@ class Defect extends Component
 
     public function render(SessionManager $session)
     {
-        if (isset($this->errorBag->messages()['numberingInput']) && collect($this->errorBag->messages()['numberingInput'])->contains("Kode qr sudah discan.")) {
-            $this->emit('alert', 'warning', "QR sudah discan.");
-        } else if ((isset($this->errorBag->messages()['numberingInput']) && collect($this->errorBag->messages()['numberingInput'])->contains("Harap scan qr.")) || (isset($this->errorBag->messages()['sizeInput']) && collect($this->errorBag->messages()['sizeInput'])->contains("Harap scan qr."))) {
-            $this->emit('alert', 'error', "Harap scan QR.");
+        // if (isset($this->errorBag->messages()['numberingInput']) && collect($this->errorBag->messages()['numberingInput'])->contains(function ($message) {return Str::contains($message, 'Kode QR sudah discan');})) {
+        //     foreach ($this->errorBag->messages()['numberingInput'] as $message) {
+        //         $this->emit('alert', 'warning', $message);
+        //     }
+        // } else if ((isset($this->errorBag->messages()['numberingInput']) && collect($this->errorBag->messages()['numberingInput'])->contains("Harap scan qr.")) || (isset($this->errorBag->messages()['sizeInput']) && collect($this->errorBag->messages()['sizeInput'])->contains("Harap scan qr."))) {
+        //     $this->emit('alert', 'error', "Harap scan QR.");
+        // }
+        if (isset($this->errorBag->messages()['numberingInput'])) {
+            foreach ($this->errorBag->messages()['numberingInput'] as $message) {
+                $this->emit('alert', 'error', $message);
+            }
         }
 
         $this->orderInfo = $session->get('orderInfo', $this->orderInfo);
