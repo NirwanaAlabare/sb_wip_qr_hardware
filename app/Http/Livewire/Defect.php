@@ -243,24 +243,26 @@ class Defect extends Component
         $this->defectAreaPositionY = $y;
     }
 
-    public function preSubmitInput()
+    public function preSubmitInput($value)
     {
-        if ($this->numberingInput) {
-            // if (str_contains($this->numberingInput, 'WIP')) {
-            //     $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->numberingInput)->first();
+        $numberingInput = $value;
+
+        if ($numberingInput) {
+            // if (str_contains($numberingInput, 'WIP')) {
+            //     $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $numberingInput)->first();
             // } else {
-            //     $numberingCodes = explode('_', $this->numberingInput);
+            //     $numberingCodes = explode('_', $numberingInput);
 
             //     if (count($numberingCodes) > 2) {
-            //         $this->numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
-            //         $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
+            //         $numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
+            //         $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
             //     } else {
-            //         $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->numberingInput)->first();
+            //         $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $numberingInput)->first();
             //     }
             // }
 
             // One Straight Format
-            $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
+            $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
 
             if ($numberingData) {
                 $this->sizeInput = $numberingData->so_det_id;
@@ -272,7 +274,7 @@ class Defect extends Component
         $validation = Validator::make([
             'sizeInput' => $this->sizeInput,
             'noCutInput' => $this->noCutInput,
-            'numberingInput' => $this->numberingInput
+            'numberingInput' => $numberingInput
         ], [
             'sizeInput' => 'required',
             'noCutInput' => 'required',
@@ -302,6 +304,8 @@ class Defect extends Component
                 $this->defectAreaPositionY = null;
 
                 $this->validateOnly('sizeInput');
+
+                $this->numberingInput = $numberingInput;
 
                 $this->emit('showModal', 'defect', 'regular');
             } else {
