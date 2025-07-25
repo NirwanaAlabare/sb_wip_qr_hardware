@@ -335,9 +335,12 @@
         });
 
         window.addEventListener("focus", () => {
-            Livewire.emit('updateOrder');
-
             restrictYesterdayMasterPlan();
+
+            $('#defect-modal').modal("hide");
+            $('#reject-modal').modal("hide");
+
+            Livewire.emit('updateOrder');
         });
 
         // Pad 2 Digits

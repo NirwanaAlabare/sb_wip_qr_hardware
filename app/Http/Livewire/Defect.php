@@ -79,19 +79,19 @@ class Defect extends Component
         'toInputPanel' => 'resetError'
     ];
 
-    private function checkIfNumberingExists(): bool
+    private function checkIfNumberingExists($numberingInput = null): bool
     {
-        if (DB::table('output_rfts')->where('kode_numbering', $this->numberingInput)->exists()) {
+        if (DB::table('output_rfts')->where('kode_numbering', ($numberingInput ?? $this->numberingInput))->exists()) {
             $this->addError('numberingInput', 'Kode QR sudah discan di RFT.');
             return true;
         }
 
-        if (DB::table('output_defects')->where('kode_numbering', $this->numberingInput)->exists()) {
+        if (DB::table('output_defects')->where('kode_numbering', ($numberingInput ?? $this->numberingInput))->exists()) {
             $this->addError('numberingInput', 'Kode QR sudah discan di Defect.');
             return true;
         }
 
-        if (DB::table('output_rejects')->where('kode_numbering', $this->numberingInput)->exists()) {
+        if (DB::table('output_rejects')->where('kode_numbering', ($numberingInput ?? $this->numberingInput))->exists()) {
             $this->addError('numberingInput', 'Kode QR sudah discan di Reject.');
             return true;
         }
@@ -245,6 +245,8 @@ class Defect extends Component
 
     public function preSubmitInput($value)
     {
+        $this->emit('qrInputFocus', 'defect');
+
         $numberingInput = $value;
 
         if ($numberingInput) {
@@ -268,6 +270,7 @@ class Defect extends Component
                 $this->sizeInput = $numberingData->so_det_id;
                 $this->sizeInputText = $numberingData->size;
                 $this->noCutInput = $numberingData->no_cut_size;
+                $this->numberingInput = $numberingInput;
             }
         }
 
@@ -285,7 +288,7 @@ class Defect extends Component
             'numberingInput.required' => 'Harap scan qr.'
         ]);
 
-        if ($this->checkIfNumberingExists()) {
+        if ($this->checkIfNumberingExists($numberingInput)) {
             return;
         }
 
@@ -303,9 +306,9 @@ class Defect extends Component
                 $this->defectAreaPositionX = null;
                 $this->defectAreaPositionY = null;
 
-                $this->validateOnly('sizeInput');
-
                 $this->numberingInput = $numberingInput;
+
+                $this->validateOnly('sizeInput');
 
                 $this->emit('showModal', 'defect', 'regular');
             } else {
@@ -378,7 +381,7 @@ class Defect extends Component
         $this->sizeInputText = $scannedSizeText;
         $this->noCutInput = $scannedNoCut;
 
-        $this->preSubmitInput();
+        $this->preSubmitInput($scannedNumbering);
     }
 
     public function pushRapidDefect($numberingInput, $sizeInput, $sizeInputText) {

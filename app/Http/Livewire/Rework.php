@@ -431,31 +431,34 @@ class Rework extends Component
         }
     }
 
-    public function submitInput()
+    public function submitInput($value)
     {
-        $this->emit('renderQrScanner', 'rework');
+        $this->emit('qrInputFocus', 'rework');
 
-        if ($this->numberingInput) {
-            // if (str_contains($this->numberingInput, 'WIP')) {
-            //     $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->numberingInput)->first();
+        $numberingInput = $value;
+
+        if ($numberingInput) {
+            // if (str_contains($numberingInput, 'WIP')) {
+            //     $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $numberingInput)->first();
             // } else {
-            //     $numberingCodes = explode('_', $this->numberingInput);
+            //     $numberingCodes = explode('_', $numberingInput);
 
             //     if (count($numberingCodes) > 2) {
-            //         $this->numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
-            //         $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
+            //         $numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
+            //         $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
             //     } else {
-            //         $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->numberingInput)->first();
+            //         $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $numberingInput)->first();
             //     }
             // }
 
             // One Straight Format
-            $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
+            $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
 
             if ($numberingData) {
                 $this->sizeInput = $numberingData->so_det_id;
                 $this->sizeInputText = $numberingData->size;
                 $this->noCutInput = $numberingData->no_cut_size;
+                $this->numberingInput = $numberingInput;
             }
         }
 
@@ -472,7 +475,7 @@ class Rework extends Component
             })->
             leftJoin("master_plan", "master_plan.id", "=", "output_defects.master_plan_id")->
             where("output_defects.defect_status", "defect")->
-            where("output_defects.kode_numbering", $this->numberingInput)->
+            where("output_defects.kode_numbering", $numberingInput)->
             first();
 
         if ($scannedDefectData && $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
@@ -528,7 +531,7 @@ class Rework extends Component
         $this->sizeInput = $scannedSize;
         $this->sizeInputText = $scannedSizeText;
 
-        $this->submitInput();
+        $this->submitInput($scannedNumbering);
     }
 
     public function pushRapidRework($numberingInput, $sizeInput, $sizeInputText) {

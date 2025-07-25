@@ -113,32 +113,35 @@ class Rft extends Component
         $this->sizeInput = null;
     }
 
-    public function submitInput()
+    public function submitInput($value)
     {
         $this->emit('qrInputFocus', 'rft');
 
+        $numberingInput = $value;
+
         if ($this->orderInfo->tgl_plan == Carbon::now()->format('Y-m-d')) {
-            if ($this->numberingInput) {
-                // if (str_contains($this->numberingInput, 'WIP')) {
-                //     $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $this->numberingInput)->first();
+            if ($numberingInput) {
+                // if (str_contains($numberingInput, 'WIP')) {
+                //     $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $numberingInput)->first();
                 // } else {
-                //     $numberingCodes = explode('_', $this->numberingInput);
+                //     $numberingCodes = explode('_', $numberingInput);
 
                 //     if (count($numberingCodes) > 2) {
-                //         $this->numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
-                //         $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
+                //         $numberingInput = substr($numberingCodes[0],0,4)."_".$numberingCodes[1]."_".$numberingCodes[2];
+                //         $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
                 //     } else {
-                //         $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $this->numberingInput)->first();
+                //         $numberingData = DB::connection("mysql_nds")->table("month_count")->selectRaw("month_count.*, month_count.id_month_year no_cut_size")->where("id_month_year", $numberingInput)->first();
                 //     }
                 // }
 
                 // One Straight Format
-                $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
+                $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
 
                 if ($numberingData) {
                     $this->sizeInput = $numberingData->so_det_id;
                     $this->sizeInputText = $numberingData->size;
                     $this->noCutInput = $numberingData->no_cut_size;
+                    $this->numberingInput = $numberingInput;
 
                     $validatedData = $this->validate();
 
@@ -152,7 +155,7 @@ class Rft extends Component
                             'master_plan_id' => $this->orderInfo->id,
                             'so_det_id' => $this->sizeInput,
                             'no_cut_size' => $this->noCutInput,
-                            'kode_numbering' => $this->numberingInput,
+                            'kode_numbering' => $numberingInput,
                             'status' => 'NORMAL',
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now(),
