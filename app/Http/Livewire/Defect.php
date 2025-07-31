@@ -323,23 +323,23 @@ class Defect extends Component
     {
         $validatedData = $this->validate();
 
-        if ($this->checkIfNumberingExists()){
+        if ($this->checkIfNumberingExists($validatedData["numberingInput"])){
             return;
         }
 
         if ($this->orderInfo->tgl_plan == Carbon::now()->format('Y-m-d')) {
-            $currentData = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->first();
+            $currentData = $this->orderWsDetailSizes->where('so_det_id', $validatedData["sizeInput"])->first();
             if ($currentData && $this->orderInfo && ($currentData['color'] == $this->orderInfo->color)) {
                 $insertDefect = DefectModel::create([
                     'master_plan_id' => $this->orderInfo->id,
-                    'no_cut_size' => $this->noCutInput,
-                    'kode_numbering' => $this->numberingInput,
-                    'so_det_id' => $this->sizeInput,
+                    'no_cut_size' => $validatedData["noCutInput"],
+                    'kode_numbering' => $validatedData["numberingInput"],
+                    'so_det_id' => $validatedData['sizeInput'],
                     // 'product_type_id' => $this->productType,
-                    'defect_type_id' => $this->defectType,
-                    'defect_area_id' => $this->defectArea,
-                    'defect_area_x' => $this->defectAreaPositionX,
-                    'defect_area_y' => $this->defectAreaPositionY,
+                    'defect_type_id' => $validatedData['defectType'],
+                    'defect_area_id' => $validatedData['defectArea'],
+                    'defect_area_x' => $validatedData['defectAreaPositionX'],
+                    'defect_area_y' => $validatedData['defectAreaPositionY'],
                     'status' => 'NORMAL',
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
