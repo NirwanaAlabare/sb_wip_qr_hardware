@@ -276,49 +276,49 @@ class Defect extends Component
                 $this->noCutInput = $numberingData->no_cut_size;
                 $this->numberingInput = $numberingInput;
             }
-        }
 
-        $validation = Validator::make([
-            'sizeInput' => $this->sizeInput,
-            'noCutInput' => $this->noCutInput,
-            'numberingInput' => $numberingInput
-        ], [
-            'sizeInput' => 'required',
-            'noCutInput' => 'required',
-            'numberingInput' => 'required'
-        ], [
-            'sizeInput.required' => 'Harap scan qr.',
-            'noCutInput.required' => 'Harap scan qr.',
-            'numberingInput.required' => 'Harap scan qr.'
-        ]);
+            $validation = Validator::make([
+                'sizeInput' => $this->sizeInput,
+                'noCutInput' => $this->noCutInput,
+                'numberingInput' => $numberingInput
+            ], [
+                'sizeInput' => 'required',
+                'noCutInput' => 'required',
+                'numberingInput' => 'required'
+            ], [
+                'sizeInput.required' => 'Harap scan qr.',
+                'noCutInput.required' => 'Harap scan qr.',
+                'numberingInput.required' => 'Harap scan qr.'
+            ]);
 
-        if ($this->checkIfNumberingExists($numberingInput)) {
-            return;
-        }
+            if ($this->checkIfNumberingExists($numberingInput)) {
+                return;
+            }
 
-        if ($validation->fails()) {
-            $this->emit('qrInputFocus', 'defect');
-
-            $validation->validate();
-        } else {
-            if ($this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
-                $this->emit('clearSelectDefectAreaPoint');
-
-                $this->defectType = null;
-                $this->defectArea = null;
-                $this->productType = null;
-                $this->defectAreaPositionX = null;
-                $this->defectAreaPositionY = null;
-
-                $this->numberingInput = $numberingInput;
-
-                $this->validateOnly('sizeInput');
-
-                $this->emit('showModal', 'defect', 'regular');
-            } else {
+            if ($validation->fails()) {
                 $this->emit('qrInputFocus', 'defect');
 
-                $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
+                $validation->validate();
+            } else {
+                if ($this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
+                    $this->emit('clearSelectDefectAreaPoint');
+
+                    $this->defectType = null;
+                    $this->defectArea = null;
+                    $this->productType = null;
+                    $this->defectAreaPositionX = null;
+                    $this->defectAreaPositionY = null;
+
+                    $this->numberingInput = $numberingInput;
+
+                    $this->validateOnly('sizeInput');
+
+                    $this->emit('showModal', 'defect', 'regular');
+                } else {
+                    $this->emit('qrInputFocus', 'defect');
+
+                    $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
+                }
             }
         }
     }

@@ -413,7 +413,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
                     <div id="regular-submit-reject" wire:ignore.self>
-                        <button type="button" class="btn btn-success" wire:click='submitInput'>Selesai</button>
+                        <button type="button" class="btn btn-success" onclick="triggerSubmit()">Selesai</button>
                     </div>
                     <div id="rapid-submit-reject" wire:ignore.self>
                         <button type="button" class="btn btn-success" wire:click='submitRapidInput'>Selesai</button>
@@ -580,5 +580,13 @@
         $('#reject-area-modal').on('hidden.bs.modal', function () {
             scannedRejectItemInput.focus();
         })
+
+        function triggerSubmit() {
+            if ($("#scannedRejectItem").val()) {
+                $("#scannedRejectItem").trigger("change");
+            }
+
+            $("#scannedRejectItem").focus();
+        }
     </script>
 @endpush

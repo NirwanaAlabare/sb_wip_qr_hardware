@@ -100,7 +100,7 @@
     <footer class="footer fixed-bottom py-3">
         <div class="container-fluid">
             <div class="d-flex justify-content-end">
-                <button class="btn btn-dark btn-lg ms-auto fs-3" wire:click='submitInput' {{ $submitting ? 'disabled' : ''}}>SELESAI</button>
+                <button class="btn btn-dark btn-lg ms-auto fs-3" onclick="triggerSubmit()" {{ $submitting ? 'disabled' : ''}}>SELESAI</button>
             </div>
         </div>
     </footer>
@@ -204,5 +204,13 @@
         // Livewire.on('fromInputPanel', () => {
         //     clearRftScan();
         // });
+
+        function triggerSubmit() {
+            if ($("#scannedItemRft").val()) {
+                $("#scannedItemRft").trigger("change");
+            }
+
+            $("#scannedItemRft").focus();
+        }
     </script>
 @endpush
