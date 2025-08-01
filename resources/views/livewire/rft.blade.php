@@ -171,12 +171,12 @@
         scannedItemRftInput.addEventListener("change", async function () {
             const value = this.value;
 
-            this.setAttribute("disabled", true);
+            // this.setAttribute("disabled", true);
 
             // submit
             await @this.submitInput(value);
 
-            this.removeAttribute("disabled");
+            // this.removeAttribute("disabled");
             this.value = '';
         });
 

@@ -92,7 +92,6 @@ class Reject extends Component
         'submitAllReject' => 'submitAllReject',
         'cancelReject' => 'cancelReject',
         'hideDefectAreaImageClear' => 'hideDefectAreaImage',
-        'updateWsDetailSizes' => 'updateWsDetailSizes',
 
         'setRejectAreaPosition' => 'setRejectAreaPosition',
         'clearInput' => 'clearInput'
@@ -153,6 +152,10 @@ class Reject extends Component
 
         $this->orderInfo = session()->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = session()->get('orderWsDetailSizes', $this->orderWsDetailSizes);
+        $this->selectedColor = $this->orderInfo->id;
+        $this->selectedColorName = $this->orderInfo->color;
+
+        $this->emit('setSelectedSizeSelect2', $this->selectedColor);
 
         if ($panel == 'reject') {
             $this->emit('qrInputFocus', 'reject');
@@ -761,6 +764,11 @@ class Reject extends Component
 
         $this->orderInfo = $session->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
+
+        $this->selectedColor = $this->orderInfo->id;
+        $this->selectedColorName = $this->orderInfo->color;
+
+        $this->emit('setSelectedSizeSelect2', $this->selectedColor);
 
         // Get total output
         $this->output = DB::connection('mysql_sb')->table('output_rejects')->

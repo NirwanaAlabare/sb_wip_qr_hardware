@@ -54,7 +54,7 @@ class HistoryContent extends Component
         //     LIMIT 10
         // "));
 
-        $latestOutputRfts = Rft::selectRaw('output_rfts.updated_at, so_det.size as size, count(*) as total')->
+        $latestOutputRfts = Rft::selectRaw('output_rfts.kode_numbering, output_rfts.updated_at, so_det.size as size, count(*) as total')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_rfts.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_rfts.so_det_id')->
             where('output_rfts.status', 'normal')->
@@ -71,6 +71,7 @@ class HistoryContent extends Component
             limit(5)->get();
 
         $latestOutputDefects = Defect::selectRaw('
+                output_defects.kode_numbering,
                 output_defects.updated_at,
                 output_defect_types.defect_type,
                 output_defect_areas.defect_area,
@@ -105,7 +106,7 @@ class HistoryContent extends Component
             orderBy("output_defects.id", "desc")->
             limit(5)->get();
 
-        $latestOutputRejects = Reject::selectRaw('output_rejects.updated_at, so_det.size as size, count(*) as total')->
+        $latestOutputRejects = Reject::selectRaw('output_rejects.kode_numbering, output_rejects.updated_at, so_det.size as size, count(*) as total')->
             leftJoin('master_plan', 'master_plan.id', '=', 'output_rejects.master_plan_id')->
             leftJoin('so_det', 'so_det.id', '=', 'output_rejects.so_det_id')->
             where('master_plan.sewing_line', Auth::user()->line->username);
@@ -121,6 +122,7 @@ class HistoryContent extends Component
             limit(5)->get();
 
         $latestOutputReworks = Rework::selectRaw('
+                output_defects.kode_numbering,
                 output_reworks.updated_at,
                 output_defect_types.defect_type,
                 output_defect_areas.defect_area,

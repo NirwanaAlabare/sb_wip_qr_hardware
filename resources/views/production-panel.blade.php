@@ -102,7 +102,6 @@
         });
 
         Livewire.on('showModal', (type, additional) => {
-            console.log(type, additional);
             if (type == 'defect') {
                 if (additional) {
                     showDefectModal(additional);

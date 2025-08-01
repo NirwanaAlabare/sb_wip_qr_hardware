@@ -149,7 +149,7 @@ function logout(url) {
 }
 
 // defect modal
-function showDefectModal(additional) {
+function showDefectModal(additional, numbering = null) {
     $("#defect-modal").modal("show");
 
     if (additional == 'rapid') {

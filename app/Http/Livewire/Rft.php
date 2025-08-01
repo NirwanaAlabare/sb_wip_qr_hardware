@@ -68,19 +68,19 @@ class Rft extends Component
         $this->resetErrorBag();
     }
 
-    private function checkIfNumberingExists(): bool
+    private function checkIfNumberingExists($numberingInput = null): bool
     {
-        if (DB::table('output_rfts')->where('kode_numbering', $this->numberingInput)->exists()) {
+        if (DB::table('output_rfts')->where('kode_numbering', ($numberingInput ?? $this->numberingInput))->exists()) {
             $this->addError('numberingInput', 'Kode QR sudah discan di RFT.');
             return true;
         }
 
-        if (DB::table('output_defects')->where('kode_numbering', $this->numberingInput)->exists()) {
+        if (DB::table('output_defects')->where('kode_numbering', ($numberingInput ?? $this->numberingInput))->exists()) {
             $this->addError('numberingInput', 'Kode QR sudah discan di Defect.');
             return true;
         }
 
-        if (DB::table('output_rejects')->where('kode_numbering', $this->numberingInput)->exists()) {
+        if (DB::table('output_rejects')->where('kode_numbering', ($numberingInput ?? $this->numberingInput))->exists()) {
             $this->addError('numberingInput', 'Kode QR sudah discan di Reject.');
             return true;
         }
@@ -97,6 +97,10 @@ class Rft extends Component
 
         $this->orderInfo = session()->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = session()->get('orderWsDetailSizes', $this->orderWsDetailSizes);
+        $this->selectedColor = $this->orderInfo->id;
+        $this->selectedColorName = $this->orderInfo->color;
+
+        $this->emit('setSelectedSizeSelect2', $this->selectedColor);
 
         if ($panel == 'rft') {
             $this->emit('qrInputFocus', 'rft');
@@ -145,7 +149,7 @@ class Rft extends Component
 
                     $validatedData = $this->validate();
 
-                    if ($this->checkIfNumberingExists()) {
+                    if ($this->checkIfNumberingExists($numberingInput)) {
                         return;
                     }
 
@@ -275,7 +279,7 @@ class Rft extends Component
         $this->sizeInput = $scannedSize;
         $this->sizeInputText = $scannedSizeText;
 
-        $this->submitInput();
+        $this->submitInput($scannedNumbering);
     }
 
     public function render(SessionManager $session)
@@ -295,6 +299,11 @@ class Rft extends Component
 
         $this->orderInfo = $session->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
+
+        $this->selectedColor = $this->orderInfo->id;
+        $this->selectedColorName = $this->orderInfo->color;
+
+        $this->emit('setSelectedSizeSelect2', $this->selectedColor);
 
         // Rft
         $this->rft = collect(DB::select("select output_rfts.*, so_det.size, COUNT(output_rfts.id) output from `output_rfts` left join `so_det` on `so_det`.`id` = `output_rfts`.`so_det_id` where `master_plan_id` = '".$this->orderInfo->id."' and `status` = 'NORMAL' group by so_det.id"));

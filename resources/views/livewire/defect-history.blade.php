@@ -23,6 +23,7 @@
                             <tr>
                                 <th>No.</th>
                                 <th>Tanggal & Waktu</th>
+                                <th>Kode</th>
                                 <th>Size</th>
                                 <th>Defect Type</th>
                                 <th>Defect Area</th>
@@ -34,7 +35,7 @@
                         <tbody>
                             @if ($defects->count() < 1)
                                 <tr>
-                                    <td colspan="8"><i class="fa-solid fa-circle-exclamation"></i> Defect tidak ditemukan</td>
+                                    <td colspan="9"><i class="fa-solid fa-circle-exclamation"></i> Defect tidak ditemukan</td>
                                 </tr>
                             @else
                                 @foreach ($defects as $defect)
@@ -44,6 +45,7 @@
                                     <tr>
                                         <td>{{ $defects->firstItem() + $loop->index }}</td>
                                         <td>{{ $defect->updated_at }}</td>
+                                        <td>{{ $defect->kode_numbering }}</td>
                                         <td>{{ $defect->so_det_size }}</td>
                                         <td>{{ $defect->defect_type }}</td>
                                         <td>{{ $defect->defect_area }}</td>

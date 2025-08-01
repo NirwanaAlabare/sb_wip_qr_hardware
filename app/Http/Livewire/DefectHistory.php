@@ -79,6 +79,7 @@ class DefectHistory extends Component
         $defectTypes = DefectType::get();
         $defectAreas = DefectArea::get();
         $defects = Defect::selectRaw('
+                output_defects.kode_numbering,
                 output_defects.updated_at,
                 so_det.size as so_det_size,
                 master_plan.gambar,

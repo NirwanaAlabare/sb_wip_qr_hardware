@@ -111,6 +111,10 @@ class Rework extends Component
     {
         $this->orderInfo = session()->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = session()->get('orderWsDetailSizes', $this->orderWsDetailSizes);
+        $this->selectedColor = $this->orderInfo->id;
+        $this->selectedColorName = $this->orderInfo->color;
+
+        $this->emit('setSelectedSizeSelect2', $this->selectedColor);
 
         $this->sizeInput = null;
         $this->sizeInputText = null;
@@ -648,6 +652,11 @@ class Rework extends Component
 
         $this->orderInfo = $session->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
+
+        $this->selectedColor = $this->orderInfo->id;
+        $this->selectedColorName = $this->orderInfo->color;
+
+        $this->emit('setSelectedSizeSelect2', $this->selectedColor);
 
         $this->allDefectImage = MasterPlan::select('gambar')->find($this->orderInfo->id);
 

@@ -139,6 +139,10 @@ class Defect extends Component
 
         $this->orderInfo = session()->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = session()->get('orderWsDetailSizes', $this->orderWsDetailSizes);
+        $this->selectedColor = $this->orderInfo->id;
+        $this->selectedColorName = $this->orderInfo->color;
+
+        $this->emit('setSelectedSizeSelect2', $this->selectedColor);
 
         if ($panel == 'defect') {
             $this->emit('qrInputFocus', 'defect');
@@ -323,23 +327,23 @@ class Defect extends Component
     {
         $validatedData = $this->validate();
 
-        if ($this->checkIfNumberingExists()){
+        if ($this->checkIfNumberingExists($validatedData["numberingInput"])){
             return;
         }
 
         if ($this->orderInfo->tgl_plan == Carbon::now()->format('Y-m-d')) {
-            $currentData = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->first();
+            $currentData = $this->orderWsDetailSizes->where('so_det_id', $validatedData["sizeInput"])->first();
             if ($currentData && $this->orderInfo && ($currentData['color'] == $this->orderInfo->color)) {
                 $insertDefect = DefectModel::create([
                     'master_plan_id' => $this->orderInfo->id,
-                    'no_cut_size' => $this->noCutInput,
-                    'kode_numbering' => $this->numberingInput,
-                    'so_det_id' => $this->sizeInput,
-                    // 'product_type_id' => $this->productType,
-                    'defect_type_id' => $this->defectType,
-                    'defect_area_id' => $this->defectArea,
-                    'defect_area_x' => $this->defectAreaPositionX,
-                    'defect_area_y' => $this->defectAreaPositionY,
+                    'no_cut_size' => $validatedData['noCutInput'],
+                    'kode_numbering' => $validatedData["numberingInput"],
+                    'so_det_id' => $validatedData['sizeInput'],
+                    // 'product_type_id' => $validatedData['productType'],
+                    'defect_type_id' => $validatedData['defectType'],
+                    'defect_area_id' => $validatedData['defectArea'],
+                    'defect_area_x' => $validatedData['defectAreaPositionX'],
+                    'defect_area_y' => $validatedData['defectAreaPositionY'],
                     'status' => 'NORMAL',
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
@@ -351,7 +355,7 @@ class Defect extends Component
                     $area = DefectArea::select('defect_area')->find($this->defectArea);
                     $getSize = DB::table('so_det')
                         ->select('id', 'size')
-                        ->where('id', $this->sizeInput)
+                        ->where('id', $validatedData['sizeInput'])
                         ->first();
 
                     $this->emit('alert', 'success', "1 output DEFECT berukuran ".$getSize->size." dengan jenis defect : ".$type->defect_type." dan area defect : ".$area->defect_area." berhasil terekam.");
@@ -535,6 +539,11 @@ class Defect extends Component
 
         $this->orderInfo = $session->get('orderInfo', $this->orderInfo);
         $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
+
+        $this->selectedColor = $this->orderInfo->id;
+        $this->selectedColorName = $this->orderInfo->color;
+
+        $this->emit('setSelectedSizeSelect2', $this->selectedColor);
 
         // Defect types
         $this->productTypes = ProductType::orderBy('product_type')->get();
