@@ -413,7 +413,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
                     <div id="regular-submit-reject" wire:ignore.self>
-                        <button type="button" class="btn btn-success" onclick="triggerSubmit()">Selesai</button>
+                        <button type="button" class="btn btn-success" wire:click="submitInput">Selesai</button>
                     </div>
                     <div id="rapid-submit-reject" wire:ignore.self>
                         <button type="button" class="btn btn-success" wire:click='submitRapidInput'>Selesai</button>
@@ -449,7 +449,7 @@
     <footer class="footer fixed-bottom py-3">
         <div class="container-fluid">
             <div class="d-flex justify-content-end">
-                <button class="btn btn-dark btn-lg ms-auto fs-3" wire:click='preSubmitInput'>LANJUT</button>
+                <button class="btn btn-dark btn-lg ms-auto fs-3" onclick="triggerSubmit()">LANJUT</button>
             </div>
         </div>
     </footer>

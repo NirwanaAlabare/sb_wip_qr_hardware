@@ -332,45 +332,55 @@ class Defect extends Component
         }
 
         if ($this->orderInfo->tgl_plan == Carbon::now()->format('Y-m-d')) {
-            $currentData = $this->orderWsDetailSizes->where('so_det_id', $validatedData["sizeInput"])->first();
-            if ($currentData && $this->orderInfo && ($currentData['color'] == $this->orderInfo->color)) {
-                $insertDefect = DefectModel::create([
-                    'master_plan_id' => $this->orderInfo->id,
-                    'no_cut_size' => $validatedData['noCutInput'],
-                    'kode_numbering' => $validatedData["numberingInput"],
-                    'so_det_id' => $validatedData['sizeInput'],
-                    // 'product_type_id' => $validatedData['productType'],
-                    'defect_type_id' => $validatedData['defectType'],
-                    'defect_area_id' => $validatedData['defectArea'],
-                    'defect_area_x' => $validatedData['defectAreaPositionX'],
-                    'defect_area_y' => $validatedData['defectAreaPositionY'],
-                    'status' => 'NORMAL',
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                    'created_by' => Auth::user()->id
-                ]);
+            if ($validatedData["numberingInput"]) {
+                $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $validatedData["numberingInput"])->first();
 
-                if ($insertDefect) {
-                    $type = DefectType::select('defect_type')->find($this->defectType);
-                    $area = DefectArea::select('defect_area')->find($this->defectArea);
-                    $getSize = DB::table('so_det')
-                        ->select('id', 'size')
-                        ->where('id', $validatedData['sizeInput'])
-                        ->first();
+                if ($numberingData) {
+                    $currentData = $this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->first();
+                    if ($currentData && $this->orderInfo && ($currentData['color'] == $this->orderInfo->color)) {
+                        $insertDefect = DefectModel::create([
+                            'master_plan_id' => $this->orderInfo->id,
+                            'no_cut_size' => $numberingData->no_cut_size,
+                            'kode_numbering' => $numberingData->id_year_sequence,
+                            'so_det_id' => $numberingData->so_det_id,
+                            // 'product_type_id' => $this->productType,
+                            'defect_type_id' => $validatedData['defectType'],
+                            'defect_area_id' => $validatedData['defectArea'],
+                            'defect_area_x' => $validatedData['defectAreaPositionX'],
+                            'defect_area_y' => $validatedData['defectAreaPositionY'],
+                            'status' => 'NORMAL',
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now(),
+                            'created_by' => Auth::user()->id
+                        ]);
 
-                    $this->emit('alert', 'success', "1 output DEFECT berukuran ".$getSize->size." dengan jenis defect : ".$type->defect_type." dan area defect : ".$area->defect_area." berhasil terekam.");
-                    $this->emit('hideModal', 'defect', 'regular');
-                    $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
+                        if ($insertDefect) {
+                            $type = DefectType::select('defect_type')->find($this->defectType);
+                            $area = DefectArea::select('defect_area')->find($this->defectArea);
+                            $getSize = DB::table('so_det')
+                                ->select('id', 'size')
+                                ->where('id', $this->sizeInput)
+                                ->first();
 
-                    $this->sizeInput = '';
-                    $this->sizeInputText = '';
-                    $this->noCutInput = '';
-                    $this->numberingInput = '';
+                            $this->emit('alert', 'success', "1 output DEFECT berukuran ".$getSize->size." dengan jenis defect : ".$type->defect_type." dan area defect : ".$area->defect_area." berhasil terekam.");
+                            $this->emit('hideModal', 'defect', 'regular');
+                            $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
+
+                            $this->sizeInput = '';
+                            $this->sizeInputText = '';
+                            $this->noCutInput = '';
+                            $this->numberingInput = '';
+                        } else {
+                            $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
+                        }
+
+                        $this->emit('qrInputFocus', 'defect');
+                    } else {
+                        $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
+                    }
                 } else {
-                    $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
+                    $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
                 }
-
-                $this->emit('qrInputFocus', 'defect');
             } else {
                 $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
             }
