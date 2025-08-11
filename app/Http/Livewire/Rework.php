@@ -516,14 +516,14 @@ class Rework extends Component
                         $this->numberingInput = '';
 
                         if ($createRework && $createRft) {
-                            $this->emit('alert', 'success', "DEFECT dengan ID : ".$scannedDefectData->id." berhasil di REWORK.");
+                            $this->emit('alert', 'success', "DEFECT dengan ID : ".$scannedDefectData->kode_numbering." berhasil di REWORK.");
 
                             // $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
                         } else {
-                            $this->emit('alert', 'error', "Terjadi kesalahan. DEFECT dengan ID : ".$scannedDefectData->id." tidak berhasil di REWORK.");
+                            $this->emit('alert', 'error', "Terjadi kesalahan. DEFECT dengan ID : ".$scannedDefectData->kode_numbering." tidak berhasil di REWORK.");
                         }
                     } else {
-                        $this->emit('alert', 'error', "DEFECT dengan ID : ".$scannedDefectData->id." masih ada di MENDING/SPOTCLEANING.");
+                        $this->emit('alert', 'error', "DEFECT dengan ID : ".$scannedDefectData->kode_numbering." masih ada di <b>'".$scannedDefectData->allocation."' </b>.");
                     }
                 } else {
                     $this->emit('alert', 'error', "Data DEFECT belum dialokasi ke <b>'".$scannedDefectData->allocation."' </b>");
