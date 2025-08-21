@@ -324,22 +324,31 @@ class Reject extends Component
         if ($this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->count() > 0) {
             $continue = false;
 
-            $scannedDefectData = Defect::selectRaw("output_defects.*, output_defect_in_out.status in_out_status")->
+            $scannedDefectData = Defect::selectRaw("output_defects.*, master_plan.tgl_plan, master_plan.color, master_plan.sewing_line, output_defect_in_out.status in_out_status")->
                 leftJoin("output_defect_in_out", function ($join) {
                     $join->on("output_defect_in_out.defect_id", "=", "output_defects.id");
                     $join->on("output_defect_in_out.output_type", "=", DB::raw("'qc'"));
                 })->
+                leftJoin("master_plan", "master_plan.id", "=", "output_defects.master_plan_id")->
                 where("output_defects.kode_numbering", $this->numberingInput)->first();
 
             // check defect
             if ($scannedDefectData) {
-                if ($scannedDefectData->defect_status == "defect" && $scannedDefectData->master_plan_id == $this->orderInfo->id) {
-                    $scannedDefectData->defect_status = "rejected";
-                    $scannedDefectData->save();
+                if ($scannedDefectData->master_plan_id == $this->orderInfo->id) {
+                    if ($scannedDefectData->defect_status == "defect") {
+                        $scannedDefectData->defect_status = "rejected";
+                        $scannedDefectData->save();
 
-                    $continue = true;
+                        $continue = true;
+                    } else {
+                        $continue = false;
+
+                        $this->emit('alert', 'error', "Data DEFECT status sudah : <b>'".$scannedDefectData->defect_status."'</b>");
+                    }
                 } else {
                     $continue = false;
+
+                    $this->emit('alert', 'error', "Data DEFECT berada di Plan lain (<b>ID :".$scannedDefectData->master_plan_id."/".$scannedDefectData->tgl_plan."/".$scannedDefectData->color."/".strtoupper(str_replace("_", " ", $scannedDefectData->sewing_line))."</b>)");
                 }
             } else {
                 if ($this->orderInfo->tgl_plan == Carbon::now()->format('Y-m-d')) {
@@ -349,6 +358,8 @@ class Reject extends Component
                         $continue = true;
                     } else {
                         $continue = false;
+
+                        $this->emit('alert', 'error', "Data DEFECT berada di Plan lain (<b>ID :".$scannedDefectData->master_plan_id."/".$scannedDefectData->tgl_plan."/".$scannedDefectData->color."/".strtoupper(str_replace("_", " ", $scannedDefectData->sewing_line))."</b>)");
                     }
                 } else {
                     $continue = false;
@@ -389,7 +400,7 @@ class Reject extends Component
                     $this->emit('alert', 'error', "Terjadi kesalahan. Output tidak berhasil direkam.");
                 }
             } else {
-                $this->emit('alert', 'warning', "QR Sudah discan di <b>REWORK</b>.");
+                // $this->emit('alert', 'warning', "QR Sudah discan di <b>REWORK</b>.");
             }
         } else {
             $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
