@@ -607,6 +607,7 @@ function showSelectDefectArea(defectAreaImage) {
 
     let defectAreaImageElement = document.getElementById('defect-area-img');
     defectAreaImageElement.src = 'http://10.10.5.62:8080/erp/pages/prod_new/upload_files/'+defectAreaImage;
+    defectAreaImageElement.setAttribute("onerror", "this.onerror=null; this.src='http://10.10.5.2/erp/pages/prod_new/upload_files/"+defectAreaImage+"'");
 
     let selectDefectArea = document.getElementById('select-defect-area');
     selectDefectArea.style.display = 'flex';
@@ -635,6 +636,7 @@ function showSelectRejectArea(rejectAreaImage) {
 
     let rejectAreaImageElement = document.getElementById('reject-area-img');
     rejectAreaImageElement.src = 'http://10.10.5.62:8080/erp/pages/prod_new/upload_files/'+rejectAreaImage;
+    rejectAreaImageElement.setAttribute("onerror", "this.onerror=null; this.src='http://10.10.5.2/erp/pages/prod_new/upload_files/"+rejectAreaImage+"'");
 
     let selectRejectArea = document.getElementById('select-reject-area');
     selectRejectArea.style.display = 'flex';
@@ -663,6 +665,7 @@ function showDefectAreaImage(defectAreaImage) {
 
     let defectAreaImageElement = document.getElementById('defect-area-img-show');
     defectAreaImageElement.src = 'http://10.10.5.62:8080/erp/pages/prod_new/upload_files/'+defectAreaImage;
+    defectAreaImageElement.setAttribute("onerror", "this.onerror=null; this.src='http://10.10.5.2/erp/pages/prod_new/upload_files/"+defectAreaImage+"'");
 
     let showDefectArea = document.getElementById('show-defect-area');
     showDefectArea.style.display = 'flex';

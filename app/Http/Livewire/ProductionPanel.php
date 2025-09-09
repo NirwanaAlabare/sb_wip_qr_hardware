@@ -394,6 +394,10 @@ class ProductionPanel extends Component
             ->where('master_plan.id', $this->selectedColor)
             ->first();
 
+        if (!$this->orderInfo) {
+            return $this->emit('reloadPage');
+        }
+
         $this->orderWsDetails = MasterPlan::selectRaw("
                 master_plan.id as id,
                 master_plan.tgl_plan as tgl_plan,
