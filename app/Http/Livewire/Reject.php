@@ -339,6 +339,11 @@ class Reject extends Component
                         $scannedDefectData->defect_status = "rejected";
                         $scannedDefectData->save();
 
+                        $this->rejectType = $scannedDefectData->defect_type_id;
+                        $this->rejectArea = $scannedDefectData->defect_area_id;
+                        $this->rejectAreaPositionX = $scannedDefectData->defect_area_x;
+                        $this->rejectAreaPositionY = $scannedDefectData->defect_area_y;
+
                         $continue = true;
                     } else {
                         $continue = false;
@@ -488,8 +493,8 @@ class Reject extends Component
                         'no_cut_size' => $numberingData->no_cut_size,
                         'kode_numbering' => $this->rapidReject[$i]['numberingInput'],
                         'defect_id' => $scannedDefectData ? $scannedDefectData->id : null,
-                        'reject_type_id' => $scannedDefectData ? $scannedDefectData->defectType->defect_type_id : $this->rejectType,
-                        'reject_area_id' => $scannedDefectData ? $scannedDefectData->defectArea->defect_area_id : $this->rejectArea,
+                        'reject_type_id' => $scannedDefectData ? $scannedDefectData->defect_type_id : $this->rejectType,
+                        'reject_area_id' => $scannedDefectData ? $scannedDefectData->defect_area_id : $this->rejectArea,
                         'reject_area_x' => $scannedDefectData ? $scannedDefectData->defect_area_x : $this->rejectAreaPositionX,
                         'reject_area_y' => $scannedDefectData ? $scannedDefectData->defect_area_y : $this->rejectAreaPositionY,
                         'reject_status' => 'mati',
@@ -563,7 +568,7 @@ class Reject extends Component
         $availableReject = 0;
         $externalReject = 0;
 
-        $allDefect = Defect::selectRaw('output_defects.id id, output_defects.master_plan_id master_plan_id, output_defects.so_det_id so_det_id, output_defects.kode_numbering, output_defects.no_cut_size, output_defect_types.allocation, output_defect_in_out.status in_out_status')->
+        $allDefect = Defect::selectRaw('output_defects.id id, output_defects.master_plan_id master_plan_id, output_defects.so_det_id so_det_id, output_defects.kode_numbering, output_defects.no_cut_size, output_defect_types.allocation, output_defect_in_out.status in_out_status, output_defects.defect_type_id, output_defects.defect_area_id, output_defects.defect_area_x, output_defects.defect_area_y')->
             leftJoin('so_det', 'so_det.id', '=', 'output_defects.so_det_id')->
             leftJoin("output_defect_in_out", function ($join) {
                 $join->on("output_defect_in_out.defect_id", "=", "output_defects.id");
@@ -585,6 +590,10 @@ class Reject extends Component
                         "defect_id" => $defect->id,
                         "status" => "NORMAL",
                         "reject_status" => "defect",
+                        "reject_type_id" => $defect->defect_type_id,
+                        "reject_area_id" => $defect->defect_area_id,
+                        "reject_area_x" => $defect->defect_area_x,
+                        "reject_area_y" => $defect->defect_area_y,
                         "kode_numbering" => $defect->kode_numbering,
                         "no_cut_size" => $defect->no_cut_size,
                         'created_by' => Auth::user()->id
@@ -658,6 +667,10 @@ class Reject extends Component
                         "defect_id" => $defect->id,
                         "status" => "NORMAL",
                         "reject_status" => "defect",
+                        "reject_type_id" => $defect->defect_type_id,
+                        "reject_area_id" => $defect->defect_area_id,
+                        "reject_area_x" => $defect->defect_area_x,
+                        "reject_area_y" => $defect->defect_area_y,
                         "kode_numbering" => $defect->kode_numbering,
                         "no_cut_size" => $defect->no_cut_size,
                         'created_by' => Auth::user()->id
@@ -719,6 +732,10 @@ class Reject extends Component
                     "so_det_id" => $getDefect->so_det_id,
                     "defect_id" => $defectId,
                     "reject_status" => 'defect',
+                    "reject_type_id" => $getDefect->defect_type_id,
+                    "reject_area_id" => $getDefect->defect_area_id,
+                    "reject_area_x" => $getDefect->defect_area_x,
+                    "reject_area_y" => $getDefect->defect_area_y,
                     "kode_numbering" => $getDefect->kode_numbering,
                     "no_cut_size" => $getDefect->no_cut_size,
                     'created_by' => Auth::user()->id,
