@@ -32,7 +32,7 @@
                 <a href="{{ url($baseUrl.'/production-panel/index/'.$order->id) }}" class="order col-md-6 h-100">
                     <div class="card overflow-hidden h-100">
                         @if ($order->plan_date != date('Y-m-d'))
-                            <span class="{{ $this->date < date('Y-m-d') && $order->plan_date < $this->date ? 'bg-defect' : 'bg-sb' }} text-light text-center fw-bold p-1 rounded-1" style="position: absolute; width:35%; top:10%; right: -10%; transform:rotate(45deg);">BERLALU</span>
+                            <span class="{{ $this->date < date('Y-m-d') && $order->plan_date < $this->date ? 'bg-defect' : 'bg-sb' }} text-light text-center fw-bold p-1 rounded-1" style="position: absolute; width:35%; top:10%; right: -10%; transform:rotate(45deg);">DEFECT : {{ $order->total_defect }}</span>
                         @endif
                         <div class="card-body justify-content-start">
                             <table class="table table-responsive mb-1">

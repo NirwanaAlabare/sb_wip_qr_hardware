@@ -35,11 +35,13 @@ class OrderList extends Component
 
     public function render()
     {
-        $masterPlanBefore = MasterPlan::selectRaw("MAX(id)")->where("sewing_line", strtoupper(Auth::user()->Line->username))->where("master_plan.cancel", "N")->where("tgl_plan", "<", $this->date)->groupBy("master_plan.id_ws", "master_plan.color")->orderBy("tgl_plan", "desc")->first();
+        $masterPlanBefore = MasterPlan::selectRaw("max(id) as id")->leftJoin(DB::raw("(SELECT master_plan_id, COUNT(id) total FROM output_defects WHERE defect_status = 'defect' and kode_numbering is not null GROUP BY master_plan_id) defects"), "defects.master_plan_id", "=", "master_plan.id")->where("sewing_line", strtoupper(Auth::user()->line->username))->where("master_plan.cancel", "N")->where("tgl_plan", "<", $this->date)->where("defects.total", ">", "0")->groupBy("master_plan.id_ws", "master_plan.color")->orderBy("tgl_plan", "desc")->limit(1)->get();
 
         $additionalQuery = "";
         if ($masterPlanBefore) {
-            $additionalQuery = "OR master_plan.id = '".$masterPlanBefore->id."'";
+            $masterPlanBeforeIds = implode("' , '", $masterPlanBefore->pluck("id")->toArray());
+
+            $additionalQuery = "OR master_plan.id IN ('".$masterPlanBeforeIds."')";
         }
 
         $this->orders = DB::table('master_plan')
@@ -52,11 +54,13 @@ class OrderList extends Component
                 act_costing.styleno as style_name,
                 output.progress as progress,
                 plan.target as target,
+                defects.total as total_defect,
                 CONCAT(masterproduct.product_group, ' - ', masterproduct.product_item) as product_type
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
             ->leftJoin('masterproduct', 'masterproduct.id', '=', 'act_costing.id_product')
+            ->leftJoin(DB::raw("(SELECT master_plan_id, COUNT(id) total FROM output_defects WHERE defect_status = 'defect' and kode_numbering is not null GROUP BY master_plan_id) defects"), "defects.master_plan_id", "=", "master_plan.id")
             ->leftJoin(
                 DB::raw("
                     (
@@ -71,7 +75,6 @@ class OrderList extends Component
                         where
                             master_plan.sewing_line = '".strtoupper(Auth::user()->line->username)."' AND
                             output_rfts.updated_at between '".$this->date." 00:00:00' AND '".$this->date." 23:59:59' AND
-                            (master_plan.tgl_plan = '".$this->date."' OR master_plan.tgl_plan = '".date('Y-m-d', strtotime('-7 day', strtotime($this->date)))."') AND
                             master_plan.cancel = 'N'
                         group by
                             master_plan.id_ws,
