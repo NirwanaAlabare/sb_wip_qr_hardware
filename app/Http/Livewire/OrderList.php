@@ -60,7 +60,10 @@ class OrderList extends Component
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
             ->leftJoin('masterproduct', 'masterproduct.id', '=', 'act_costing.id_product')
-            ->leftJoin(DB::raw("(SELECT master_plan_id, COUNT(id) total FROM output_defects WHERE defect_status = 'defect' and kode_numbering is not null GROUP BY master_plan_id) defects"), "defects.master_plan_id", "=", "master_plan.id")
+            ->leftJoin(DB::raw("(SELECT master_plan.id_ws, master_plan.tgl_plan, SUM(defects.total) total FROM master_plan left join (select master_plan_id, COUNT(id) total FROM output_defects where defect_status = 'defect' GROUP BY master_plan_id) defects on defects.master_plan_id = master_plan.id WHERE master_plan.sewing_line = '".strtoupper(Auth::user()->line->username)."' AND cancel = 'N' GROUP BY master_plan.id_ws, master_plan.tgl_plan) defects"), function ($join) {
+                $join->on("defects.id_ws", "=", "master_plan.id_ws");
+                $join->on("defects.tgl_plan", "=", "master_plan.tgl_plan");
+            })
             ->leftJoin(
                 DB::raw("
                     (
