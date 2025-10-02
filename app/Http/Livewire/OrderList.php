@@ -35,7 +35,7 @@ class OrderList extends Component
 
     public function render()
     {
-        $masterPlanBefore = MasterPlan::selectRaw("max(id) as id")->leftJoin(DB::raw("(SELECT master_plan_id, COUNT(id) total FROM output_defects WHERE defect_status = 'defect' and kode_numbering is not null GROUP BY master_plan_id) defects"), "defects.master_plan_id", "=", "master_plan.id")->where("sewing_line", strtoupper(Auth::user()->line->username))->where("master_plan.cancel", "N")->where("tgl_plan", "<", $this->date)->where("defects.total", ">", "0")->groupBy("master_plan.id_ws", "master_plan.color")->orderBy("tgl_plan", "desc")->limit(1)->get();
+        $masterPlanBefore = MasterPlan::selectRaw("max(id) as id")->leftJoin(DB::raw("(SELECT master_plan_id, COUNT(id) total FROM output_defects WHERE created_by = '".Auth::user()->id."' and defect_status = 'defect' and kode_numbering is not null GROUP BY master_plan_id) defects"), "defects.master_plan_id", "=", "master_plan.id")->where("sewing_line", strtoupper(Auth::user()->line->username))->where("master_plan.cancel", "N")->where("tgl_plan", "<", $this->date)->where("defects.total", ">", "0")->groupBy("master_plan.id_ws", "master_plan.color")->orderBy("tgl_plan", "desc")->limit(1)->get();
 
         $additionalQuery = "";
         if ($masterPlanBefore) {
@@ -48,7 +48,7 @@ class OrderList extends Component
         $masterPlanWithOutput = MasterPlan::selectRaw("MAX(master_plan.id) id")->
             leftJoin("act_costing", "act_costing.id", "=", "master_plan.id_ws")->
             leftJoin("mastersupplier", "mastersupplier.Id_Supplier", "=", "act_costing.id_buyer")->
-            leftJoin(DB::raw("(select master_plan_id, count(output_rfts.id) as total from output_rfts where updated_at BETWEEN '".$this->date." 00:00:00' and '".$this->date." 23:59:59' group by master_plan_id) as output"), "output.master_plan_id", "=", "master_plan.id")->
+            leftJoin(DB::raw("(select master_plan_id, count(output_rfts.id) as total from output_rfts where created_by = '".Auth::user()->id."' and updated_at BETWEEN '".$this->date." 00:00:00' and '".$this->date." 23:59:59' group by master_plan_id) as output"), "output.master_plan_id", "=", "master_plan.id")->
             where("master_plan.cancel", "N")->
             where("sewing_line", strtoupper(Auth::user()->line->username))->
             where("tgl_plan", "<", $this->date)->
@@ -80,7 +80,7 @@ class OrderList extends Component
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
             ->leftJoin('masterproduct', 'masterproduct.id', '=', 'act_costing.id_product')
-            ->leftJoin(DB::raw("(SELECT master_plan.id_ws, master_plan.tgl_plan, SUM(defects.total) total FROM master_plan left join (select master_plan_id, COUNT(id) total FROM output_defects where defect_status = 'defect' GROUP BY master_plan_id) defects on defects.master_plan_id = master_plan.id WHERE master_plan.sewing_line = '".strtoupper(Auth::user()->line->username)."' AND cancel = 'N' GROUP BY master_plan.id_ws, master_plan.tgl_plan) defects"), function ($join) {
+            ->leftJoin(DB::raw("(SELECT master_plan.id_ws, master_plan.tgl_plan, SUM(defects.total) total FROM master_plan left join (select master_plan_id, COUNT(id) total FROM output_defects where created_by = '".Auth::user()->id."' and defect_status = 'defect' GROUP BY master_plan_id) defects on defects.master_plan_id = master_plan.id WHERE master_plan.sewing_line = '".strtoupper(Auth::user()->line->username)."' AND cancel = 'N' GROUP BY master_plan.id_ws, master_plan.tgl_plan) defects"), function ($join) {
                 $join->on("defects.id_ws", "=", "master_plan.id_ws");
                 $join->on("defects.tgl_plan", "=", "master_plan.tgl_plan");
             })
