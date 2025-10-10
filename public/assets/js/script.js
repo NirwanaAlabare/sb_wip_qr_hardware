@@ -17,6 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
         width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
         placeholder: $( this ).data( 'placeholder' ),
     });
+
+    $('.unselectable').prop("disabled",true);
 });
 
 // General
