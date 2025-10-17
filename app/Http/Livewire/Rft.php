@@ -154,7 +154,6 @@ class Rft extends Component
                     }
 
                     $currentData = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->first();
-                    // dd($currentData['color'], $this->orderInfo->color);
                     if ($currentData && $this->orderInfo && (trim($currentData['color']) == trim($this->orderInfo->color))) {
                         $insertRft = RftModel::create([
                             'master_plan_id' => $this->orderInfo->id,
