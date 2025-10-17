@@ -359,7 +359,7 @@ class Reject extends Component
                 if ($this->orderInfo->tgl_plan == Carbon::now()->format('Y-m-d')) {
 
                     $currentData = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->first();
-                    if ($currentData && $this->orderInfo && ($currentData['color'] == $this->orderInfo->color)) {
+                    if ($currentData && $this->orderInfo && (trim($currentData['color']) == trim($this->orderInfo->color))) {
                         $continue = true;
                     } else {
                         $continue = false;

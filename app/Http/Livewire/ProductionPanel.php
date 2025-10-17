@@ -132,7 +132,6 @@ class ProductionPanel extends Component
             ->where('master_plan.id', $this->orderInfo->id)
             ->where('act_costing.kpno', $this->orderInfo->ws_number)
             ->where('so_det.color', $this->selectedColorName)
-            ->where('so_det.cancel', '!=', "Y")
             ->groupBy('so_det.id','so_det.size', 'so_det.color')
             ->orderBy('so_det_id')
             ->get();
@@ -390,7 +389,6 @@ class ProductionPanel extends Component
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
             ->leftJoin('master_size_new', 'master_size_new.size', '=', 'so_det.size')
             ->leftJoin('masterproduct', 'masterproduct.id', '=', 'act_costing.id_product')
-            ->where('so_det.cancel', 'N')
             ->where('master_plan.id', $this->selectedColor)
             ->first();
 
@@ -412,7 +410,6 @@ class ProductionPanel extends Component
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
             ->leftJoin('master_size_new', 'master_size_new.size', '=', 'so_det.size')
             ->leftJoin('masterproduct', 'masterproduct.id', '=', 'act_costing.id_product')
-            ->where('so_det.cancel', '!=', 'Y')
             ->where('master_plan.cancel', '!=', 'Y')
             ->where('master_plan.sewing_line', Auth::user()->line->username)
             ->where('act_costing.kpno', $this->orderInfo->ws_number)
@@ -440,7 +437,6 @@ class ProductionPanel extends Component
             ->where('master_plan.sewing_line', Auth::user()->line->username)
             ->where('act_costing.kpno', $this->orderInfo->ws_number)
             ->where('so_det.color', $this->selectedColorName)
-            ->where('so_det.cancel', "!=", "Y")
             ->groupBy('so_det.id', 'so_det.size', 'so_det.color')
             ->orderBy('so_det_id')
             ->get();

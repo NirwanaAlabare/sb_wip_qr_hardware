@@ -337,7 +337,7 @@ class Defect extends Component
 
                 if ($numberingData) {
                     $currentData = $this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->first();
-                    if ($currentData && $this->orderInfo && ($currentData['color'] == $this->orderInfo->color)) {
+                    if ($currentData && $this->orderInfo && (trim($currentData['color']) == trim($this->orderInfo->color))) {
                         $insertDefect = DefectModel::create([
                             'master_plan_id' => $this->orderInfo->id,
                             'no_cut_size' => $numberingData->no_cut_size,

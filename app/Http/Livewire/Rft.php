@@ -154,7 +154,8 @@ class Rft extends Component
                     }
 
                     $currentData = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->first();
-                    if ($currentData && $this->orderInfo && ($currentData['color'] == $this->orderInfo->color)) {
+                    // dd($currentData['color'], $this->orderInfo->color);
+                    if ($currentData && $this->orderInfo && (trim($currentData['color']) == trim($this->orderInfo->color))) {
                         $insertRft = RftModel::create([
                             'master_plan_id' => $this->orderInfo->id,
                             'so_det_id' => $this->sizeInput,
@@ -182,10 +183,10 @@ class Rft extends Component
                         $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
                     }
                 } else {
-                    $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
+                    $this->emit('alert', 'error', "QR tidak ditemukan.");
                 }
             } else {
-                $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
+                $this->emit('alert', 'error', "QR tidak valid.");
             }
         } else {
             $this->emit('alert', 'error', "Tidak dapat input backdate. Harap refresh browser anda.");
