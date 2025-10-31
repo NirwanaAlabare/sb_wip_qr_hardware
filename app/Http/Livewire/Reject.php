@@ -356,7 +356,7 @@ class Reject extends Component
                     $this->emit('alert', 'error', "Data DEFECT berada di Plan lain (<b>ID :".$scannedDefectData->master_plan_id."/".$scannedDefectData->tgl_plan."/".$scannedDefectData->color."/".strtoupper(str_replace("_", " ", $scannedDefectData->sewing_line))."</b>)");
                 }
             } else {
-                if ($this->orderInfo->tgl_plan == Carbon::now()->format('Y-m-d')) {
+                // if ($this->orderInfo->tgl_plan == Carbon::now()->format('Y-m-d')) {
 
                     $currentData = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->first();
                     if ($currentData && $this->orderInfo && (trim($currentData['color']) == trim($this->orderInfo->color))) {
@@ -366,11 +366,11 @@ class Reject extends Component
 
                         $this->emit('alert', 'error', "Data DEFECT berada di Plan lain (<b>ID :".$scannedDefectData->master_plan_id."/".$scannedDefectData->tgl_plan."/".$scannedDefectData->color."/".strtoupper(str_replace("_", " ", $scannedDefectData->sewing_line))."</b>)");
                     }
-                } else {
-                    $continue = false;
+                // } else {
+                //     $continue = false;
 
-                    $this->emit('alert', 'error', "Tidak dapat input backdate. Harap refresh browser anda.");
-                }
+                //     $this->emit('alert', 'error', "Tidak dapat input backdate. Harap refresh browser anda.");
+                // }
             }
 
             // continue
