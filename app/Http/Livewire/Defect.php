@@ -277,6 +277,10 @@ class Defect extends Component
                 $this->numberingInput = $numberingInput;
             }
 
+            if (!$this->sizeInput) {
+                return $this->emit('alert', 'error', "QR belum terdaftar.");
+            }
+
             $validation = Validator::make([
                 'sizeInput' => $this->sizeInput,
                 'noCutInput' => $this->noCutInput,
