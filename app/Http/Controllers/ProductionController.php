@@ -36,6 +36,7 @@ class ProductionController extends Controller
             ->leftJoin('master_size_new', 'master_size_new.size', '=', 'so_det.size')
             ->leftJoin('masterproduct', 'masterproduct.id', '=', 'act_costing.id_product')
             ->where('so_det.cancel', 'N')
+            ->where('master_plan.cancel', '!=', 'Y')
             ->where('master_plan.id', $id)
             ->first();
 
