@@ -448,7 +448,7 @@ class ProductionPanel extends Component
         $this->selectedColor = $this->orderInfo->id;
         $this->selectedColorName = $this->orderInfo->color;
 
-        $this->emit('setSelectedSizeSelect2', $this->selectedColor);
+        $this->emit('setSelectedSizeSelect2', $this->orderInfo->id);
 
         session()->put("orderInfo", $this->orderInfo);
         session()->put("orderWsDetails", $this->orderWsDetails);
