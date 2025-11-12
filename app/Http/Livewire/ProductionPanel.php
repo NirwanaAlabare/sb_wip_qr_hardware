@@ -391,6 +391,7 @@ class ProductionPanel extends Component
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
             ->leftJoin('master_size_new', 'master_size_new.size', '=', 'so_det.size')
             ->leftJoin('masterproduct', 'masterproduct.id', '=', 'act_costing.id_product')
+            ->where('master_plan.cancel', '!=', 'Y')
             ->where('master_plan.id', $this->selectedColor)
             ->first();
 
@@ -474,7 +475,7 @@ class ProductionPanel extends Component
         foreach ($redundantData as $redundant) {
             $reworkData = Rework::where('defect_id', $redundant->defect_id)->limit(1)->first();
             Rework::where('id', $reworkData->id)->limit(1)->delete();
-            RftModel::where('rework_id', $reworkData->id)->limit(1)->delete();
+            Rft::where('rework_id', $reworkData->id)->limit(1)->delete();
         }
 
         $this->emit('alert', 'success', 'Redundant deleted');
