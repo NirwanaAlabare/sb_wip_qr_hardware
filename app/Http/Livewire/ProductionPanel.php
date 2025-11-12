@@ -131,12 +131,14 @@ class ProductionPanel extends Component
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
             ->where('master_plan.id', $this->orderInfo->id)
             ->where('act_costing.kpno', $this->orderInfo->ws_number)
-            ->where('so_det.color', $this->selectedColorName)
+            ->where('so_det.color', $this->orderInfo->color)
             ->groupBy('so_det.id','so_det.size', 'so_det.color')
             ->orderBy('so_det_id')
             ->get();
 
         $session->put("orderWsDetailSizes", $this->orderWsDetailSizes);
+
+        $this->emit('setSelectedSizeSelect2', $this->orderInfo->color);
     }
 
     public function toRft()
