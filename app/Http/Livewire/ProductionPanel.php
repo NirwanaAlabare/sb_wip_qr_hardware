@@ -131,7 +131,7 @@ class ProductionPanel extends Component
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
             ->where('master_plan.id', $this->orderInfo->id)
             ->where('act_costing.kpno', $this->orderInfo->ws_number)
-            ->where('so_det.color', $this->orderInfo->color)
+            ->whereRaw('UPPER(so_det.color) = UPPER("'.$this->orderInfo->color.'")')
             ->groupBy('so_det.id','so_det.size', 'so_det.color')
             ->orderBy('so_det_id')
             ->get();
@@ -439,7 +439,7 @@ class ProductionPanel extends Component
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
             ->where('master_plan.sewing_line', Auth::user()->line->username)
             ->where('act_costing.kpno', $this->orderInfo->ws_number)
-            ->where('so_det.color', $this->selectedColorName)
+            ->whereRaw('UPPER(so_det.color) = UPPER("'.$this->selectedColorName.'")')
             ->groupBy('so_det.id', 'so_det.size', 'so_det.color')
             ->orderBy('so_det_id')
             ->get();
