@@ -120,7 +120,7 @@ class ProductionPanel extends Component
 
         $this->orderWsDetailSizes = DB::table('master_plan')->selectRaw("
                 so_det.id as so_det_id,
-                so_det.color as color,
+                TRIM(UPPER(so_det.color)) as color,
                 so_det.size as size,
                 so_det.dest as dest,
                 CONCAT(so_det.size, (CASE WHEN so_det.dest != '-' OR so_det.dest IS NULL THEN CONCAT('-', so_det.dest) ELSE '' END)) as size_dest
@@ -131,7 +131,7 @@ class ProductionPanel extends Component
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
             ->where('master_plan.id', $this->orderInfo->id)
             ->where('act_costing.kpno', $this->orderInfo->ws_number)
-            ->whereRaw('UPPER(so_det.color) = UPPER("'.$this->orderInfo->color.'")')
+            ->whereRaw('TRIM(UPPER(so_det.color)) = TRIM(UPPER("'.$this->orderInfo->color.'"))')
             ->groupBy('so_det.id','so_det.size', 'so_det.color')
             ->orderBy('so_det_id')
             ->get();
@@ -428,7 +428,7 @@ class ProductionPanel extends Component
 
         $this->orderWsDetailSizes = DB::table('master_plan')->selectRaw("
                 so_det.id as so_det_id,
-                so_det.color as color,
+                TRIM(UPPER(so_det.color)) as color,
                 so_det.size as size,
                 so_det.dest as dest,
                 CONCAT(so_det.size, '-', so_det.dest) size_dest
@@ -439,7 +439,7 @@ class ProductionPanel extends Component
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
             ->where('master_plan.sewing_line', Auth::user()->line->username)
             ->where('act_costing.kpno', $this->orderInfo->ws_number)
-            ->whereRaw('UPPER(so_det.color) = UPPER("'.$this->selectedColorName.'")')
+            ->whereRaw('TRIM(UPPER(so_det.color)) = TRIM(UPPER("'.$this->selectedColorName.'"))')
             ->groupBy('so_det.id', 'so_det.size', 'so_det.color')
             ->orderBy('so_det_id')
             ->get();
