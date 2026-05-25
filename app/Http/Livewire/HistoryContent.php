@@ -62,8 +62,8 @@ class HistoryContent extends Component
             if ($this->masterPlan) {
                 $latestOutputRfts->where('master_plan.id', $this->masterPlan);
             }
-        $latestRfts = $latestOutputRfts->whereRaw("DATE(output_rfts.created_at) >= '".$this->dateFrom."'")->
-            whereRaw("DATE(output_rfts.created_at) <= '".$this->dateTo."'")->
+        $latestRfts = $latestOutputRfts->whereRaw("output_rfts.created_at >= '".$this->dateFrom." 00:00:00'")->
+            whereRaw("output_rfts.created_at <= '".$this->dateTo." 23:59:59'")->
             groupBy("output_rfts.updated_at", "so_det.size")->
             orderBy("output_rfts.updated_at", "desc")->
             orderBy("output_rfts.created_at", "desc")->
