@@ -8,6 +8,7 @@ use App\Models\SignalBit\Rft as RftModel;
 use App\Models\SignalBit\Rework;
 use App\Models\SignalBit\Defect;
 use App\Models\SignalBit\Reject;
+use App\Services\SewingService;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use DB;
@@ -159,6 +160,7 @@ class Rft extends Component
 
                     $currentData = $this->orderWsDetailSizes->where('so_det_id', $this->sizeInput)->first();
                     if ($currentData && $this->orderInfo && (trim($currentData['color']) == trim($this->orderInfo->color))) {
+                        // Insert Endline RFT
                         $insertRft = RftModel::create([
                             'master_plan_id' => $this->orderInfo->id,
                             'so_det_id' => $this->sizeInput,
@@ -171,6 +173,14 @@ class Rft extends Component
                         ]);
 
                         if ($insertRft) {
+                            // Insert Finishline RFT
+                            SewingService::insertRftPacking(
+                                $masterPlanId = $this->orderInfo->id,
+                                $soDetId = $this->sizeInput,
+                                $noCutSize = $this->noCutInput,
+                                $kodeNumbering = $numberingInput,
+                            );
+
                             $this->emit('alert', 'success', "1 output berukuran ".$this->sizeInputText." berhasil terekam.");
 
                             $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));

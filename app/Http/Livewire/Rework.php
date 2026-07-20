@@ -11,6 +11,7 @@ use App\Models\Nds\Numbering;
 use App\Models\SignalBit\Rft;
 use App\Models\SignalBit\Defect;
 use App\Models\SignalBit\Rework as ReworkModel;
+use App\Services\SewingService;
 use Carbon\Carbon;
 use DB;
 
@@ -520,6 +521,14 @@ class Rework extends Component
                         $this->numberingInput = '';
 
                         if ($createRework && $createRft) {
+                            // Insert Finishline RFT
+                            SewingService::insertRftPacking(
+                                $masterPlanId = $scannedDefectData->master_plan_id,
+                                $soDetId = $scannedDefectData->so_det_id,
+                                $noCutSize = $scannedDefectData->no_cut_size,
+                                $kodeNumbering = $scannedDefectData->kode_numbering,
+                            );
+
                             $this->emit('alert', 'success', "DEFECT dengan ID : ".$scannedDefectData->kode_numbering." berhasil di REWORK.");
 
                             // $this->emit('triggerDashboard', Auth::user()->line->username, Carbon::now()->format('Y-m-d'));
