@@ -35,13 +35,15 @@ class OrderList extends Component
 
     public function render()
     {
-        $masterPlanBefore = MasterPlan::selectRaw("max(id) as id")->leftJoin(DB::raw("(SELECT master_plan_id, COUNT(id) total FROM output_defects WHERE created_by = '".Auth::user()->id."' and defect_status = 'defect' and kode_numbering is not null GROUP BY master_plan_id) defects"), "defects.master_plan_id", "=", "master_plan.id")->where("sewing_line", strtoupper(Auth::user()->line->username))->where("master_plan.cancel", "N")->where("tgl_plan", "<", $this->date)->where("defects.total", ">", "0")->groupBy("master_plan.id_ws", "master_plan.color")->orderBy("tgl_plan", "desc")->limit(1)->get();
+        $masterPlanBefore = MasterPlan::selectRaw("max(id) as id")->leftJoin(DB::raw("(SELECT master_plan_id, COUNT(id) total FROM output_defects WHERE created_at > '".date("Y")."-01-01' and created_by = '".Auth::user()->id."' and defect_status = 'defect' and kode_numbering is not null GROUP BY master_plan_id) defects"), "defects.master_plan_id", "=", "master_plan.id")->where("sewing_line", strtoupper(Auth::user()->line->username))->where("master_plan.cancel", "N")->where("tgl_plan", "<", $this->date)->where("defects.total", ">", "0")->groupBy("master_plan.id_ws", "master_plan.color")->orderBy("tgl_plan", "desc")->limit(1)->get();
 
         $additionalQuery = "";
         if ($masterPlanBefore) {
             $masterPlanBeforeIds = implode("' , '", $masterPlanBefore->pluck("id")->toArray());
 
-            $additionalQuery .= "OR master_plan.id IN ('".$masterPlanBeforeIds."')";
+            if ($masterPlanBeforeIds) {
+                $additionalQuery .= "OR master_plan.id IN ('".$masterPlanBeforeIds."')";
+            }
         }
 
         // With Today Output
@@ -61,7 +63,9 @@ class OrderList extends Component
         if ($masterPlanWithOutput) {
             $masterPlanWithOutputIds = implode("' , '", $masterPlanWithOutput->pluck("id")->toArray());
 
-            $additionalQuery .= " OR master_plan.id IN ('".$masterPlanWithOutputIds."') ";
+            if ($masterPlanWithOutputIds) {
+                $additionalQuery .= " OR master_plan.id IN ('".$masterPlanWithOutputIds."') ";
+            }
         }
 
         $this->orders = DB::table('master_plan')
