@@ -13,6 +13,7 @@ use App\Models\SignalBit\DefectType;
 use App\Models\SignalBit\DefectArea;
 use App\Models\SignalBit\MasterPlan;
 use App\Models\Nds\Numbering;
+use App\Traits\ChecksMasterPlanCancel;
 use Carbon\Carbon;
 use Validator;
 use DB;
@@ -20,6 +21,7 @@ use DB;
 class Reject extends Component
 {
     use WithPagination;
+    use ChecksMasterPlanCancel;
 
     protected $paginationTheme = 'bootstrap';
 
@@ -198,6 +200,10 @@ class Reject extends Component
 
         $numberingInput = $value;
 
+        if ($this->masterPlanCancelled()) {
+            return;
+        }
+
         if ($numberingInput) {
             // if (str_contains($numberingInput, 'WIP')) {
             //     $numberingData = DB::connection("mysql_nds")->table("stocker_numbering")->where("kode", $numberingInput)->first();
@@ -294,6 +300,10 @@ class Reject extends Component
     public function submitInput()
     {
         $this->emit('qrInputFocus', 'reject');
+
+        if ($this->masterPlanCancelled()) {
+            return;
+        }
 
         if ($this->numberingInput) {
             // if (str_contains($this->numberingInput, 'WIP')) {
@@ -461,6 +471,10 @@ class Reject extends Component
     }
 
     public function submitRapidInput() {
+        if ($this->masterPlanCancelled()) {
+            return;
+        }
+
         $rapidRejectFiltered = [];
         $success = 0;
         $fail = 0;
@@ -569,6 +583,10 @@ class Reject extends Component
     }
 
     public function submitAllReject() {
+        if ($this->masterPlanCancelled()) {
+            return;
+        }
+
         $availableReject = 0;
         $externalReject = 0;
 
@@ -643,6 +661,10 @@ class Reject extends Component
     }
 
     public function submitMassReject() {
+        if ($this->masterPlanCancelled()) {
+            return;
+        }
+
         $availableReject = 0;
         $externalReject = 0;
 
@@ -710,6 +732,10 @@ class Reject extends Component
     }
 
     public function submitReject($defectId) {
+        if ($this->masterPlanCancelled()) {
+            return;
+        }
+
         $externalReject = 0;
 
         $thisDefectReject = RejectModel::where('defect_id', $defectId)->count();

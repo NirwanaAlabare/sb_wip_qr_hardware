@@ -9,6 +9,7 @@ use App\Models\SignalBit\Rework;
 use App\Models\SignalBit\Defect;
 use App\Models\SignalBit\Reject;
 use App\Services\SewingService;
+use App\Traits\ChecksMasterPlanCancel;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use DB;
@@ -16,6 +17,8 @@ use Str;
 
 class Rft extends Component
 {
+    use ChecksMasterPlanCancel;
+
     public $orderInfo;
     public $orderWsDetailSizes;
     public $sizeInput;
@@ -124,6 +127,10 @@ class Rft extends Component
 
         $numberingInput = $value;
 
+        if ($this->masterPlanCancelled()) {
+            return;
+        }
+
         if ($this->orderInfo->tgl_plan == Carbon::now()->format('Y-m-d')) {
             if ($numberingInput) {
                 // if (str_contains($numberingInput, 'WIP')) {
@@ -231,6 +238,10 @@ class Rft extends Component
     }
 
     public function submitRapidInput() {
+        if ($this->masterPlanCancelled()) {
+            return;
+        }
+
         $rapidRftFiltered = [];
         $success = 0;
         $fail = 0;

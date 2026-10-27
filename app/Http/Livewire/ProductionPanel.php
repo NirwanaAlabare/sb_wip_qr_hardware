@@ -383,7 +383,8 @@ class ProductionPanel extends Component
                 master_plan.color as color,
                 so_det.size as size,
                 so.qty as qty_order,
-                CONCAT(masterproduct.product_group, ' - ', masterproduct.product_item) as product_type
+                CONCAT(masterproduct.product_group, ' - ', masterproduct.product_item) as product_type,
+                master_plan.cancel
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
             ->leftJoin('so', 'so.id_cost', '=', 'act_costing.id')
