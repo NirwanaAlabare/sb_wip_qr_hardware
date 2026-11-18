@@ -79,7 +79,8 @@ class OrderList extends Component
                 output.progress as progress,
                 plan.target as target,
                 defects.total as total_defect,
-                CONCAT(masterproduct.product_group, ' - ', masterproduct.product_item) as product_type
+                CONCAT(masterproduct.product_group, ' - ', masterproduct.product_item) as product_type,
+                GROUP_CONCAT(DISTINCT master_plan.color SEPARATOR ' | ') as colors
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
