@@ -11,8 +11,8 @@
         <div class="col-md-12">
             <div class="input-group mb-3">
                 <input type="hidden" wire:model='date'>
-                <input type="text" class="form-control" wire:model='search' placeholder="Search Order...">
-                <button class="btn btn-sb" type="button" id="button-search-order"><i class="fa-regular fa-magnifying-glass"></i></button>
+                <input type="text" class="form-control" wire:model.defer='search' wire:keydown.enter='$refresh' placeholder="Search Order...">
+                <button class="btn btn-sb" type="button" id="button-search-order" wire:click='$refresh'><i class="fa-regular fa-magnifying-glass"></i></button>
             </div>
         </div>
         {{-- <div class="col-md-12 col-lg-2">
@@ -22,7 +22,7 @@
         </div> --}}
     </div>
 
-    <div class="w-100" wire:loading wire:target='search, date'>
+    <div class="w-100" wire:loading wire:target='$refresh, search, date'>
         <div class="loading-container">
             <div class="loading"></div>
         </div>
@@ -31,7 +31,7 @@
         </p>
     </div>
 
-    <div class="order-list row row-gap-3 mb-3 h-100" wire:loading.remove wire:target='search, date'>
+    <div class="order-list row row-gap-3 mb-3 h-100" wire:loading.remove wire:target='$refresh, search, date'>
         @if ($orders->isEmpty())
             {{-- <h5 class="text-center text-muted mt-3"><i class="fa-solid fa-circle-exclamation"></i> Order tidak ditemukan</h5> --}}
         @else
