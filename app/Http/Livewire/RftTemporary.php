@@ -110,11 +110,14 @@ class RftTemporary extends Component
                 }
             }
 
-            if ($numberingData) {
-                $this->sizeInput = $numberingData->so_det_id;
-                $this->sizeInputText = $numberingData->size;
-                $this->noCutInput = $numberingData->no_cut_size;
+            // QR harus terdaftar (jangan pakai sisa data scan sebelumnya)
+            if (!$numberingData || empty($numberingData->so_det_id)) {
+                return $this->emit('alert', 'error', "QR belum terdaftar.");
             }
+
+            $this->sizeInput = $numberingData->so_det_id;
+            $this->sizeInputText = $numberingData->size;
+            $this->noCutInput = $numberingData->no_cut_size;
         }
 
         $validatedData = $this->validate();
@@ -214,7 +217,7 @@ class RftTemporary extends Component
                     }
                 }
 
-                $thisOrderWsDetailSize = $this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->first();
+                $thisOrderWsDetailSize = $numberingData ? $this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->first() : null;
                 if ($numberingData && ((DB::connection('mysql_sb')->table('output_rfts')->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_defects')->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_rejects')->where('kode_numbering', $this->rapidRft[$i]['numberingInput'])->count()) < 1) && ($thisOrderWsDetailSize)) {
                     array_push($rapidRftFiltered, [
                         'master_plan_id' => $thisOrderWsDetailSize['master_plan_id'],

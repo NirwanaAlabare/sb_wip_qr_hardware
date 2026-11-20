@@ -114,10 +114,10 @@ class Reject extends Component
         return false;
     }
 
-    public function mount(SessionManager $session, $orderWsDetailSizes)
+    public function mount($orderInfo, $orderWsDetailSizes)
     {
+        $this->orderInfo = $orderInfo;
         $this->orderWsDetailSizes = $orderWsDetailSizes;
-        $session->put('orderWsDetailSizes', $orderWsDetailSizes);
         $this->sizeInput = null;
 
         $this->rapidReject = [];
@@ -145,15 +145,18 @@ class Reject extends Component
         $this->emit('loadRejectPageJs');
     }
 
-    public function updateWsDetailSizes($panel)
+    public function updateWsDetailSizes($panel, $orderInfoId = null, $orderWsDetailSizes = null)
     {
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->noCutInput = null;
         $this->numberingInput = null;
 
-        $this->orderInfo = session()->get('orderInfo', $this->orderInfo);
-        $this->orderWsDetailSizes = session()->get('orderWsDetailSizes', $this->orderWsDetailSizes);
+        // Ganti order hanya kalau dikirim dari panel di tab ini (ganti color)
+        if ($orderInfoId) {
+            $this->orderInfo = MasterPlan::find($orderInfoId);
+            $this->orderWsDetailSizes = collect($orderWsDetailSizes);
+        }
         $this->selectedColor = $this->orderInfo->id;
         $this->selectedColorName = $this->orderInfo->color;
 
@@ -221,16 +224,15 @@ class Reject extends Component
             // One Straight Format
             $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $numberingInput)->first();
 
-            if ($numberingData) {
-                $this->sizeInput = $numberingData->so_det_id;
-                $this->sizeInputText = $numberingData->size;
-                $this->noCutInput = $numberingData->no_cut_size;
-                $this->numberingInput = $numberingInput;
-            }
-
-            if (!$this->sizeInput) {
+            // QR harus ada di year_sequence (jangan pakai sisa data scan sebelumnya)
+            if (!$numberingData || !$numberingData->so_det_id) {
                 return $this->emit('alert', 'error', "QR belum terdaftar.");
             }
+
+            $this->sizeInput = $numberingData->so_det_id;
+            $this->sizeInputText = $numberingData->size;
+            $this->noCutInput = $numberingData->no_cut_size;
+            $this->numberingInput = $numberingInput;
         }
 
         $scannedDefectData = Defect::where("kode_numbering", $numberingInput)->first();
@@ -322,11 +324,14 @@ class Reject extends Component
             // One Straight Format
             $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->numberingInput)->first();
 
-            if ($numberingData) {
-                $this->sizeInput = $numberingData->so_det_id;
-                $this->sizeInputText = $numberingData->size;
-                $this->noCutInput = $numberingData->no_cut_size;
+            // QR harus ada di year_sequence (jangan pakai sisa data scan sebelumnya)
+            if (!$numberingData || !$numberingData->so_det_id) {
+                return $this->emit('alert', 'error', "QR belum terdaftar.");
             }
+
+            $this->sizeInput = $numberingData->so_det_id;
+            $this->sizeInputText = $numberingData->size;
+            $this->noCutInput = $numberingData->no_cut_size;
         }
 
         $validatedData = $this->validate();
@@ -378,7 +383,8 @@ class Reject extends Component
                     } else {
                         $continue = false;
 
-                        $this->emit('alert', 'error', "Data DEFECT berada di Plan lain (<b>ID :".$scannedDefectData->master_plan_id."/".$scannedDefectData->tgl_plan."/".$scannedDefectData->color."/".strtoupper(str_replace("_", " ", $scannedDefectData->sewing_line))."</b>)");
+                        // Di sini tidak ada data defect ($scannedDefectData null), jadi QR bukan milik order/color ini
+                        $this->emit('alert', 'error', "Terjadi kesalahan. QR tidak sesuai.");
                     }
                 // } else {
                 //     $continue = false;
@@ -497,7 +503,7 @@ class Reject extends Component
                 // One Straight Format
                 $numberingData = DB::connection("mysql_nds")->table("year_sequence")->selectRaw("year_sequence.*, year_sequence.id_year_sequence no_cut_size")->where("id_year_sequence", $this->rapidReject[$i]['numberingInput'])->first();
 
-                if (((DB::connection('mysql_sb')->table('output_rejects')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_rfts')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_defects')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count()) < 1) && ($this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->count() > 0)) {
+                if ($numberingData && ((DB::connection('mysql_sb')->table('output_rejects')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_rfts')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count() + DB::connection('mysql_sb')->table('output_defects')->where('kode_numbering', $this->rapidReject[$i]['numberingInput'])->count()) < 1) && ($this->orderWsDetailSizes->where('so_det_id', $numberingData->so_det_id)->count() > 0)) {
                     $scannedDefectData = Defect::where("defect_status", "defect")->where("kode_numbering", $this->rapidReject[$i]['numberingInput'])->first();
 
                     if ($scannedDefectData) {
@@ -819,9 +825,6 @@ class Reject extends Component
                 $this->emit('alert', 'error', $message);
             }
         }
-
-        $this->orderInfo = $session->get('orderInfo', $this->orderInfo);
-        $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
         $this->selectedColor = $this->orderInfo->id;
         $this->selectedColorName = $this->orderInfo->color;

@@ -8,6 +8,7 @@ use App\Models\SignalBit\Rft as RftModel;
 use App\Models\SignalBit\Rework;
 use App\Models\SignalBit\Defect;
 use App\Models\SignalBit\Reject;
+use App\Models\SignalBit\MasterPlan;
 use App\Services\SewingService;
 use App\Traits\ChecksMasterPlanCancel;
 use Illuminate\Support\Facades\Auth;
@@ -48,10 +49,10 @@ class Rft extends Component
         'toInputPanel' => 'resetError'
     ];
 
-    public function mount(SessionManager $session, $orderWsDetailSizes)
+    public function mount($orderInfo, $orderWsDetailSizes)
     {
+        $this->orderInfo = $orderInfo;
         $this->orderWsDetailSizes = $orderWsDetailSizes;
-        $session->put('orderWsDetailSizes', $orderWsDetailSizes);
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->noCutInput = null;
@@ -92,15 +93,18 @@ class Rft extends Component
         return false;
     }
 
-    public function updateWsDetailSizes($panel)
+    public function updateWsDetailSizes($panel, $orderInfoId = null, $orderWsDetailSizes = null)
     {
         $this->sizeInput = null;
         $this->sizeInputText = null;
         $this->noCutInput = null;
         $this->numberingInput = null;
 
-        $this->orderInfo = session()->get('orderInfo', $this->orderInfo);
-        $this->orderWsDetailSizes = session()->get('orderWsDetailSizes', $this->orderWsDetailSizes);
+        // Ganti order hanya kalau dikirim dari panel di tab ini (ganti color)
+        if ($orderInfoId) {
+            $this->orderInfo = MasterPlan::find($orderInfoId);
+            $this->orderWsDetailSizes = collect($orderWsDetailSizes);
+        }
         $this->selectedColor = $this->orderInfo->id;
         $this->selectedColorName = $this->orderInfo->color;
 
@@ -321,9 +325,6 @@ class Rft extends Component
                 $this->emit('alert', 'error', $message);
             }
         }
-
-        $this->orderInfo = $session->get('orderInfo', $this->orderInfo);
-        $this->orderWsDetailSizes = $session->get('orderWsDetailSizes', $this->orderWsDetailSizes);
 
         $this->selectedColor = $this->orderInfo->id;
         $this->selectedColorName = $this->orderInfo->color;

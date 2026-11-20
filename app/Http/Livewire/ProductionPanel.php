@@ -93,9 +93,8 @@ class ProductionPanel extends Component
         $this->orderInfo = $orderInfo;
         $this->orderWsDetails = $orderWsDetails;
 
-        // Put data on session
+        // Hanya untuk halaman history/profile/undo, panel ini tidak membaca session (supaya tidak tertimpa tab lain)
         $session->put("orderInfo", $orderInfo);
-        $session->put("orderWsDetails", $orderWsDetails);
 
         // Default value
         $this->selectedColor = $this->orderWsDetails && isset($this->orderWsDetails[0]) ? $this->orderWsDetails[0]->id : null;
@@ -135,8 +134,6 @@ class ProductionPanel extends Component
             ->groupBy('so_det.id','so_det.size', 'so_det.color')
             ->orderBy('so_det_id')
             ->get();
-
-        $session->put("orderWsDetailSizes", $this->orderWsDetailSizes);
 
         $this->emit('setSelectedSizeSelect2', $this->orderInfo->color);
     }
@@ -368,12 +365,10 @@ class ProductionPanel extends Component
         }
     }
 
-    public function updateOrder() {
-        $this->emit('loadingStart');
-
-        $this->selectedSize = 'all';
-
-        $this->orderInfo = MasterPlan::selectRaw("
+    // Ambil orderInfo lengkap (dengan buyer, ws, style, dll) berdasarkan master plan id
+    public function getOrderInfo($id)
+    {
+        return MasterPlan::selectRaw("
                 master_plan.id as id,
                 master_plan.tgl_plan as tgl_plan,
                 act_costing.kpno as ws_number,
@@ -383,8 +378,8 @@ class ProductionPanel extends Component
                 master_plan.color as color,
                 so_det.size as size,
                 so.qty as qty_order,
-                CONCAT(masterproduct.product_group, ' - ', masterproduct.product_item) as product_type,
-                master_plan.cancel
+                master_plan.sewing_line,
+                CONCAT(masterproduct.product_group, ' - ', masterproduct.product_item) as product_type
             ")
             ->leftJoin('act_costing', 'act_costing.id', '=', 'master_plan.id_ws')
             ->leftJoin('so', 'so.id_cost', '=', 'act_costing.id')
@@ -392,9 +387,18 @@ class ProductionPanel extends Component
             ->leftJoin('mastersupplier', 'mastersupplier.id_supplier', '=', 'act_costing.id_buyer')
             ->leftJoin('master_size_new', 'master_size_new.size', '=', 'so_det.size')
             ->leftJoin('masterproduct', 'masterproduct.id', '=', 'act_costing.id_product')
+            ->where('so_det.cancel', 'N')
             ->where('master_plan.cancel', '!=', 'Y')
-            ->where('master_plan.id', $this->selectedColor)
+            ->where('master_plan.id', $id)
             ->first();
+    }
+
+    public function updateOrder() {
+        $this->emit('loadingStart');
+
+        $this->selectedSize = 'all';
+
+        $this->orderInfo = $this->getOrderInfo($this->selectedColor);
 
         if (!$this->orderInfo) {
             return $this->emit('reloadPage');
@@ -451,20 +455,20 @@ class ProductionPanel extends Component
 
         $this->emit('setSelectedSizeSelect2', $this->orderInfo->id);
 
+        // Hanya untuk halaman history/profile/undo
         session()->put("orderInfo", $this->orderInfo);
-        session()->put("orderWsDetails", $this->orderWsDetails);
-        session()->put("orderWsDetailSizes", $this->orderWsDetailSizes);
 
+        // Kirim order yang baru ke komponen input di tab ini saja (lewat event, bukan session)
         if ($this->rft) {
-            $this->emit('updateWsDetailSizes', 'rft');
+            $this->emit('updateWsDetailSizes', 'rft', $this->orderInfo->id, $this->orderWsDetailSizes);
         } else if ($this->defect) {
-            $this->emit('updateWsDetailSizes', 'defect');
+            $this->emit('updateWsDetailSizes', 'defect', $this->orderInfo->id, $this->orderWsDetailSizes);
         } else if ($this->rework) {
-            $this->emit('updateWsDetailSizes', 'rework');
+            $this->emit('updateWsDetailSizes', 'rework', $this->orderInfo->id, $this->orderWsDetailSizes);
         } else if ($this->reject) {
-            $this->emit('updateWsDetailSizes', 'reject');
+            $this->emit('updateWsDetailSizes', 'reject', $this->orderInfo->id, $this->orderWsDetailSizes);
         } else {
-            $this->emit('updateWsDetailSizes', 'panel');
+            $this->emit('updateWsDetailSizes', 'panel', $this->orderInfo->id, $this->orderWsDetailSizes);
         }
     }
 
@@ -523,10 +527,10 @@ class ProductionPanel extends Component
 
     public function render(SessionManager $session)
     {
-        // Keep this data with session
-        $this->orderInfo = $session->get("orderInfo", $this->orderInfo);
-        $this->orderWsDetails = $session->get("orderWsDetails", $this->orderWsDetails);
-        $this->orderWsDetailSizes = $session->get("orderWsDetailSizes", $this->orderWsDetailSizes);
+        // Ambil ulang berdasarkan id milik tab ini (bukan session, supaya tidak tertimpa tab lain)
+        $this->orderInfo = $this->getOrderInfo($this->orderInfo->id) ?? $this->orderInfo;
+        $this->orderWsDetails = collect($this->orderWsDetails)->map(function ($item) { return is_array($item) ? (object) $item : $item; });
+        $this->orderWsDetailSizes = collect($this->orderWsDetailSizes)->map(function ($item) { return is_array($item) ? (object) $item : $item; });
 
         $this->orderDate = $this->orderInfo->tgl_plan;
         $this->selectedColor = $this->orderInfo->id;
